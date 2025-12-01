@@ -86,4 +86,19 @@ class User extends Authenticatable
     {
         return $this->hasMany(TheoryExamSubmission::class);
     }
+
+    public function moduleCompletions()
+    {
+        return $this->hasMany(ModuleCompletion::class);
+    }
+
+    public function quizAttempts()
+    {
+        return $this->hasMany(QuizAttempt::class);
+    }
+
+    public function hasCompletedModule($moduleId): bool
+    {
+        return $this->moduleCompletions()->where('module_id', $moduleId)->exists();
+    }
 }

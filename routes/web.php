@@ -27,6 +27,12 @@ Route::prefix('courses')->name('courses.')->group(function () {
     Route::get('/', [CourseController::class, 'index'])->name('index');
     Route::get('/{course}', [CourseController::class, 'show'])->name('show');
     Route::get('/module/{module}', [CourseController::class, 'module'])->name('module');
+
+    // Quiz and completion (authenticated)
+    Route::middleware('auth')->group(function () {
+        Route::post('/module/{module}/quiz', [CourseController::class, 'submitQuiz'])->name('module.quiz');
+        Route::post('/module/{module}/complete', [CourseController::class, 'completeModule'])->name('module.complete');
+    });
 });
 
 // Dashboard routes (authenticated)

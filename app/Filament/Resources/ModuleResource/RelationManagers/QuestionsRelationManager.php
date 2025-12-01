@@ -91,6 +91,6 @@ class QuestionsRelationManager extends RelationManager
                     Tables\Actions\DetachBulkAction::make(),
                 ]),
             ])
-            ->defaultSort('order', 'asc');
+            ->defaultSort('module_questions.order', 'asc');
     }
 }

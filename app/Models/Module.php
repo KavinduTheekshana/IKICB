@@ -36,7 +36,7 @@ class Module extends Model
         return $this->belongsToMany(Question::class, 'module_questions')
                     ->withPivot('order')
                     ->withTimestamps()
-                    ->orderBy('module_questions.order');
+                    ->orderBy('module_questions.order', 'asc');
     }
 
     public function theoryExams()

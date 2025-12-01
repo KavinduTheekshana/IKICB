@@ -82,12 +82,19 @@
                                     </div>
 
                                     <div class="ml-4 flex-shrink-0">
-                                        @if($isEnrolled && $unlockedModules->contains($module->id))
+                                        @if($isEnrolled && $completedModules->contains($module->id))
                                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                                 <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                                                 </svg>
-                                                Unlocked
+                                                Completed
+                                            </span>
+                                        @elseif($isEnrolled && $unlockedModules->contains($module->id))
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+                                                </svg>
+                                                In Progress
                                             </span>
                                         @elseif($module->module_price)
                                             <div class="text-right">
