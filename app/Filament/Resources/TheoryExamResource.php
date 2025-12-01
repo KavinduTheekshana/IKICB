@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TheoryExamResource\Pages;
 use App\Filament\Resources\TheoryExamResource\RelationManagers;
 use App\Models\TheoryExam;
+use App\Models\Module;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -25,20 +26,49 @@ class TheoryExamResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('module_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('title')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\Textarea::make('description')
-                    ->columnSpanFull(),
-                Forms\Components\TextInput::make('exam_paper_path')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('total_marks')
-                    ->required()
-                    ->numeric()
-                    ->default(100),
+                Forms\Components\Section::make('Exam Information')
+                    ->schema([
+                        Forms\Components\Select::make('module_id')
+                            ->label('Module')
+                            ->options(Module::with('course')->get()->mapWithKeys(function ($module) {
+                                return [$module->id => $module->course->title . ' - ' . $module->title];
+                            }))
+                            ->searchable()
+                            ->required()
+                            ->preload()
+                            ->columnSpanFull(),
+                        Forms\Components\TextInput::make('title')
+                            ->label('Exam Title')
+                            ->required()
+                            ->maxLength(255)
+                            ->placeholder('e.g., Final Theory Exam, Midterm Assessment')
+                            ->columnSpanFull(),
+                        Forms\Components\Textarea::make('description')
+                            ->label('Exam Description')
+                            ->rows(3)
+                            ->placeholder('Instructions and details about the exam')
+                            ->columnSpanFull(),
+                        Forms\Components\TextInput::make('total_marks')
+                            ->label('Total Marks')
+                            ->numeric()
+                            ->default(100)
+                            ->required()
+                            ->helperText('Maximum marks for this exam'),
+                    ])->columns(2),
+
+                Forms\Components\Section::make('Exam Paper')
+                    ->schema([
+                        Forms\Components\FileUpload::make('exam_paper_path')
+                            ->label('Upload Exam Paper (PDF)')
+                            ->directory('exam-papers')
+                            ->acceptedFileTypes(['application/pdf'])
+                            ->maxSize(10240)
+                            ->downloadable()
+                            ->openable()
+                            ->previewable()
+                            ->helperText('Upload the exam question paper (PDF format, max 10MB)')
+                            ->columnSpanFull(),
+                    ]),
             ]);
     }
 
@@ -46,16 +76,37 @@ class TheoryExamResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('module_id')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('module.course.title')
+                    ->label('Course')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('module.title')
+                    ->label('Module')
+                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('title')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('exam_paper_path')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('total_marks')
-                    ->numeric()
+                    ->label('Exam Title')
+                    ->searchable()
                     ->sortable(),
+                Tables\Columns\IconColumn::make('exam_paper_path')
+                    ->label('Paper')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-document-check')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('danger')
+                    ->tooltip(fn ($record) => $record->exam_paper_path ? 'Paper uploaded' : 'No paper'),
+                Tables\Columns\TextColumn::make('total_marks')
+                    ->label('Total Marks')
+                    ->numeric()
+                    ->sortable()
+                    ->badge()
+                    ->color('info'),
+                Tables\Columns\TextColumn::make('submissions_count')
+                    ->counts('submissions')
+                    ->label('Submissions')
+                    ->badge()
+                    ->color('warning'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -66,16 +117,24 @@ class TheoryExamResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('module_id')
+                    ->label('Module')
+                    ->options(Module::with('course')->get()->mapWithKeys(function ($module) {
+                        return [$module->id => $module->course->title . ' - ' . $module->title];
+                    }))
+                    ->searchable(),
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('created_at', 'desc');
     }
 
     public static function getRelations(): array

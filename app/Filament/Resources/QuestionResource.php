@@ -99,6 +99,12 @@ class QuestionResource extends Resource
                 Tables\Columns\TextColumn::make('marks')
                     ->numeric()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('modules_count')
+                    ->counts('modules')
+                    ->label('Modules')
+                    ->badge()
+                    ->color('info')
+                    ->tooltip(fn ($record) => 'Assigned to ' . $record->modules_count . ' module(s)'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -114,6 +120,7 @@ class QuestionResource extends Resource
                     ]),
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
@@ -127,7 +134,7 @@ class QuestionResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\ModulesRelationManager::class,
         ];
     }
 

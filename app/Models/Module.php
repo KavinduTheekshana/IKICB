@@ -12,6 +12,8 @@ class Module extends Model
         'description',
         'order',
         'video_url',
+        'bunny_video_id',
+        'bunny_library_id',
         'module_price',
     ];
 
