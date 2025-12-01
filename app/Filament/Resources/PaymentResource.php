@@ -5,11 +5,13 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\PaymentResource\Pages;
 use App\Filament\Resources\PaymentResource\RelationManagers;
 use App\Models\Payment;
+use App\Services\PayHereService;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -57,45 +59,74 @@ class PaymentResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user_id')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('Student')
+                    ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('course_id')
-                    ->numeric()
+                Tables\Columns\TextColumn::make('course.title')
+                    ->label('Course')
+                    ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('module_id')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('module.title')
+                    ->label('Module')
+                    ->searchable()
+                    ->sortable()
+                    ->placeholder('Full Course'),
                 Tables\Columns\TextColumn::make('amount')
-                    ->numeric()
+                    ->money('LKR')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('currency')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('payment_gateway')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('transaction_id')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('status'),
+                    ->label('Transaction ID')
+                    ->searchable()
+                    ->limit(20),
+                Tables\Columns\BadgeColumn::make('status')
+                    ->colors([
+                        'warning' => 'pending',
+                        'success' => 'completed',
+                        'danger' => 'failed',
+                    ]),
+                Tables\Columns\TextColumn::make('payment_gateway')
+                    ->badge()
+                    ->color('info'),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Date')
+                    ->dateTime('M d, Y H:i')
+                    ->sortable(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('status')
+                    ->options([
+                        'pending' => 'Pending',
+                        'completed' => 'Completed',
+                        'failed' => 'Failed',
+                    ]),
             ])
             ->actions([
+                Tables\Actions\Action::make('mark_completed')
+                    ->label('Mark as Completed')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->visible(fn (Payment $record): bool => $record->status !== 'completed')
+                    ->action(function (Payment $record) {
+                        $payHereService = app(PayHereService::class);
+                        $payHereService->handleSuccessfulPayment($record);
+
+                        Notification::make()
+                            ->success()
+                            ->title('Payment Completed')
+                            ->body('Payment has been marked as completed and course/modules have been unlocked.')
+                            ->send();
+                    }),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('created_at', 'desc');
     }
 
     public static function getRelations(): array

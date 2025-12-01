@@ -4,12 +4,23 @@ use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\CourseController;
 use App\Http\Controllers\Frontend\DashboardController;
 use App\Http\Controllers\Frontend\PaymentController;
+use App\Http\Controllers\Frontend\AuthController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', [HomeController::class, 'about'])->name('about');
 Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
+
+// Auth routes
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [AuthController::class, 'register']);
+});
+
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
 // Course routes
 Route::prefix('courses')->name('courses.')->group(function () {

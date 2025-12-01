@@ -15,7 +15,6 @@ class PaymentController extends Controller
 
     public function __construct(PayHereService $payHereService)
     {
-        $this->middleware('auth');
         $this->payHereService = $payHereService;
     }
 
@@ -72,6 +71,15 @@ class PaymentController extends Controller
 
         if (!$payment) {
             return redirect()->route('home')->with('error', 'Payment not found.');
+        }
+
+        // For sandbox mode, if payment status_code is 2, mark as completed and unlock
+        if ($request->has('status_code') && $request->query('status_code') == 2) {
+            if ($payment->status !== 'completed') {
+                $this->payHereService->handleSuccessfulPayment($payment);
+            }
+            return redirect()->route('dashboard')
+                ->with('success', 'Payment successful! You can now access your course.');
         }
 
         if ($payment->status === 'completed') {

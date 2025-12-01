@@ -35,23 +35,26 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     @auth
-                        <a href="{{ route('dashboard') }}" class="text-sm font-medium text-gray-700 hover:text-indigo-600">
+                        <a href="{{ route('dashboard') }}" class="text-sm font-medium text-gray-700 hover:text-indigo-600 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                            </svg>
                             Dashboard
                         </a>
-                        <div class="flex items-center space-x-2">
-                            <span class="text-sm text-gray-700">{{ auth()->user()->name }}</span>
-                            <form method="POST" action="{{ route('filament.admin.auth.logout') }}">
+                        <div class="flex items-center space-x-2 border-l pl-4 border-gray-200">
+                            <span class="text-sm text-gray-700 font-medium">{{ auth()->user()->name }}</span>
+                            <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <button type="submit" class="text-sm font-medium text-red-600 hover:text-red-700">
+                                <button type="submit" class="text-sm font-medium text-red-600 hover:text-red-700 ml-2">
                                     Logout
                                 </button>
                             </form>
                         </div>
                     @else
-                        <a href="{{ route('filament.admin.auth.login') }}" class="text-sm font-medium text-gray-700 hover:text-indigo-600">
+                        <a href="{{ route('login') }}" class="text-sm font-medium text-gray-700 hover:text-indigo-600">
                             Login
                         </a>
-                        <a href="{{ route('filament.admin.auth.login') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                        <a href="{{ route('register') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-sm">
                             Get Started
                         </a>
                     @endauth

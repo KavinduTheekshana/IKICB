@@ -102,7 +102,7 @@
                                                         </button>
                                                     </form>
                                                 @else
-                                                    <a href="{{ route('filament.admin.auth.login') }}" class="text-xs text-indigo-600 hover:text-indigo-700">
+                                                    <a href="{{ route('login') }}" class="text-xs text-indigo-600 hover:text-indigo-700">
                                                         Login to unlock
                                                     </a>
                                                 @endauth
@@ -159,7 +159,7 @@
                                     </button>
                                 </form>
                             @else
-                                <a href="{{ route('filament.admin.auth.login') }}" class="block w-full text-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 mb-4">
+                                <a href="{{ route('login') }}" class="block w-full text-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 mb-4">
                                     Login to Enroll
                                 </a>
                             @endauth

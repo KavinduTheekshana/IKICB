@@ -72,12 +72,17 @@
                     <input type="hidden" name="currency" value="{{ $paymentData['currency'] }}">
                     <input type="hidden" name="amount" value="{{ $paymentData['amount'] }}">
 
-                    <input type="hidden" name="first_name" value="{{ auth()->user()->name }}">
-                    <input type="hidden" name="last_name" value="">
+                    @php
+                        $nameParts = explode(' ', auth()->user()->name, 2);
+                        $firstName = $nameParts[0] ?? 'User';
+                        $lastName = $nameParts[1] ?? '';
+                    @endphp
+                    <input type="hidden" name="first_name" value="{{ $firstName }}">
+                    <input type="hidden" name="last_name" value="{{ $lastName }}">
                     <input type="hidden" name="email" value="{{ auth()->user()->email }}">
-                    <input type="hidden" name="phone" value="">
-                    <input type="hidden" name="address" value="">
-                    <input type="hidden" name="city" value="">
+                    <input type="hidden" name="phone" value="0000000000">
+                    <input type="hidden" name="address" value="N/A">
+                    <input type="hidden" name="city" value="Colombo">
                     <input type="hidden" name="country" value="Sri Lanka">
 
                     <input type="hidden" name="hash" value="{{ $paymentData['hash'] }}">
