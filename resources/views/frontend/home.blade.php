@@ -17,7 +17,7 @@
             <div class="text-center lg:text-left space-y-8 animate-fade-in-up">
                 <div class="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-yellow-100 to-yellow-200 border border-yellow-300">
                     <span class="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
-                    <span class="text-sm font-bold text-gray-900">50,000+ Students Learning Online</span>
+                    <span class="text-sm font-bold text-gray-900">1,000+ Students Learning Online</span>
                 </div>
 
                 <h1 class="text-5xl sm:text-6xl lg:text-7xl font-black leading-tight">
@@ -47,11 +47,11 @@
                 <!-- Stats -->
                 <div class="grid grid-cols-3 gap-6 pt-8">
                     <div class="text-center lg:text-left">
-                        <div class="text-4xl font-black text-gradient">500+</div>
+                        <div class="text-4xl font-black text-gradient">10+</div>
                         <div class="text-sm text-gray-600 font-semibold">Expert Courses</div>
                     </div>
                     <div class="text-center lg:text-left">
-                        <div class="text-4xl font-black text-gradient">50K+</div>
+                        <div class="text-4xl font-black text-gradient">1K+</div>
                         <div class="text-sm text-gray-600 font-semibold">Active Students</div>
                     </div>
                     <div class="text-center lg:text-left">
@@ -65,10 +65,16 @@
             <div class="relative animate-float hidden lg:block">
                 <div class="relative z-10">
                     <div class="aspect-square rounded-3xl bg-gradient-to-br from-yellow-100 to-yellow-200 p-8">
-                        <div class="w-full h-full rounded-2xl bg-white shadow-2xl p-8 flex items-center justify-center">
-                            <svg class="w-full h-full text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="0.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                            </svg>
+                        <div class="w-full h-full rounded-2xl bg-white shadow-2xl overflow-hidden">
+                            <!-- Replace 'hero-image.jpg' with your actual image path -->
+                            <img src="{{ asset('images/team-bride-celebrating-before-wedding-2.jpg') }}" alt="Learning Platform" class="w-full h-full object-cover">
+
+                            <!-- Fallback SVG if image not found -->
+                            <!-- <div class="w-full h-full p-8 flex items-center justify-center">
+                                <svg class="w-full h-full text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="0.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                </svg>
+                            </div> -->
                         </div>
                     </div>
                     <!-- Floating Cards -->
@@ -138,7 +144,7 @@
                         <!-- Instructor Badge -->
                         <div class="absolute top-4 left-4">
                             <div class="px-4 py-2 rounded-full glass-effect border border-white/20 backdrop-blur-md">
-                                <span class="text-xs font-bold text-white">{{ $course->instructor->name }}</span>
+                                <span class="text-xs font-bold text-gray">{{ $course->instructor->name }}</span>
                             </div>
                         </div>
                     </div>

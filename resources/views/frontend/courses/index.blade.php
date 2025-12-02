@@ -44,7 +44,7 @@
                         <!-- Instructor Badge -->
                         <div class="absolute top-4 left-4">
                             <div class="px-4 py-2 rounded-full glass-effect border border-white/20 backdrop-blur-md">
-                                <span class="text-xs font-bold text-white">{{ $course->instructor->name }}</span>
+                                <span class="text-xs font-bold text-gray">{{ $course->instructor->name }}</span>
                             </div>
                         </div>
                         @if($course->is_published)
