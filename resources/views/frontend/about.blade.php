@@ -1,6 +1,11 @@
 @extends('layouts.guest')
 
 @section('title', 'About Us - Empowering Learners Worldwide | IKICB')
+@section('description', 'Learn about IKICB Learning Management System. Our mission is to empower learners worldwide with cutting-edge courses, expert instructors, and innovative learning solutions.')
+@section('keywords', 'about IKICB, learning platform, online education, our mission, e-learning company, educational technology')
+
+@section('og_title', 'About IKICB - Our Mission to Transform Education')
+@section('og_description', 'Discover how IKICB is revolutionizing online education with cutting-edge courses and expert instructors.')
 
 @section('content')
     <!-- Hero Section -->

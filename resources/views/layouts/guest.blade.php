@@ -4,8 +4,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <!-- SEO Meta Tags -->
     <title>@yield('title', 'IKICB - Transform Your Future with Quality Education')</title>
+    <meta name="description" content="@yield('description', 'IKICB Learning Management System - Empowering learners worldwide with cutting-edge courses and expert instructors. Join thousands of students advancing their careers through quality education.')">
+    <meta name="keywords" content="@yield('keywords', 'online learning, courses, education, LMS, IKICB, e-learning, professional development, skill training, online courses, career advancement')">
+    <meta name="author" content="IKICB Learning Management System">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ url()->current() }}">
+
+    <!-- Open Graph Meta Tags (Facebook, LinkedIn) -->
+    <meta property="og:title" content="@yield('og_title', 'IKICB - Transform Your Future with Quality Education')">
+    <meta property="og:description" content="@yield('og_description', 'Empowering learners worldwide with cutting-edge courses and expert instructors. Join thousands of students advancing their careers through quality education.')">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="@yield('og_image', asset('images/og-image.jpg'))">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="IKICB Learning Management System">
+    <meta property="og:locale" content="en_US">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="@yield('twitter_title', 'IKICB - Transform Your Future with Quality Education')">
+    <meta name="twitter:description" content="@yield('twitter_description', 'Empowering learners worldwide with cutting-edge courses and expert instructors.')">
+    <meta name="twitter:image" content="@yield('twitter_image', asset('images/og-image.jpg'))">
+    <meta name="twitter:site" content="@ikicblms">
+    <meta name="twitter:creator" content="@ikicblms">
+
+    <!-- Additional Meta Tags -->
+    <meta name="theme-color" content="#FFD700">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="IKICB">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/favicon-16x16.png') }}">
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    @stack('meta')
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "EducationalOrganization",
+        "name": "IKICB Learning Management System",
+        "alternateName": "IKICB LMS",
+        "url": "{{ config('app.url') }}",
+        "logo": "{{ asset('images/logo.png') }}",
+        "description": "Empowering learners worldwide with cutting-edge courses and expert instructors. Join thousands of students advancing their careers through quality education.",
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Colombo",
+            "addressCountry": "LK"
+        },
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+94-XX-XXX-XXXX",
+            "contactType": "Customer Service",
+            "email": "info@ikicb.com",
+            "availableLanguage": ["English"]
+        },
+        "sameAs": [
+            "https://www.facebook.com/ikicblms",
+            "https://twitter.com/ikicblms",
+            "https://www.linkedin.com/company/ikicblms",
+            "https://www.instagram.com/ikicblms"
+        ]
+    }
+    </script>
 
     <style>
         /* Professional Animations */

@@ -1,6 +1,12 @@
 @extends('layouts.guest')
 
 @section('title', 'Terms and Conditions - IKICB')
+@section('description', 'Read IKICB Terms and Conditions. Understand the rules, policies, and guidelines for using our learning management system and accessing our courses.')
+@section('keywords', 'terms and conditions, terms of service, user agreement, policies, terms of use, legal agreement')
+
+@push('meta')
+<meta name="robots" content="noindex, follow">
+@endpush
 
 @section('content')
 <!-- Hero Section -->

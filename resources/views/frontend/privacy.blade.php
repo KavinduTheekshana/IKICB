@@ -1,6 +1,12 @@
 @extends('layouts.guest')
 
 @section('title', 'Privacy Policy - IKICB')
+@section('description', 'Read IKICB Privacy Policy. Learn how we collect, use, and protect your personal information. Your privacy and data security are our top priorities.')
+@section('keywords', 'privacy policy, data protection, user privacy, GDPR, personal information, data security')
+
+@push('meta')
+<meta name="robots" content="noindex, follow">
+@endpush
 
 @section('content')
 <!-- Hero Section -->

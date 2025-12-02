@@ -1,6 +1,15 @@
 @extends('layouts.guest')
 
 @section('title', 'IKICB - Transform Your Future with Quality Education')
+@section('description', 'Join IKICB Learning Management System and access high-quality online courses. Learn at your own pace with expert instructors and advance your career with professional certifications.')
+@section('keywords', 'IKICB, online courses, e-learning platform, professional development, skill training, LMS, career advancement, online education, quality courses')
+
+@section('og_title', 'IKICB Learning Management System - Quality Online Education')
+@section('og_description', 'Transform your future with IKICB. Access cutting-edge courses, learn from expert instructors, and join thousands of students advancing their careers.')
+@section('og_image', asset('images/make-up-artist-applying-eyeshadow-face-with-brush-2.jpg'))
+
+@section('twitter_title', 'IKICB - Quality Online Courses & Professional Development')
+@section('twitter_description', 'Join thousands of learners advancing their careers with IKICB online courses.')
 
 @section('content')
 <!-- Hero Section with Floating Shapes -->
