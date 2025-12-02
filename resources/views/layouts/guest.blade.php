@@ -263,17 +263,34 @@
 
                 <!-- Right Side Actions -->
                 <div class="hidden lg:flex items-center space-x-4">
-                    <a href="{{ route('login') }}" class="px-6 py-3 text-sm font-bold text-gray-700 hover:text-yellow-600 hover:bg-gray-50 rounded-xl transition-all duration-300">
-                        Sign In
-                    </a>
-                    <a href="{{ route('register') }}" class="relative px-8 py-3.5 text-sm font-black text-white btn-primary rounded-xl shadow-xl transform hover:scale-105 transition-all duration-300">
-                        <span class="relative z-10 flex items-center space-x-2">
-                            <span>Get Started Free</span>
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-                            </svg>
-                        </span>
-                    </a>
+                    @auth
+                        <!-- Authenticated User Menu -->
+                        <a href="{{ route('dashboard') }}" class="px-6 py-3 text-sm font-bold text-gray-700 hover:text-yellow-600 hover:bg-gray-50 rounded-xl transition-all duration-300">
+                            Dashboard
+                        </a>
+                        <form method="POST" action="{{ route('logout') }}" class="inline">
+                            @csrf
+                            <button type="submit" class="group flex items-center space-x-2 px-6 py-3 text-sm font-bold text-gray-700 hover:text-yellow-600 hover:bg-gray-50 rounded-xl transition-all duration-300">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                </svg>
+                                <span>Logout</span>
+                            </button>
+                        </form>
+                    @else
+                        <!-- Guest User Menu -->
+                        <a href="{{ route('login') }}" class="px-6 py-3 text-sm font-bold text-gray-700 hover:text-yellow-600 hover:bg-gray-50 rounded-xl transition-all duration-300">
+                            Sign In
+                        </a>
+                        <a href="{{ route('register') }}" class="relative px-8 py-3.5 text-sm font-black text-white btn-primary rounded-xl shadow-xl transform hover:scale-105 transition-all duration-300">
+                            <span class="relative z-10 flex items-center space-x-2">
+                                <span>Get Started Free</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                                </svg>
+                            </span>
+                        </a>
+                    @endauth
                 </div>
 
                 <!-- Mobile menu button -->
@@ -300,12 +317,26 @@
                         Contact
                     </a>
                     <div class="pt-4 space-y-2">
-                        <a href="{{ route('login') }}" class="block px-4 py-3 rounded-xl text-base font-bold text-gray-700 hover:bg-gray-100 transition-all">
-                            Sign In
-                        </a>
-                        <a href="{{ route('register') }}" class="block px-4 py-3 rounded-xl text-base font-black text-white gradient-primary text-center shadow-lg">
-                            Get Started Free
-                        </a>
+                        @auth
+                            <!-- Authenticated Mobile Menu -->
+                            <a href="{{ route('dashboard') }}" class="block px-4 py-3 rounded-xl text-base font-bold {{ request()->routeIs('dashboard*') ? 'text-white gradient-primary' : 'text-gray-700 hover:bg-gray-100' }} transition-all">
+                                Dashboard
+                            </a>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="w-full text-left px-4 py-3 rounded-xl text-base font-bold text-gray-700 hover:bg-gray-100 transition-all">
+                                    Logout
+                                </button>
+                            </form>
+                        @else
+                            <!-- Guest Mobile Menu -->
+                            <a href="{{ route('login') }}" class="block px-4 py-3 rounded-xl text-base font-bold text-gray-700 hover:bg-gray-100 transition-all">
+                                Sign In
+                            </a>
+                            <a href="{{ route('register') }}" class="block px-4 py-3 rounded-xl text-base font-black text-white gradient-primary text-center shadow-lg">
+                                Get Started Free
+                            </a>
+                        @endauth
                     </div>
                 </div>
             </div>
@@ -520,9 +551,9 @@
                         &copy; {{ date('Y') }} <span class="font-bold text-white">IKICB Learning Management System</span>. All rights reserved.
                     </p>
                     <div class="flex space-x-6 text-sm">
-                        <a href="#" class="text-gray-400 hover:text-white transition-colors">Privacy Policy</a>
-                        <a href="#" class="text-gray-400 hover:text-white transition-colors">Terms of Service</a>
-                        <a href="#" class="text-gray-400 hover:text-white transition-colors">Cookie Policy</a>
+                        <a href="{{ route('privacy') }}" class="text-gray-400 hover:text-white transition-colors">Privacy Policy</a>
+                        <a href="{{ route('terms') }}" class="text-gray-400 hover:text-white transition-colors">Terms of Service</a>
+                        <a href="{{ route('cookies') }}" class="text-gray-400 hover:text-white transition-colors">Cookie Policy</a>
                     </div>
                 </div>
             </div>

@@ -12,6 +12,19 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', [HomeController::class, 'about'])->name('about');
 Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
 
+// Policy routes
+Route::get('/terms', function () {
+    return view('frontend.terms');
+})->name('terms');
+
+Route::get('/privacy', function () {
+    return view('frontend.privacy');
+})->name('privacy');
+
+Route::get('/cookies', function () {
+    return view('frontend.cookies');
+})->name('cookies');
+
 // Auth routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
