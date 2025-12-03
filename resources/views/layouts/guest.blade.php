@@ -48,37 +48,6 @@
 
     @stack('meta')
 
-    <!-- Structured Data (JSON-LD) -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "EducationalOrganization",
-        "name": "IKICB Learning Management System",
-        "alternateName": "IKICB LMS",
-        "url": "{{ config('app.url') }}",
-        "logo": "{{ asset('images/logo.png') }}",
-        "description": "Empowering learners worldwide with cutting-edge courses and expert instructors. Join thousands of students advancing their careers through quality education.",
-        "address": {
-            "@type": "PostalAddress",
-            "addressLocality": "Colombo",
-            "addressCountry": "LK"
-        },
-        "contactPoint": {
-            "@type": "ContactPoint",
-            "telephone": "+94-XX-XXX-XXXX",
-            "contactType": "Customer Service",
-            "email": "info@ikicb.com",
-            "availableLanguage": ["English"]
-        },
-        "sameAs": [
-            "https://www.facebook.com/ikicblms",
-            "https://twitter.com/ikicblms",
-            "https://www.linkedin.com/company/ikicblms",
-            "https://www.instagram.com/ikicblms"
-        ]
-    }
-    </script>
-
     <style>
         /* Professional Animations */
         @keyframes fadeInUp {
