@@ -6,37 +6,37 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- SEO Meta Tags -->
-    <title>@yield('title', 'IKICB - Transform Your Future with Quality Education')</title>
-    <meta name="description" content="@yield('description', 'IKICB Learning Management System - Empowering learners worldwide with cutting-edge courses and expert instructors. Join thousands of students advancing their careers through quality education.')">
-    <meta name="keywords" content="@yield('keywords', 'online learning, courses, education, LMS, IKICB, e-learning, professional development, skill training, online courses, career advancement')">
-    <meta name="author" content="IKICB Learning Management System">
+    <title>@yield('title', 'IKICBC - Transform Your Future with Quality Education')</title>
+    <meta name="description" content="@yield('description', 'IKICBC Learning Management System - Empowering learners worldwide with cutting-edge courses and expert instructors. Join thousands of students advancing their careers through quality education.')">
+    <meta name="keywords" content="@yield('keywords', 'online learning, courses, education, LMS, IKICBC, e-learning, professional development, skill training, online courses, career advancement')">
+    <meta name="author" content="IKICBC Learning Management System">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ url()->current() }}">
 
     <!-- Open Graph Meta Tags (Facebook, LinkedIn) -->
-    <meta property="og:title" content="@yield('og_title', 'IKICB - Transform Your Future with Quality Education')">
+    <meta property="og:title" content="@yield('og_title', 'IKICBC - Transform Your Future with Quality Education')">
     <meta property="og:description" content="@yield('og_description', 'Empowering learners worldwide with cutting-edge courses and expert instructors. Join thousands of students advancing their careers through quality education.')">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:image" content="@yield('og_image', asset('images/og-image.jpg'))">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:site_name" content="IKICB Learning Management System">
+    <meta property="og:site_name" content="IKICBC Learning Management System">
     <meta property="og:locale" content="en_US">
 
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="@yield('twitter_title', 'IKICB - Transform Your Future with Quality Education')">
+    <meta name="twitter:title" content="@yield('twitter_title', 'IKICBC - Transform Your Future with Quality Education')">
     <meta name="twitter:description" content="@yield('twitter_description', 'Empowering learners worldwide with cutting-edge courses and expert instructors.')">
     <meta name="twitter:image" content="@yield('twitter_image', asset('images/og-image.jpg'))">
-    <meta name="twitter:site" content="@ikicblms">
-    <meta name="twitter:creator" content="@ikicblms">
+    <meta name="twitter:site" content="@IKICBClms">
+    <meta name="twitter:creator" content="@IKICBClms">
 
     <!-- Additional Meta Tags -->
     <meta name="theme-color" content="#FFD700">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="IKICB">
+    <meta name="apple-mobile-web-app-title" content="IKICBC">
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
@@ -260,7 +260,7 @@
                             <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
                         </div>
                         <div class="hidden sm:block">
-                            <h1 class="text-2xl font-black text-gradient">IKICB</h1>
+                            <h1 class="text-2xl font-black text-gradient">IKICBC</h1>
                             <p class="text-xs text-gray-500 font-medium -mt-1">Learning Hub</p>
                         </div>
                     </a>
@@ -464,7 +464,7 @@
                             </svg>
                         </div>
                         <div>
-                            <h2 class="text-3xl font-black">IKICB LMS</h2>
+                            <h2 class="text-3xl font-black">IKICBC LMS</h2>
                             <p class="text-yellow-300 text-sm font-medium">Transform Your Future</p>
                         </div>
                     </div>
@@ -528,7 +528,7 @@
                             </svg>
                             <div>
                                 <p class="font-semibold text-white">Email</p>
-                                <a href="mailto:info@ikicb.com" class="hover:text-white transition-colors">info@ikicb.com</a>
+                                <a href="mailto:info@IKICBC.com" class="hover:text-white transition-colors">info@IKICBC.com</a>
                             </div>
                         </li>
                         <li class="flex items-start space-x-3 text-gray-300">
@@ -558,7 +558,7 @@
             <div class="mt-16 pt-8 border-t border-white/10">
                 <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
                     <p class="text-gray-400 text-sm">
-                        &copy; {{ date('Y') }} <span class="font-bold text-white">IKICB Learning Management System</span>. All rights reserved.
+                        &copy; {{ date('Y') }} <span class="font-bold text-white">IKICBC Learning Management System</span>. All rights reserved.
                     </p>
                     <div class="flex space-x-6 text-sm">
                         <a href="{{ route('privacy') }}" class="text-gray-400 hover:text-white transition-colors">Privacy Policy</a>

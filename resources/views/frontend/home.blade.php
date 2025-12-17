@@ -30,12 +30,14 @@
                 </div>
 
                 <h1 class="text-5xl sm:text-6xl lg:text-7xl font-black leading-tight">
-                    <span class="block text-gray-900">Transform Your</span>
-                    <span class="block text-gradient">Future Today</span>
+                    <span class="block text-gray-900">Ishara Koralage International</span>
+                    <span class="block text-gradient">Cosmetology And Bridal Campus </span>
                 </h1>
 
                 <p class="text-xl text-gray-600 leading-relaxed max-w-2xl">
-                    Join thousands of learners advancing their careers with expert-led courses. Learn at your own pace, earn certificates, and unlock your potential.
+                   leading institution in Sri Lanka providing the highest standard of training in the field of Cosmetology and Bridal Dressing.
+                   <br><br>
+                   Through internationally recognized and NVQ-based courses, we provide you with the theoretical knowledge and practical skills necessary to succeed as a professional beautician or a skilled bridal dresser.
                 </p>
 
                 <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -49,7 +51,7 @@
                         <div class="absolute inset-0 bg-gradient-to-r from-yellow-600 to-yellow-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     </a>
                     <a href="{{ route('register') }}" class="px-8 py-4 bg-white rounded-2xl text-gray-900 font-black text-lg border-2 border-gray-200 hover:border-yellow-400 hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-                        Start Free Trial
+                        Join Now
                     </a>
                 </div>
 

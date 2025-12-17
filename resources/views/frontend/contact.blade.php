@@ -51,8 +51,8 @@
                         <div class="flex-1">
                             <h3 class="text-xl font-black text-gray-900 mb-2">Email Us</h3>
                             <p class="text-gray-600 mb-3">Send us an email anytime</p>
-                            <a href="mailto:info@ikicb.com" class="text-lg font-bold text-yellow-600 hover:text-yellow-700 transition-colors">
-                                info@ikicb.com
+                            <a href="mailto:ikbrideshub@gmail.com" class="text-lg font-bold text-yellow-600 hover:text-yellow-700 transition-colors">
+                               ikbrideshub@gmail.com
                             </a>
                         </div>
                     </div>
@@ -71,8 +71,8 @@
                         <div class="flex-1">
                             <h3 class="text-xl font-black text-gray-900 mb-2">Call Us</h3>
                             <p class="text-gray-600 mb-3">Available during business hours</p>
-                            <a href="tel:+94XXXXXXXX" class="text-lg font-bold text-gray-900 hover:text-yellow-600 transition-colors">
-                                +94 XX XXX XXXX
+                            <a href="tel:+94777155515" class="text-lg font-bold text-gray-900 hover:text-yellow-600 transition-colors">
+                               +947 77 155 515
                             </a>
                         </div>
                     </div>
@@ -93,8 +93,8 @@
                             <h3 class="text-xl font-black text-gray-900 mb-2">Visit Us</h3>
                             <p class="text-gray-600 mb-3">Our office location</p>
                             <p class="text-lg font-bold text-gray-900">
-                                IKICB<br>
-                                Colombo, Sri Lanka
+                                IKICBC <br>
+                                Main Branch, Maharagama, Sri Lanka 
                             </p>
                         </div>
                     </div>
