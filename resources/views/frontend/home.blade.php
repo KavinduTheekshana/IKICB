@@ -121,6 +121,145 @@
     </div>
 </div>
 
+<!-- Key Courses Section -->
+<section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+            <!-- Our Key Courses -->
+            <div class="space-y-6 animate-fade-in-up">
+                <div class="inline-flex items-center px-4 py-2 rounded-full bg-yellow-50 border border-yellow-200 mb-2">
+                    <span class="text-sm font-bold text-gray-900">OUR KEY COURSES</span>
+                </div>
+                <h2 class="text-4xl sm:text-5xl font-black text-gray-900">
+                    Professional <span class="text-gradient">Training Programs</span>
+                </h2>
+                <div class="space-y-4">
+                    <div class="flex items-start space-x-4 group">
+                        <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-900 mb-1">Bridal Dresser NVQ 4</h3>
+                            <p class="text-gray-600 text-sm">Master the art of bridal styling and makeup with our comprehensive NVQ Level 4 certification program.</p>
+                        </div>
+                    </div>
+                    <a href="{{ route('course.nvq4-beautician') }}" class="flex items-start space-x-4 group cursor-pointer hover:bg-yellow-50 p-4 rounded-xl transition-all">
+                        <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-900 mb-1 group-hover:text-yellow-600 transition-colors">Beautician NVQ 4</h3>
+                            <p class="text-gray-600 text-sm">Become a certified professional beautician with comprehensive training in all beauty techniques.</p>
+                        </div>
+                        <svg class="w-5 h-5 text-gray-400 group-hover:text-yellow-600 group-hover:translate-x-1 transition-all flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </a>
+                    <div class="flex items-start space-x-4 group">
+                        <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-900 mb-1">Advance Diploma in Cosmetology</h3>
+                            <p class="text-gray-600 text-sm">Advanced professional training covering all aspects of modern cosmetology and beauty therapy.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-4 group">
+                        <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-900 mb-1">Master Bridal Diploma</h3>
+                            <p class="text-gray-600 text-sm">Elite-level training for aspiring master bridal dressers with hands-on experience.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="pt-6">
+                    <a href="{{ route('courses.index') }}" class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl text-gray-900 font-black text-base shadow-lg hover:shadow-yellow-500/50 transform hover:scale-105 transition-all duration-300">
+                        <span>View All Courses</span>
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Branch Locations -->
+            <div class="space-y-6 animate-fade-in-up">
+                <div class="inline-flex items-center px-4 py-2 rounded-full bg-yellow-50 border border-yellow-200 mb-2">
+                    <span class="text-sm font-bold text-gray-900">NATIONWIDE PRESENCE</span>
+                </div>
+                <h2 class="text-4xl sm:text-5xl font-black text-gray-900">
+                    Convenient <span class="text-gradient">Branch Locations</span>
+                </h2>
+                <div class="bg-gradient-to-br from-yellow-50 to-gray-50 rounded-3xl p-8 border border-yellow-100 shadow-lg">
+                    <p class="text-gray-700 leading-relaxed mb-6">
+                        We are pleased to inform you that our courses are offered across four conveniently located branches within Sri Lanka. This ensures wider accessibility for our students, no matter where you are based.
+                    </p>
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-yellow-500 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-900 font-bold">Maharagama</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-yellow-500 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-900 font-bold">Gampaha</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-yellow-500 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-900 font-bold">Negombo</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-lg bg-yellow-500 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-900 font-bold">Ratnapura</span>
+                        </div>
+                    </div>
+                    <div class="mt-8 pt-6 border-t border-yellow-200">
+                        <p class="text-gray-700 leading-relaxed mb-4">
+                            All the courses offered at our main center are also conducted at the following branch locations.
+                        </p>
+                        <p class="text-gray-900 font-bold text-lg">
+                            We welcome you to visit your nearest branch to enroll or inquire further about our programs!
+                        </p>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-2xl p-6 text-gray-900 shadow-xl">
+                    <p class="font-black text-xl mb-2">Join us today!</p>
+                    <p class="font-semibold">Make your dreams in the cosmetology industry a reality.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- Featured Courses Section -->
 <section class="py-20 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

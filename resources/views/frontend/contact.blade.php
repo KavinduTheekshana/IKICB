@@ -72,7 +72,7 @@
                             <h3 class="text-xl font-black text-gray-900 mb-2">Call Us</h3>
                             <p class="text-gray-600 mb-3">Available during business hours</p>
                             <a href="tel:+94777155515" class="text-lg font-bold text-gray-900 hover:text-yellow-600 transition-colors">
-                               +947 77 155 515
+                               0777155515
                             </a>
                         </div>
                     </div>
@@ -234,7 +234,7 @@
             Our support team is ready to help you get started on your learning journey
         </p>
         <div class="flex flex-col sm:flex-row gap-6 justify-center">
-            <a href="mailto:info@ikicb.com" class="px-10 py-5 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-2xl text-gray-900 font-black text-lg shadow-2xl hover:shadow-yellow-500/50 transform hover:scale-105 transition-all duration-300">
+            <a href="mailto:ikbrideshub@gmail.com" class="px-10 py-5 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-2xl text-gray-900 font-black text-lg shadow-2xl hover:shadow-yellow-500/50 transform hover:scale-105 transition-all duration-300">
                 <span class="flex items-center justify-center space-x-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>

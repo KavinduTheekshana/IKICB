@@ -12,6 +12,11 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', [HomeController::class, 'about'])->name('about');
 Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
 
+// Course Details Pages
+Route::get('/course/nvq4-beautician', function () {
+    return view('frontend.course-nvq4-beautician');
+})->name('course.nvq4-beautician');
+
 // Policy routes
 Route::get('/terms', function () {
     return view('frontend.terms');

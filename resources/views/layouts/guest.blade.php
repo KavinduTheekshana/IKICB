@@ -284,6 +284,14 @@
                             <span>Courses</span>
                         </div>
                     </a>
+                    <a href="{{ route('course.nvq4-beautician') }}" class="nav-link px-5 py-2.5 text-sm font-bold rounded-xl {{ request()->routeIs('course.nvq4-beautician') ? 'text-white gradient-primary shadow-lg' : 'text-gray-700 hover:bg-gray-100' }} transition-all duration-300">
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                            </svg>
+                            <span>NVQ4 Beautician</span>
+                        </div>
+                    </a>
                     <a href="{{ route('about') }}" class="nav-link px-5 py-2.5 text-sm font-bold rounded-xl {{ request()->routeIs('about') ? 'text-white gradient-primary shadow-lg' : 'text-gray-700 hover:bg-gray-100' }} transition-all duration-300">
                         <div class="flex items-center space-x-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -333,6 +341,9 @@
                     </a>
                     <a href="{{ route('courses.index') }}" class="block px-4 py-3 rounded-xl text-base font-bold {{ request()->routeIs('courses.*') ? 'text-white gradient-primary' : 'text-gray-700 hover:bg-gray-100' }} transition-all">
                         Courses
+                    </a>
+                    <a href="{{ route('course.nvq4-beautician') }}" class="block px-4 py-3 rounded-xl text-base font-bold {{ request()->routeIs('course.nvq4-beautician') ? 'text-white gradient-primary' : 'text-gray-700 hover:bg-gray-100' }} transition-all">
+                        NVQ4 Beautician
                     </a>
                     <a href="{{ route('about') }}" class="block px-4 py-3 rounded-xl text-base font-bold {{ request()->routeIs('about') ? 'text-white gradient-primary' : 'text-gray-700 hover:bg-gray-100' }} transition-all">
                         About
@@ -528,7 +539,7 @@
                             </svg>
                             <div>
                                 <p class="font-semibold text-white">Email</p>
-                                <a href="mailto:info@IKICBC.com" class="hover:text-white transition-colors">info@IKICBC.com</a>
+                                <a href="mailto:ikbrideshub@gmail.com" class="hover:text-white transition-colors">ikbrideshub@gmail.com</a>
                             </div>
                         </li>
                         <li class="flex items-start space-x-3 text-gray-300">
@@ -537,7 +548,7 @@
                             </svg>
                             <div>
                                 <p class="font-semibold text-white">Phone</p>
-                                <span>+94 XX XXX XXXX</span>
+                                <a href="tel:+94777155515" class="hover:text-white transition-colors">0777155515</a>
                             </div>
                         </li>
                         <li class="flex items-start space-x-3 text-gray-300">
