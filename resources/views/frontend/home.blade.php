@@ -145,20 +145,17 @@
                             <p class="text-gray-600 text-sm">Master the art of bridal styling and makeup with our comprehensive NVQ Level 4 certification program.</p>
                         </div>
                     </div>
-                    <a href="{{ route('course.nvq4-beautician') }}" class="flex items-start space-x-4 group cursor-pointer hover:bg-yellow-50 p-4 rounded-xl transition-all">
+                    <div class="flex items-start space-x-4 group">
                         <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
                         </div>
                         <div class="flex-1">
-                            <h3 class="text-lg font-bold text-gray-900 mb-1 group-hover:text-yellow-600 transition-colors">Beautician NVQ 4</h3>
+                            <h3 class="text-lg font-bold text-gray-900 mb-1">Beautician NVQ 4</h3>
                             <p class="text-gray-600 text-sm">Become a certified professional beautician with comprehensive training in all beauty techniques.</p>
                         </div>
-                        <svg class="w-5 h-5 text-gray-400 group-hover:text-yellow-600 group-hover:translate-x-1 transition-all flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                    </a>
+                    </div>
                     <div class="flex items-start space-x-4 group">
                         <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -183,8 +180,8 @@
                     </div>
                 </div>
                 <div class="pt-6">
-                    <a href="{{ route('courses.index') }}" class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl text-gray-900 font-black text-base shadow-lg hover:shadow-yellow-500/50 transform hover:scale-105 transition-all duration-300">
-                        <span>View All Courses</span>
+                    <a href="{{ route('courses.overview') }}" class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl text-gray-900 font-black text-base shadow-lg hover:shadow-yellow-500/50 transform hover:scale-105 transition-all duration-300">
+                        <span>View Courses Details</span>
                         <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
                         </svg>

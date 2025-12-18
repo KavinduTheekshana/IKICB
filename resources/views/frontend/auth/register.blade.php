@@ -70,6 +70,38 @@
                     >
                 </div>
 
+                <!-- Branch Selection -->
+                <div>
+                    <label for="branch_id" class="block text-sm font-bold text-gray-900 mb-2">Select Your Branch</label>
+                    <div class="relative">
+                        <select
+                            id="branch_id"
+                            name="branch_id"
+                            required
+                            class="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all font-medium text-gray-900 appearance-none bg-white"
+                        >
+                            <option value="">Choose your preferred branch...</option>
+                            @foreach($branches as $branch)
+                                <option value="{{ $branch->id }}" {{ old('branch_id') == $branch->id ? 'selected' : '' }}>
+                                    {{ $branch->location }} - {{ $branch->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-700">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <p class="mt-2 text-xs text-gray-600 font-semibold flex items-center">
+                        <svg class="w-4 h-4 mr-1 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        All courses are available at every branch location
+                    </p>
+                </div>
+
                 <!-- Password -->
                 <div>
                     <label for="password" class="block text-sm font-bold text-gray-900 mb-2">Password</label>

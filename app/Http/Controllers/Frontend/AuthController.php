@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Branch;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -42,7 +43,10 @@ class AuthController extends Controller
         if (Auth::check()) {
             return redirect()->route('dashboard');
         }
-        return view('frontend.auth.register');
+
+        $branches = Branch::active()->orderBy('location')->get();
+
+        return view('frontend.auth.register', compact('branches'));
     }
 
     public function register(Request $request)
@@ -51,6 +55,7 @@ class AuthController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Password::min(8)],
+            'branch_id' => ['required', 'exists:branches,id'],
         ]);
 
         $user = User::create([
@@ -58,6 +63,7 @@ class AuthController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => 'student',
+            'branch_id' => $validated['branch_id'],
         ]);
 
         Auth::login($user);
