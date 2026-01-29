@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
+use App\Models\Course;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -45,8 +46,9 @@ class AuthController extends Controller
         }
 
         $branches = Branch::active()->orderBy('location')->get();
+        $courses = Course::where('is_published', true)->orderBy('title')->get();
 
-        return view('frontend.auth.register', compact('branches'));
+        return view('frontend.auth.register', compact('branches', 'courses'));
     }
 
     public function register(Request $request)
@@ -55,6 +57,7 @@ class AuthController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Password::min(8)],
+            'course_id' => ['required', 'exists:courses,id'],
             'branch_id' => ['required', 'exists:branches,id'],
         ]);
 
@@ -63,6 +66,7 @@ class AuthController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'role' => 'student',
+            'course_id' => $validated['course_id'],
             'branch_id' => $validated['branch_id'],
         ]);
 

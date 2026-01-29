@@ -70,6 +70,37 @@
                     >
                 </div>
 
+                <!-- Course Selection -->
+                <div>
+                    <label for="course_id" class="block text-sm font-bold text-gray-900 mb-2">Select Your Course</label>
+                    <div class="relative">
+                        <select
+                            id="course_id"
+                            name="course_id"
+                            required
+                            class="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all font-medium text-gray-900 appearance-none bg-white"
+                        >
+                            <option value="">Choose your course...</option>
+                            @foreach($courses as $course)
+                                <option value="{{ $course->id }}" {{ old('course_id') == $course->id ? 'selected' : '' }}>
+                                    {{ $course->title }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-700">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <p class="mt-2 text-xs text-gray-600 font-semibold flex items-center">
+                        <svg class="w-4 h-4 mr-1 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                        Select the course you want to enroll in
+                    </p>
+                </div>
+
                 <!-- Branch Selection -->
                 <div>
                     <label for="branch_id" class="block text-sm font-bold text-gray-900 mb-2">Select Your Branch</label>
