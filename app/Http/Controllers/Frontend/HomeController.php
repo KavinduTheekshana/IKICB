@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
+use App\Models\Instructor;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -21,7 +22,9 @@ class HomeController extends Controller
 
     public function about()
     {
-        return view('frontend.about');
+        $instructors = Instructor::active()->ordered()->get();
+
+        return view('frontend.about', compact('instructors'));
     }
 
     public function contact()

@@ -277,107 +277,45 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Instructor 1 -->
-                <div class="bg-white rounded-3xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-2xl transition-all duration-300 card-hover">
-                    <!-- Image Placeholder -->
-                    <div class="aspect-square bg-gradient-to-br from-yellow-100 to-yellow-200 flex items-center justify-center relative overflow-hidden">
-                        <!-- Placeholder for instructor image - you will add the actual image here -->
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <svg class="w-32 h-32 text-yellow-600/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                            </svg>
-                        </div>
-                        <div class="absolute bottom-4 right-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold">
-                            Senior Instructor
-                        </div>
-                        <!-- To add your image, replace the placeholder div with:
-                        <img src="{{ asset('images/instructor-1.jpg') }}" alt="S.G.Sewwandi Nadeeshika Gomes" class="w-full h-full object-cover">
-                        -->
-                    </div>
-
-                    <div class="p-6">
-                        <h3 class="text-2xl font-black text-gray-900 mb-2">S.G.Sewwandi Nadeeshika Gomes</h3>
-                        <p class="text-yellow-600 font-bold mb-4">Senior Instructor</p>
-                        <div class="space-y-2">
-                            <div class="flex items-start space-x-2">
-                                <svg class="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <span class="text-gray-700 text-sm">NVQ Level 5&6 Cosmetology</span>
+                @forelse($instructors as $instructor)
+                    <div class="bg-white rounded-3xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-2xl transition-all duration-300 card-hover">
+                        <!-- Instructor Image -->
+                        <div class="aspect-square bg-gradient-to-br from-yellow-100 to-yellow-200 flex items-center justify-center relative overflow-hidden">
+                            @if($instructor->image)
+                                <img src="{{ asset('storage/' . $instructor->image) }}" alt="{{ $instructor->name }}" class="w-full h-full object-cover">
+                            @else
+                                <!-- Placeholder for instructor image -->
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <svg class="w-32 h-32 text-yellow-600/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                </div>
+                            @endif
+                            <div class="absolute bottom-4 right-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold">
+                                {{ $instructor->position }}
                             </div>
-                            <div class="flex items-start space-x-2">
-                                <svg class="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <span class="text-gray-700 text-sm">NVQ Level 4 Beautician & Hairdresser</span>
+                        </div>
+
+                        <div class="p-6">
+                            <h3 class="text-2xl font-black text-gray-900 mb-2">{{ $instructor->name }}</h3>
+                            <p class="text-yellow-600 font-bold mb-4">{{ $instructor->position }}</p>
+                            <div class="space-y-2">
+                                @foreach($instructor->qualifications as $qualification)
+                                    <div class="flex items-start space-x-2">
+                                        <svg class="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <span class="text-gray-700 text-sm">{{ $qualification }}</span>
+                                    </div>
+                                @endforeach
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Instructor 2 -->
-                <div class="bg-white rounded-3xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-2xl transition-all duration-300 card-hover">
-                    <!-- Image Placeholder -->
-                    <div class="aspect-square bg-gradient-to-br from-yellow-100 to-yellow-200 flex items-center justify-center relative overflow-hidden">
-                        <!-- Placeholder for instructor image - you will add the actual image here -->
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <svg class="w-32 h-32 text-yellow-600/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                            </svg>
-                        </div>
-                        <div class="absolute bottom-4 right-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold">
-                            Instructor
-                        </div>
-                        <!-- To add your image, replace the placeholder div with:
-                        <img src="{{ asset('images/instructor-2.jpg') }}" alt="Akashi Rajapakshe" class="w-full h-full object-cover">
-                        -->
+                @empty
+                    <div class="col-span-full text-center py-12">
+                        <p class="text-gray-500 text-lg">No instructors available at the moment.</p>
                     </div>
-
-                    <div class="p-6">
-                        <h3 class="text-2xl font-black text-gray-900 mb-2">Akashi Rajapakshe</h3>
-                        <p class="text-yellow-600 font-bold mb-4">Instructor</p>
-                        <div class="space-y-2">
-                            <div class="flex items-start space-x-2">
-                                <svg class="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <span class="text-gray-700 text-sm">NVQ Level 4 Beautician & Hairdresser</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Instructor 3 -->
-                <div class="bg-white rounded-3xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-2xl transition-all duration-300 card-hover">
-                    <!-- Image Placeholder -->
-                    <div class="aspect-square bg-gradient-to-br from-yellow-100 to-yellow-200 flex items-center justify-center relative overflow-hidden">
-                        <!-- Placeholder for instructor image - you will add the actual image here -->
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <svg class="w-32 h-32 text-yellow-600/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                            </svg>
-                        </div>
-                        <div class="absolute bottom-4 right-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold">
-                            Instructor
-                        </div>
-                        <!-- To add your image, replace the placeholder div with:
-                        <img src="{{ asset('images/instructor-3.jpg') }}" alt="Nikeshala" class="w-full h-full object-cover">
-                        -->
-                    </div>
-
-                    <div class="p-6">
-                        <h3 class="text-2xl font-black text-gray-900 mb-2">Nikeshala</h3>
-                        <p class="text-yellow-600 font-bold mb-4">Instructor</p>
-                        <div class="space-y-2">
-                            <div class="flex items-start space-x-2">
-                                <svg class="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <span class="text-gray-700 text-sm">NVQ Level 4 Beautician & Hairdresser</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                @endforelse
             </div>
         </div>
     </section>
