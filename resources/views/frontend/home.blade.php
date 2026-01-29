@@ -24,10 +24,10 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <!-- Left Content -->
             <div class="text-center lg:text-left space-y-8 animate-fade-in-up">
-                <div class="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-yellow-100 to-yellow-200 border border-yellow-300">
+                {{-- <div class="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-yellow-100 to-yellow-200 border border-yellow-300">
                     <span class="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
                     <span class="text-sm font-bold text-gray-900">1,000+ Students Learning Online</span>
-                </div>
+                </div> --}}
 
                 <h1 class="text-5xl sm:text-6xl lg:text-7xl font-black leading-tight">
                     <span class="block text-gray-900">Ishara Koralage International</span>
@@ -78,7 +78,7 @@
                     <div class="aspect-square rounded-3xl bg-gradient-to-br from-yellow-100 to-yellow-200 p-8">
                         <div class="w-full h-full rounded-2xl bg-white shadow-2xl overflow-hidden">
                             <!-- Replace 'hero-image.jpg' with your actual image path -->
-                            <img src="{{ asset('images/team-bride-celebrating-before-wedding-2.jpg') }}" alt="Learning Platform" class="w-full h-full object-cover">
+                            <img src="{{ asset('images/FB_IMG_1768291254554.jpg') }}" alt="Learning Platform" class="w-full h-full object-cover">
 
                             <!-- Fallback SVG if image not found -->
                             <!-- <div class="w-full h-full p-8 flex items-center justify-center">
@@ -89,7 +89,7 @@
                         </div>
                     </div>
                     <!-- Floating Cards -->
-                    <div class="absolute -top-6 -right-6 bg-white rounded-2xl shadow-2xl p-4 animate-float" style="animation-delay: -1s;">
+                    {{-- <div class="absolute -top-6 -right-6 bg-white rounded-2xl shadow-2xl p-4 animate-float" style="animation-delay: -1s;">
                         <div class="flex items-center space-x-3">
                             <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
                                 <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,8 +101,8 @@
                                 <div class="text-xs text-gray-600">Success Rate</div>
                             </div>
                         </div>
-                    </div>
-                    <div class="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-2xl p-4 animate-float" style="animation-delay: -2s;">
+                    </div> --}}
+                    {{-- <div class="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-2xl p-4 animate-float" style="animation-delay: -2s;">
                         <div class="flex items-center space-x-3">
                             <div class="w-12 h-12 rounded-xl bg-yellow-100 flex items-center justify-center">
                                 <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114,7 +114,7 @@
                                 <div class="text-xs text-gray-600">Support</div>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </div>
