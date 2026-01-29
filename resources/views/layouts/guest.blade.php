@@ -253,7 +253,7 @@
                     <a href="{{ route('home') }}" class="flex items-center space-x-3 group">
                         <div class="relative">
 
-                                <img src="{{ asset('images/logo.png') }}" alt="IKICBC Logo">
+                                <img src="{{ asset('images/vector file b-01.png') }}" alt="IKICBC Logo" style="width: 90px" >
                      
 
                         </div>
