@@ -291,9 +291,9 @@
                                     </svg>
                                 </div>
                             @endif
-                            <div class="absolute bottom-4 right-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold">
+                            {{-- <div class="absolute bottom-4 right-4 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold">
                                 {{ $instructor->position }}
-                            </div>
+                            </div> --}}
                         </div>
 
                         <div class="p-6">
