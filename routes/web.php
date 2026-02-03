@@ -72,3 +72,8 @@ Route::middleware('auth')->group(function () {
 
 // PayHere notification (no auth required)
 Route::post('/payment/notify', [PaymentController::class, 'notify'])->name('payment.notify');
+
+// Fallback route - must be last
+Route::fallback(function () {
+    return response()->view('errors.404', [], 404);
+});

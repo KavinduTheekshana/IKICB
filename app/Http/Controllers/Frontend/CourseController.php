@@ -23,6 +23,11 @@ class CourseController extends Controller
 
     public function show(Course $course)
     {
+        // Check if course is published
+        if (!$course->is_published) {
+            abort(404, 'This course is not available.');
+        }
+
         $course->load(['instructor', 'modules' => function ($query) {
             $query->orderBy('order');
         }]);
@@ -54,6 +59,15 @@ class CourseController extends Controller
 
     public function module(Module $module)
     {
+        // Check if module exists and belongs to a published course
+        if (!$module || !$module->course) {
+            abort(404, 'Module not found.');
+        }
+
+        if (!$module->course->is_published) {
+            abort(404, 'This course is not available.');
+        }
+
         $module->load(['course', 'materials', 'questions.category', 'theoryExams']);
 
         // Check if user has access
@@ -90,6 +104,20 @@ class CourseController extends Controller
 
     public function submitQuiz(Request $request, Module $module)
     {
+        // Check authentication
+        if (!auth()->check()) {
+            return redirect()->route('login')->with('error', 'Please login to submit quiz.');
+        }
+
+        // Check if user has access to this module
+        $hasAccess = auth()->user()->moduleUnlocks()
+            ->where('module_id', $module->id)
+            ->exists();
+
+        if (!$hasAccess) {
+            abort(403, 'You do not have access to this module.');
+        }
+
         $validated = $request->validate([
             'answers' => 'required|array',
         ]);
@@ -98,6 +126,11 @@ class CourseController extends Controller
         $questions = $module->questions()
             ->where('type', 'mcq')
             ->get();
+
+        if ($questions->isEmpty()) {
+            return redirect()->route('courses.module', $module)
+                ->with('error', 'No quiz questions available for this module.');
+        }
 
         $totalQuestions = $questions->count();
         $correctAnswers = 0;
@@ -153,7 +186,12 @@ class CourseController extends Controller
     {
         // Check if user has access
         if (!auth()->check()) {
-            return redirect()->route('login');
+            return redirect()->route('login')->with('error', 'Please login to mark module as completed.');
+        }
+
+        // Check if module exists
+        if (!$module) {
+            abort(404, 'Module not found.');
         }
 
         $hasAccess = auth()->user()->moduleUnlocks()
@@ -161,22 +199,26 @@ class CourseController extends Controller
             ->exists();
 
         if (!$hasAccess) {
-            return redirect()->route('courses.show', $module->course)
-                ->with('error', 'You need to purchase this module first.');
+            abort(403, 'You do not have access to this module.');
         }
 
-        // Mark module as completed
-        ModuleCompletion::updateOrCreate(
-            [
-                'user_id' => auth()->id(),
-                'module_id' => $module->id,
-            ],
-            [
-                'completed_at' => now(),
-            ]
-        );
+        try {
+            // Mark module as completed
+            ModuleCompletion::updateOrCreate(
+                [
+                    'user_id' => auth()->id(),
+                    'module_id' => $module->id,
+                ],
+                [
+                    'completed_at' => now(),
+                ]
+            );
 
-        return redirect()->route('courses.module', $module)
-            ->with('success', 'Module marked as completed!');
+            return redirect()->route('courses.module', $module)
+                ->with('success', 'Module marked as completed!');
+        } catch (\Exception $e) {
+            return redirect()->route('courses.module', $module)
+                ->with('error', 'An error occurred while marking the module as completed. Please try again.');
+        }
     }
 }
