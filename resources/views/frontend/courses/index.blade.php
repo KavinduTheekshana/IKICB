@@ -42,11 +42,11 @@
                             </div>
                         @endif
                         <!-- Instructor Badge -->
-                        <div class="absolute top-4 left-4">
+                        {{-- <div class="absolute top-4 left-4">
                             <div class="px-4 py-2 rounded-full glass-effect border border-white/20 backdrop-blur-md">
                                 <span class="text-xs font-bold text-gray">{{ $course->instructor->name }}</span>
                             </div>
-                        </div>
+                        </div> --}}
                         @if($course->is_published)
                             <div class="absolute top-4 right-4">
                                 <div class="px-3 py-1 rounded-full bg-green-500 text-white text-xs font-bold shadow-lg">
