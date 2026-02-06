@@ -136,7 +136,7 @@
                     <input type="hidden" name="email" value="{{ auth()->user()->email }}">
                     <input type="hidden" name="phone" value="0000000000">
                     <input type="hidden" name="address" value="N/A">
-                    <input type="hidden" name="city" value="{{ Colombo }}">
+                    <input type="hidden" name="city" value="Colombo">
                     <input type="hidden" name="country" value="Sri Lanka">
 
                     <input type="hidden" name="hash" value="{{ $paymentData['hash'] }}">
