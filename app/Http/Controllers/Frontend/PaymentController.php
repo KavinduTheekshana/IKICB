@@ -21,22 +21,107 @@ class PaymentController extends Controller
 
     public function initiateCoursePayment(Course $course)
     {
-        $paymentData = $this->payHereService->createCoursePayment(
-            auth()->id(),
-            $course
-        );
+        // Prepare payment data without creating payment record yet
+        $orderId = 'COURSE-' . $course->id . '-' . auth()->id() . '-' . time();
+
+        $paymentData = [
+            'merchant_id' => config('services.payhere.merchant_id'),
+            'return_url' => route('payment.return'),
+            'cancel_url' => route('payment.cancel'),
+            'notify_url' => route('payment.notify'),
+            'order_id' => $orderId,
+            'items' => $course->title,
+            'currency' => 'LKR',
+            'amount' => number_format($course->full_price, 2, '.', ''),
+            'hash' => $this->payHereService->generateHash([
+                'order_id' => $orderId,
+                'amount' => $course->full_price,
+                'currency' => 'LKR',
+            ]),
+            'course_id' => $course->id,
+            'module_id' => null,
+            'type' => 'course',
+        ];
 
         return view('frontend.payment.checkout', compact('paymentData', 'course'));
     }
 
     public function initiateModulePayment(Module $module)
     {
-        $paymentData = $this->payHereService->createModulePayment(
-            auth()->id(),
-            $module
-        );
+        // Prepare payment data without creating payment record yet
+        $orderId = 'MODULE-' . $module->id . '-' . auth()->id() . '-' . time();
+
+        $paymentData = [
+            'merchant_id' => config('services.payhere.merchant_id'),
+            'return_url' => route('payment.return'),
+            'cancel_url' => route('payment.cancel'),
+            'notify_url' => route('payment.notify'),
+            'order_id' => $orderId,
+            'items' => $module->course->title . ' - ' . $module->title,
+            'currency' => 'LKR',
+            'amount' => number_format($module->module_price, 2, '.', ''),
+            'hash' => $this->payHereService->generateHash([
+                'order_id' => $orderId,
+                'amount' => $module->module_price,
+                'currency' => 'LKR',
+            ]),
+            'course_id' => $module->course_id,
+            'module_id' => $module->id,
+            'type' => 'module',
+        ];
 
         return view('frontend.payment.checkout', compact('paymentData', 'module'));
+    }
+
+    public function processPayHerePayment(Request $request)
+    {
+        $validated = $request->validate([
+            'order_id' => 'required|string',
+            'course_id' => 'nullable|exists:courses,id',
+            'module_id' => 'nullable|exists:modules,id',
+            'type' => 'required|in:course,module',
+            'amount' => 'required|numeric',
+        ]);
+
+        // Create payment record
+        $payment = Payment::create([
+            'user_id' => auth()->id(),
+            'course_id' => $validated['course_id'],
+            'module_id' => $validated['module_id'],
+            'amount' => $validated['amount'],
+            'currency' => 'LKR',
+            'payment_gateway' => 'payhere',
+            'payment_method' => 'payhere',
+            'transaction_id' => $validated['order_id'],
+            'status' => 'pending',
+            'payment_details' => [
+                'order_id' => $validated['order_id'],
+                'type' => $validated['type'] === 'course' ? 'full_course' : 'module',
+            ],
+        ]);
+
+        // Prepare PayHere form data
+        $payHereData = [
+            'merchant_id' => $request->merchant_id,
+            'return_url' => $request->return_url,
+            'cancel_url' => $request->cancel_url,
+            'notify_url' => $request->notify_url,
+            'order_id' => $request->order_id,
+            'items' => $request->items,
+            'currency' => $request->currency,
+            'amount' => $request->amount,
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'address' => $request->address,
+            'city' => $request->city,
+            'country' => $request->country,
+            'hash' => $request->hash,
+        ];
+
+        // Return view that auto-submits to PayHere
+        return view('frontend.payment.payhere-redirect', compact('payHereData'));
     }
 
     public function notify(Request $request)
