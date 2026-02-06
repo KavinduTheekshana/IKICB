@@ -107,11 +107,6 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(QuizAttempt::class);
     }
 
-    public function bankTransferPayments()
-    {
-        return $this->hasMany(BankTransferPayment::class);
-    }
-
     public function hasCompletedModule($moduleId): bool
     {
         return $this->moduleCompletions()->where('module_id', $moduleId)->exists();

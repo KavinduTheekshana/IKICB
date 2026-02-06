@@ -161,9 +161,19 @@ class PayHereService
      */
     public function handleSuccessfulPayment(Payment $payment): void
     {
-        $payment->update(['status' => 'completed']);
+        $payment->update(['status' => 'completed', 'completed_at' => now()]);
 
         $details = $payment->payment_details;
+
+        // Handle bank transfers (no type field)
+        if (!isset($details['type'])) {
+            // Bank transfer - determine type from payment
+            if ($payment->course_id && !$payment->module_id) {
+                $details['type'] = 'full_course';
+            } else {
+                $details['type'] = 'module';
+            }
+        }
 
         if ($details['type'] === 'full_course') {
             // Create or update enrollment

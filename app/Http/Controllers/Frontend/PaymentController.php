@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
-use App\Models\BankTransferPayment;
 use App\Models\Course;
 use App\Models\Module;
 use App\Models\Payment;
@@ -75,20 +74,13 @@ class PaymentController extends Controller
             return redirect()->route('home')->with('error', 'Payment not found.');
         }
 
-        // For sandbox mode, if payment status_code is 2, mark as completed and unlock
-        if ($request->has('status_code') && $request->query('status_code') == 2) {
-            if ($payment->status !== 'completed') {
-                $this->payHereService->handleSuccessfulPayment($payment);
-            }
-            return redirect()->route('dashboard')
-                ->with('success', 'Payment successful! You can now access your course.');
-        }
-
+        // Check payment status and show appropriate message
         if ($payment->status === 'completed') {
             return redirect()->route('dashboard')
                 ->with('success', 'Payment successful! You can now access your course.');
         }
 
+        // For pending payments, wait for server notification
         return redirect()->route('dashboard')
             ->with('info', 'Payment is being processed. You will be notified once confirmed.');
     }
@@ -105,7 +97,7 @@ class PaymentController extends Controller
             'course_id' => 'nullable|exists:courses,id',
             'module_id' => 'nullable|exists:modules,id',
             'amount' => 'required|numeric|min:0',
-            'reference_number' => 'required|string|max:255|unique:bank_transfer_payments,reference_number',
+            'reference_number' => 'required|string|max:255|unique:payments,reference_number',
             'receipt' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'notes' => 'nullable|string|max:1000',
         ]);
@@ -119,16 +111,23 @@ class PaymentController extends Controller
             // Store receipt file
             $receiptPath = $request->file('receipt')->store('bank-receipts', 'public');
 
-            // Create bank transfer payment record
-            $bankTransfer = BankTransferPayment::create([
+            // Create payment record with bank transfer details
+            Payment::create([
                 'user_id' => auth()->id(),
                 'course_id' => $request->course_id,
                 'module_id' => $request->module_id,
-                'reference_number' => $validated['reference_number'],
                 'amount' => $validated['amount'],
+                'currency' => 'LKR',
+                'payment_gateway' => 'bank_transfer',
+                'payment_method' => 'bank_transfer',
+                'transaction_id' => 'BANK-' . $validated['reference_number'],
+                'reference_number' => $validated['reference_number'],
                 'receipt_path' => $receiptPath,
-                'notes' => $request->notes,
                 'status' => 'pending',
+                'payment_details' => json_encode([
+                    'notes' => $request->notes,
+                    'submitted_at' => now()->toDateTimeString(),
+                ]),
             ]);
 
             return redirect()->route('dashboard')

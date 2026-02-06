@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\StudentResource\Pages;
 
 use App\Filament\Resources\StudentResource;
-use App\Models\BankTransferPayment;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\ModuleUnlock;
@@ -119,9 +118,18 @@ class ViewStudent extends ViewRecord
                                 Infolists\Components\TextEntry::make('course.title')
                                     ->label('Course')
                                     ->weight('bold'),
+                                Infolists\Components\TextEntry::make('status')
+                                    ->label('Status')
+                                    ->badge()
+                                    ->colors([
+                                        'success' => 'active',
+                                        'info' => 'completed',
+                                        'danger' => 'cancelled',
+                                    ]),
                                 Infolists\Components\TextEntry::make('enrolled_at')
                                     ->label('Enrolled Date')
-                                    ->dateTime('M d, Y h:i A'),
+                                    ->dateTime('M d, Y h:i A')
+                                    ->placeholder('N/A'),
                                 Infolists\Components\TextEntry::make('progress')
                                     ->label('Progress')
                                     ->getStateUsing(function ($record) {
@@ -136,8 +144,64 @@ class ViewStudent extends ViewRecord
                                     })
                                     ->badge()
                                     ->color('info'),
+                                Infolists\Components\Actions::make([
+                                    Infolists\Components\Actions\Action::make('activate')
+                                        ->label('Activate')
+                                        ->icon('heroicon-o-check-circle')
+                                        ->color('success')
+                                        ->visible(fn ($record) => $record->status !== 'active')
+                                        ->requiresConfirmation()
+                                        ->action(function ($record) {
+                                            $record->update(['status' => 'active']);
+                                            Notification::make()
+                                                ->title('Enrollment Activated')
+                                                ->success()
+                                                ->send();
+                                        }),
+                                    Infolists\Components\Actions\Action::make('deactivate')
+                                        ->label('Cancel')
+                                        ->icon('heroicon-o-x-circle')
+                                        ->color('danger')
+                                        ->visible(fn ($record) => $record->status === 'active')
+                                        ->requiresConfirmation()
+                                        ->action(function ($record) {
+                                            $record->update(['status' => 'cancelled']);
+                                            Notification::make()
+                                                ->title('Enrollment Cancelled')
+                                                ->warning()
+                                                ->send();
+                                        }),
+                                    Infolists\Components\Actions\Action::make('complete')
+                                        ->label('Mark Complete')
+                                        ->icon('heroicon-o-academic-cap')
+                                        ->color('info')
+                                        ->visible(fn ($record) => $record->status === 'active')
+                                        ->requiresConfirmation()
+                                        ->action(function ($record) {
+                                            $record->update(['status' => 'completed']);
+                                            Notification::make()
+                                                ->title('Enrollment Marked as Completed')
+                                                ->success()
+                                                ->send();
+                                        }),
+                                    Infolists\Components\Actions\Action::make('delete')
+                                        ->label('Remove')
+                                        ->icon('heroicon-o-trash')
+                                        ->color('danger')
+                                        ->requiresConfirmation()
+                                        ->modalHeading('Remove Enrollment')
+                                        ->modalDescription('Are you sure you want to remove this enrollment? This will also remove all associated module unlocks.')
+                                        ->action(function ($record) {
+                                            $record->delete();
+                                            Notification::make()
+                                                ->title('Enrollment Removed')
+                                                ->success()
+                                                ->send();
+                                        }),
+                                ])
+                                ->alignEnd(),
                             ])
-                            ->columns(3)
+                            ->columns(5)
                             ->columnSpanFull(),
                     ])
                     ->collapsible()
@@ -176,56 +240,16 @@ class ViewStudent extends ViewRecord
                                 Infolists\Components\TextEntry::make('completed_at')
                                     ->label('Date')
                                     ->dateTime('M d, Y h:i A')
-                                    ->default(fn ($record) => $record->created_at->format('M d, Y h:i A')),
-                            ])
-                            ->columns(6)
-                            ->columnSpanFull(),
-                    ])
-                    ->collapsible()
-                    ->visible(fn ($record) => $record->payments()->count() > 0),
-
-                Infolists\Components\Section::make('Bank Transfer Submissions')
-                    ->schema([
-                        Infolists\Components\RepeatableEntry::make('bankTransferPayments')
-                            ->label('')
-                            ->schema([
-                                Infolists\Components\TextEntry::make('reference_number')
-                                    ->label('Reference #')
-                                    ->copyable()
-                                    ->weight('bold'),
-                                Infolists\Components\TextEntry::make('course.title')
-                                    ->label('Course')
-                                    ->default(fn ($record) => $record->module ? $record->module->title : 'N/A'),
-                                Infolists\Components\TextEntry::make('amount')
-                                    ->label('Amount')
-                                    ->money('LKR'),
-                                Infolists\Components\TextEntry::make('status')
-                                    ->label('Status')
-                                    ->badge()
-                                    ->colors([
-                                        'warning' => 'pending',
-                                        'success' => 'approved',
-                                        'danger' => 'rejected',
-                                    ]),
-                                Infolists\Components\TextEntry::make('created_at')
-                                    ->label('Submitted')
-                                    ->dateTime('M d, Y h:i A'),
+                                    ->placeholder(fn ($record) => $record->created_at->format('M d, Y h:i A')),
                                 Infolists\Components\Actions::make([
                                     Infolists\Components\Actions\Action::make('approve')
                                         ->label('Approve')
                                         ->icon('heroicon-o-check-circle')
                                         ->color('success')
                                         ->requiresConfirmation()
-                                        ->visible(fn ($record) => $record->status === 'pending')
+                                        ->visible(fn ($record) => $record->payment_method === 'bank_transfer' && $record->status === 'pending')
                                         ->action(function ($record) {
-                                            $record->update([
-                                                'status' => 'approved',
-                                                'approved_by' => auth()->id(),
-                                                'approved_at' => now(),
-                                            ]);
-
-                                            $this->processApproval($record);
-
+                                            $this->processPaymentApproval($record);
                                             Notification::make()
                                                 ->title('Payment Approved')
                                                 ->success()
@@ -236,7 +260,7 @@ class ViewStudent extends ViewRecord
                                         ->icon('heroicon-o-x-circle')
                                         ->color('danger')
                                         ->requiresConfirmation()
-                                        ->visible(fn ($record) => $record->status === 'pending')
+                                        ->visible(fn ($record) => $record->payment_method === 'bank_transfer' && $record->status === 'pending')
                                         ->form([
                                             Forms\Components\Textarea::make('admin_notes')
                                                 ->label('Reason for Rejection')
@@ -245,12 +269,11 @@ class ViewStudent extends ViewRecord
                                         ])
                                         ->action(function ($record, array $data) {
                                             $record->update([
-                                                'status' => 'rejected',
+                                                'status' => 'failed',
                                                 'admin_notes' => $data['admin_notes'],
                                                 'approved_by' => auth()->id(),
                                                 'approved_at' => now(),
                                             ]);
-
                                             Notification::make()
                                                 ->title('Payment Rejected')
                                                 ->danger()
@@ -260,51 +283,49 @@ class ViewStudent extends ViewRecord
                                         ->label('View Receipt')
                                         ->icon('heroicon-o-document-text')
                                         ->color('info')
+                                        ->visible(fn ($record) => $record->payment_method === 'bank_transfer' && $record->receipt_path)
                                         ->url(fn ($record) => asset('storage/' . $record->receipt_path))
                                         ->openUrlInNewTab(),
                                 ])
                                 ->alignEnd(),
                             ])
-                            ->columns(6)
+                            ->columns(7)
                             ->columnSpanFull(),
                     ])
                     ->collapsible()
-                    ->visible(fn ($record) => $record->bankTransferPayments()->count() > 0),
+                    ->visible(fn ($record) => $record->payments()->count() > 0),
             ]);
     }
 
-    protected function processApproval(BankTransferPayment $record)
+    protected function processPaymentApproval(Payment $payment)
     {
+        // Update payment status
+        $payment->update([
+            'status' => 'completed',
+            'approved_by' => auth()->id(),
+            'approved_at' => now(),
+            'completed_at' => now(),
+        ]);
+
         // Create enrollment/unlock for course or module
-        if ($record->course_id) {
+        if ($payment->course_id) {
             // Create enrollment
             Enrollment::firstOrCreate(
                 [
-                    'user_id' => $record->user_id,
-                    'course_id' => $record->course_id,
+                    'user_id' => $payment->user_id,
+                    'course_id' => $payment->course_id,
                 ],
                 [
                     'enrolled_at' => now(),
                 ]
             );
 
-            // Create payment record first
-            $payment = Payment::create([
-                'user_id' => $record->user_id,
-                'course_id' => $record->course_id,
-                'amount' => $record->amount,
-                'transaction_id' => 'BANK-' . $record->reference_number,
-                'payment_method' => 'bank_transfer',
-                'status' => 'completed',
-                'completed_at' => now(),
-            ]);
-
-            // Unlock all modules in the course with payment_id
-            $modules = $record->course->modules;
+            // Unlock all modules in the course
+            $modules = $payment->course->modules;
             foreach ($modules as $module) {
                 ModuleUnlock::firstOrCreate(
                     [
-                        'user_id' => $record->user_id,
+                        'user_id' => $payment->user_id,
                         'module_id' => $module->id,
                     ],
                     [
@@ -313,23 +334,12 @@ class ViewStudent extends ViewRecord
                     ]
                 );
             }
-        } elseif ($record->module_id) {
-            // Create payment record first
-            $payment = Payment::create([
-                'user_id' => $record->user_id,
-                'module_id' => $record->module_id,
-                'amount' => $record->amount,
-                'transaction_id' => 'BANK-' . $record->reference_number,
-                'payment_method' => 'bank_transfer',
-                'status' => 'completed',
-                'completed_at' => now(),
-            ]);
-
-            // Unlock module with payment_id
+        } elseif ($payment->module_id) {
+            // Unlock single module
             ModuleUnlock::firstOrCreate(
                 [
-                    'user_id' => $record->user_id,
-                    'module_id' => $record->module_id,
+                    'user_id' => $payment->user_id,
+                    'module_id' => $payment->module_id,
                 ],
                 [
                     'payment_id' => $payment->id,
