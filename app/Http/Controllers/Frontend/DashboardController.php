@@ -22,7 +22,7 @@ class DashboardController extends Controller
             ->get();
 
         $payments = $user->payments()
-            ->with(['course', 'module'])
+            ->with(['course', 'module.course'])
             ->latest()
             ->take(10)
             ->get();
@@ -43,7 +43,7 @@ class DashboardController extends Controller
     public function payments()
     {
         $payments = auth()->user()->payments()
-            ->with(['course', 'module'])
+            ->with(['course', 'module.course'])
             ->latest()
             ->paginate(15);
 

@@ -204,7 +204,13 @@
                             <div class="flex items-start justify-between">
                                 <div class="flex-1 min-w-0">
                                     <p class="text-sm font-bold text-gray-900 mb-1 truncate">
-                                        {{ $payment->course->title }}
+                                        @if($payment->course)
+                                            {{ $payment->course->title }}
+                                        @elseif($payment->module)
+                                            {{ $payment->module->course->title ?? 'Course' }}
+                                        @else
+                                            Payment
+                                        @endif
                                         @if($payment->module)
                                             <span class="text-gray-500">- {{ $payment->module->title }}</span>
                                         @endif
