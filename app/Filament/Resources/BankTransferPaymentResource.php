@@ -258,17 +258,8 @@ class BankTransferPaymentResource extends Resource
                 ]
             );
 
-            // Unlock all modules in the course
-            $modules = $record->course->modules;
-            foreach ($modules as $module) {
-                ModuleUnlock::firstOrCreate([
-                    'user_id' => $record->user_id,
-                    'module_id' => $module->id,
-                ]);
-            }
-
-            // Create payment record
-            Payment::create([
+            // Create payment record first
+            $payment = Payment::create([
                 'user_id' => $record->user_id,
                 'course_id' => $record->course_id,
                 'amount' => $record->amount,
@@ -277,15 +268,24 @@ class BankTransferPaymentResource extends Resource
                 'status' => 'completed',
                 'completed_at' => now(),
             ]);
-        } elseif ($record->module_id) {
-            // Unlock module
-            ModuleUnlock::firstOrCreate([
-                'user_id' => $record->user_id,
-                'module_id' => $record->module_id,
-            ]);
 
-            // Create payment record
-            Payment::create([
+            // Unlock all modules in the course with payment_id
+            $modules = $record->course->modules;
+            foreach ($modules as $module) {
+                ModuleUnlock::firstOrCreate(
+                    [
+                        'user_id' => $record->user_id,
+                        'module_id' => $module->id,
+                    ],
+                    [
+                        'payment_id' => $payment->id,
+                        'unlocked_at' => now(),
+                    ]
+                );
+            }
+        } elseif ($record->module_id) {
+            // Create payment record first
+            $payment = Payment::create([
                 'user_id' => $record->user_id,
                 'module_id' => $record->module_id,
                 'amount' => $record->amount,
@@ -294,6 +294,18 @@ class BankTransferPaymentResource extends Resource
                 'status' => 'completed',
                 'completed_at' => now(),
             ]);
+
+            // Unlock module with payment_id
+            ModuleUnlock::firstOrCreate(
+                [
+                    'user_id' => $record->user_id,
+                    'module_id' => $record->module_id,
+                ],
+                [
+                    'payment_id' => $payment->id,
+                    'unlocked_at' => now(),
+                ]
+            );
         }
     }
 
