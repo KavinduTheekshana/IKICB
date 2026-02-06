@@ -43,15 +43,15 @@ class CourseController extends Controller
 
             $isEnrolled = $enrollment !== null;
 
-            if ($isEnrolled) {
-                $unlockedModules = auth()->user()->moduleUnlocks()
-                    ->whereIn('module_id', $course->modules->pluck('id'))
-                    ->pluck('module_id');
+            // Load unlocked modules regardless of enrollment status
+            // This supports module-wise purchases where users unlock individual modules
+            $unlockedModules = auth()->user()->moduleUnlocks()
+                ->whereIn('module_id', $course->modules->pluck('id'))
+                ->pluck('module_id');
 
-                $completedModules = auth()->user()->moduleCompletions()
-                    ->whereIn('module_id', $course->modules->pluck('id'))
-                    ->pluck('module_id');
-            }
+            $completedModules = auth()->user()->moduleCompletions()
+                ->whereIn('module_id', $course->modules->pluck('id'))
+                ->pluck('module_id');
         }
 
         return view('frontend.courses.show', compact('course', 'isEnrolled', 'unlockedModules', 'completedModules'));

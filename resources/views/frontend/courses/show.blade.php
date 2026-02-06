@@ -109,7 +109,7 @@
                                             {{ $module->description }}
                                         </p>
 
-                                        @if($isEnrolled && $unlockedModules->contains($module->id))
+                                        @if($unlockedModules->contains($module->id))
                                             <div class="ml-14">
                                                 <a href="{{ route('courses.module', $module) }}" class="inline-flex items-center px-6 py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-gray-900 font-bold shadow-lg hover:shadow-yellow-500/50 transform hover:scale-105 transition-all">
                                                     <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -123,14 +123,14 @@
                                     </div>
 
                                     <div class="ml-4 flex-shrink-0">
-                                        @if($isEnrolled && $completedModules->contains($module->id))
+                                        @if($completedModules->contains($module->id))
                                             <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-green-100 text-green-800 border border-green-300">
                                                 <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                                                 </svg>
                                                 Completed
                                             </span>
-                                        @elseif($isEnrolled && $unlockedModules->contains($module->id))
+                                        @elseif($unlockedModules->contains($module->id))
                                             <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-blue-100 text-blue-800 border border-blue-300">
                                                 <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
