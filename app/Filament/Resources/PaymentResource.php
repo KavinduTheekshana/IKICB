@@ -26,14 +26,20 @@ class PaymentResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->with(['user', 'course', 'module']);
+    }
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Section::make('Payment Information')
                     ->schema([
-                        Forms\Components\TextInput::make('user.name')
+                        Forms\Components\TextInput::make('student_name')
                             ->label('Student')
+                            ->formatStateUsing(fn ($record) => $record->user?->name ?? 'N/A')
                             ->disabled(),
                         Forms\Components\TextInput::make('transaction_id')
                             ->label('Transaction ID')
@@ -52,11 +58,13 @@ class PaymentResource extends Resource
 
                 Forms\Components\Section::make('Course/Module')
                     ->schema([
-                        Forms\Components\TextInput::make('course.title')
+                        Forms\Components\TextInput::make('course_title')
                             ->label('Course')
+                            ->formatStateUsing(fn ($record) => $record->course?->title ?? 'N/A')
                             ->disabled(),
-                        Forms\Components\TextInput::make('module.title')
+                        Forms\Components\TextInput::make('module_title')
                             ->label('Module')
+                            ->formatStateUsing(fn ($record) => $record->module?->title ?? 'N/A')
                             ->disabled(),
                     ])->columns(2),
 
