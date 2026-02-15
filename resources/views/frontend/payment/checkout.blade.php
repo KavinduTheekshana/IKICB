@@ -195,12 +195,13 @@
                         <div>
                             <h3 class="text-sm font-medium text-yellow-800">Bank Transfer Instructions</h3>
                             <div class="mt-2 text-sm text-yellow-700 space-y-1">
-                                <p><strong>Bank:</strong> Commercial Bank of Ceylon</p>
-                                <p><strong>Account Name:</strong> IKICBC Learning Center</p>
-                                <p><strong>Account Number:</strong> 1234567890</p>
-                                <p><strong>Branch:</strong> Colombo</p>
+                                <p><strong>Bank:</strong> People's bank</p>
+                                <p><strong>Account Name:</strong> Ishara Koralage Academy</p>
+                                <p><strong>Account Number:</strong> 208200190029351</p>
+                                <p><strong>Branch:</strong> Maharagama Branch</p>
                                 <p class="mt-2">Please use your name as reference when making the transfer.</p>
                             </div>
+                        
                         </div>
                     </div>
                 </div>
