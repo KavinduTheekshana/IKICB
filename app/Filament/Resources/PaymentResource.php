@@ -144,26 +144,59 @@ class PaymentResource extends Resource
                                 $extension = pathinfo($record->receipt_path, PATHINFO_EXTENSION);
 
                                 if (in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
-                                    // Display image preview with link
+                                    // Display inline image preview with lightbox
                                     return new \Illuminate\Support\HtmlString(
                                         '<div class="space-y-2">
-                                            <a href="' . $url . '" target="_blank" class="text-primary-600 hover:text-primary-700 font-medium">
-                                                View Receipt (opens in new tab)
-                                            </a>
                                             <div class="mt-2">
-                                                <img src="' . $url . '" alt="Receipt" class="max-w-md rounded-lg shadow-sm border" />
+                                                <a href="' . $url . '"
+                                                   onclick="openReceiptModal(\'' . $url . '\'); return false;"
+                                                   class="cursor-pointer block">
+                                                    <img src="' . $url . '"
+                                                         alt="Receipt"
+                                                         class="max-w-md rounded-lg shadow-sm border hover:shadow-md transition-shadow cursor-pointer" />
+                                                </a>
+                                                <p class="text-sm text-gray-500 mt-1">Click image to view full size</p>
                                             </div>
-                                        </div>'
+                                        </div>
+                                        <div id="receipt-modal" style="display: none;" class="fixed inset-0 bg-black bg-opacity-75 z-50 items-center justify-center p-4" onclick="closeReceiptModal()">
+                                            <div class="relative max-w-7xl max-h-full">
+                                                <button onclick="closeReceiptModal()" class="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75">
+                                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                    </svg>
+                                                </button>
+                                                <img id="receipt-modal-img" src="" alt="Receipt Full Size" class="max-w-full max-h-screen rounded-lg" onclick="event.stopPropagation()">
+                                            </div>
+                                        </div>
+                                        <script>
+                                        function openReceiptModal(url) {
+                                            const modal = document.getElementById("receipt-modal");
+                                            document.getElementById("receipt-modal-img").src = url;
+                                            modal.style.display = "flex";
+                                            document.body.style.overflow = "hidden";
+                                        }
+                                        function closeReceiptModal() {
+                                            const modal = document.getElementById("receipt-modal");
+                                            modal.style.display = "none";
+                                            document.body.style.overflow = "auto";
+                                        }
+                                        document.addEventListener("keydown", function(e) {
+                                            if (e.key === "Escape") closeReceiptModal();
+                                        });
+                                        </script>'
                                     );
                                 } else {
-                                    // Display link for PDF or other files
+                                    // Display embedded PDF viewer
                                     return new \Illuminate\Support\HtmlString(
-                                        '<a href="' . $url . '" target="_blank" class="inline-flex items-center text-primary-600 hover:text-primary-700 font-medium">
-                                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                                            </svg>
-                                            View Receipt (PDF)
-                                        </a>'
+                                        '<div class="space-y-2">
+                                            <div class="border rounded-lg overflow-hidden" style="height: 600px;">
+                                                <iframe src="' . $url . '"
+                                                        class="w-full h-full"
+                                                        frameborder="0">
+                                                </iframe>
+                                            </div>
+                                            <p class="text-sm text-gray-500">PDF Receipt Preview</p>
+                                        </div>'
                                     );
                                 }
                             })
