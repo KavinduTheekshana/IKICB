@@ -271,6 +271,11 @@ class PaymentResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->requiresConfirmation()
+                    ->modalHeading('Delete Payment')
+                    ->modalDescription('Are you sure you want to delete this payment? This action cannot be undone.')
+                    ->successNotificationTitle('Payment deleted successfully'),
                 Tables\Actions\Action::make('approve')
                     ->label('Approve')
                     ->icon('heroicon-o-check-circle')
