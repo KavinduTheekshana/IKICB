@@ -37,51 +37,109 @@ class PaymentResource extends Resource
             ->schema([
                 Forms\Components\Section::make('Payment Information')
                     ->schema([
-                        Forms\Components\TextInput::make('student_name')
+                        Forms\Components\Select::make('user_id')
                             ->label('Student')
-                            ->formatStateUsing(fn ($record) => $record->user?->name ?? 'N/A')
-                            ->disabled(),
+                            ->relationship('user', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->required(),
                         Forms\Components\TextInput::make('transaction_id')
                             ->label('Transaction ID')
-                            ->disabled(),
+                            ->required()
+                            ->maxLength(255),
                         Forms\Components\TextInput::make('amount')
                             ->label('Amount')
-                            ->disabled()
-                            ->prefix('LKR'),
-                        Forms\Components\TextInput::make('payment_method')
+                            ->required()
+                            ->numeric()
+                            ->prefix('LKR')
+                            ->minValue(0),
+                        Forms\Components\Select::make('payment_method')
                             ->label('Payment Method')
-                            ->disabled(),
-                        Forms\Components\TextInput::make('status')
+                            ->options([
+                                'payhere' => 'PayHere',
+                                'bank_transfer' => 'Bank Transfer',
+                                'cash' => 'Cash',
+                                'other' => 'Other',
+                            ])
+                            ->required(),
+                        Forms\Components\Select::make('payment_gateway')
+                            ->label('Payment Gateway')
+                            ->options([
+                                'payhere' => 'PayHere',
+                                'bank_transfer' => 'Bank Transfer',
+                                'manual' => 'Manual',
+                            ])
+                            ->required(),
+                        Forms\Components\Select::make('status')
                             ->label('Status')
-                            ->disabled(),
+                            ->options([
+                                'pending' => 'Pending',
+                                'completed' => 'Completed',
+                                'failed' => 'Failed',
+                                'refunded' => 'Refunded',
+                            ])
+                            ->required(),
+                        Forms\Components\TextInput::make('currency')
+                            ->label('Currency')
+                            ->default('LKR')
+                            ->maxLength(10),
                     ])->columns(2),
 
-                Forms\Components\Section::make('Course/Module')
+                Forms\Components\Section::make('Course/Module Assignment')
                     ->schema([
-                        Forms\Components\TextInput::make('course_title')
+                        Forms\Components\Select::make('course_id')
                             ->label('Course')
-                            ->formatStateUsing(fn ($record) => $record->course?->title ?? 'N/A')
-                            ->disabled(),
-                        Forms\Components\TextInput::make('module_title')
+                            ->relationship('course', 'title')
+                            ->searchable()
+                            ->preload()
+                            ->reactive()
+                            ->afterStateUpdated(fn (callable $set) => $set('module_id', null)),
+                        Forms\Components\Select::make('module_id')
                             ->label('Module')
-                            ->formatStateUsing(fn ($record) => $record->module?->title ?? 'N/A')
-                            ->disabled(),
-                    ])->columns(2),
+                            ->relationship('module', 'title')
+                            ->searchable()
+                            ->preload()
+                            ->reactive(),
+                    ])->columns(2)
+                    ->description('Assign a course (full purchase) or specific module (module-wise purchase). Leave both empty for general payments.'),
 
                 Forms\Components\Section::make('Bank Transfer Details')
                     ->schema([
                         Forms\Components\TextInput::make('reference_number')
                             ->label('Reference Number')
-                            ->disabled(),
+                            ->maxLength(255),
                         Forms\Components\FileUpload::make('receipt_path')
                             ->label('Receipt')
-                            ->disabled()
-                            ->visibility('public'),
+                            ->disk('public')
+                            ->directory('bank-receipts')
+                            ->visibility('public')
+                            ->acceptedFileTypes(['image/*', 'application/pdf'])
+                            ->maxSize(5120),
                         Forms\Components\Textarea::make('admin_notes')
                             ->label('Admin Notes')
-                            ->rows(3),
-                    ])
-                    ->visible(fn ($record) => $record && $record->payment_method === 'bank_transfer'),
+                            ->rows(3)
+                            ->columnSpanFull(),
+                    ])->columns(2),
+
+                Forms\Components\Section::make('Additional Information')
+                    ->schema([
+                        Forms\Components\Textarea::make('payment_details')
+                            ->label('Payment Details (JSON)')
+                            ->rows(3)
+                            ->columnSpanFull()
+                            ->helperText('Additional payment metadata stored as JSON'),
+                        Forms\Components\DateTimePicker::make('completed_at')
+                            ->label('Completed At'),
+                        Forms\Components\DateTimePicker::make('approved_at')
+                            ->label('Approved At'),
+                        Forms\Components\Select::make('approved_by')
+                            ->label('Approved By')
+                            ->relationship('approvedBy', 'name')
+                            ->searchable()
+                            ->preload(),
+                    ])->columns(2)
+                    ->collapsible()
+                    ->collapsed(),
             ]);
     }
 
@@ -146,6 +204,7 @@ class PaymentResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('approve')
                     ->label('Approve')
                     ->icon('heroicon-o-check-circle')
@@ -262,6 +321,7 @@ class PaymentResource extends Resource
     {
         return [
             'index' => Pages\ListPayments::route('/'),
+            'create' => Pages\CreatePayment::route('/create'),
             'edit' => Pages\EditPayment::route('/{record}/edit'),
         ];
     }

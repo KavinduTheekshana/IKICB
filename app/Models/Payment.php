@@ -46,4 +46,9 @@ class Payment extends Model
     {
         return $this->belongsTo(Module::class);
     }
+
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
 }
