@@ -213,11 +213,6 @@ class PaymentResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('transaction_id')
-                    ->label('Transaction ID')
-                    ->searchable()
-                    ->sortable()
-                    ->copyable(),
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Student')
                     ->searchable()
