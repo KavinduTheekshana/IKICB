@@ -3,7 +3,9 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PaymentResource\Pages;
+use App\Models\Course;
 use App\Models\Enrollment;
+use App\Models\Module;
 use App\Models\ModuleUnlock;
 use App\Models\Payment;
 use Filament\Forms;
@@ -93,15 +95,39 @@ class PaymentResource extends Resource
                             ->searchable()
                             ->preload()
                             ->reactive()
-                            ->afterStateUpdated(fn (callable $set) => $set('module_id', null)),
+                            ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                // Clear module when course changes
+                                $set('module_id', null);
+
+                                // Auto-fill amount from course price
+                                if ($state) {
+                                    $course = \App\Models\Course::find($state);
+                                    if ($course && $course->full_price) {
+                                        $set('amount', $course->full_price);
+                                    }
+                                }
+                            }),
                         Forms\Components\Select::make('module_id')
                             ->label('Module')
                             ->relationship('module', 'title')
                             ->searchable()
                             ->preload()
-                            ->reactive(),
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                // Auto-fill amount from module price
+                                if ($state) {
+                                    $module = \App\Models\Module::find($state);
+                                    if ($module && $module->module_price) {
+                                        $set('amount', $module->module_price);
+                                        // Also set the course if module has one
+                                        if ($module->course_id) {
+                                            $set('course_id', $module->course_id);
+                                        }
+                                    }
+                                }
+                            }),
                     ])->columns(2)
-                    ->description('Assign a course (full purchase) or specific module (module-wise purchase). Leave both empty for general payments.'),
+                    ->description('Assign a course (full purchase) or specific module (module-wise purchase). Amount will auto-fill from selected course/module price.'),
 
                 Forms\Components\Section::make('Bank Transfer Details')
                     ->schema([
@@ -120,26 +146,6 @@ class PaymentResource extends Resource
                             ->rows(3)
                             ->columnSpanFull(),
                     ])->columns(2),
-
-                Forms\Components\Section::make('Additional Information')
-                    ->schema([
-                        Forms\Components\Textarea::make('payment_details')
-                            ->label('Payment Details (JSON)')
-                            ->rows(3)
-                            ->columnSpanFull()
-                            ->helperText('Additional payment metadata stored as JSON'),
-                        Forms\Components\DateTimePicker::make('completed_at')
-                            ->label('Completed At'),
-                        Forms\Components\DateTimePicker::make('approved_at')
-                            ->label('Approved At'),
-                        Forms\Components\Select::make('approved_by')
-                            ->label('Approved By')
-                            ->relationship('approvedBy', 'name')
-                            ->searchable()
-                            ->preload(),
-                    ])->columns(2)
-                    ->collapsible()
-                    ->collapsed(),
             ]);
     }
 
