@@ -134,13 +134,40 @@ class PaymentResource extends Resource
                         Forms\Components\TextInput::make('reference_number')
                             ->label('Reference Number')
                             ->maxLength(255),
-                        Forms\Components\FileUpload::make('receipt_path')
+                        Forms\Components\Placeholder::make('receipt_display')
                             ->label('Receipt')
-                            ->disk('public')
-                            ->directory('bank-receipts')
-                            ->visibility('public')
-                            ->acceptedFileTypes(['image/*', 'application/pdf'])
-                            ->maxSize(5120),
+                            ->content(function ($record) {
+                                if (!$record || !$record->receipt_path) {
+                                    return 'No receipt uploaded';
+                                }
+                                $url = asset('storage/' . $record->receipt_path);
+                                $extension = pathinfo($record->receipt_path, PATHINFO_EXTENSION);
+
+                                if (in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+                                    // Display image preview with link
+                                    return new \Illuminate\Support\HtmlString(
+                                        '<div class="space-y-2">
+                                            <a href="' . $url . '" target="_blank" class="text-primary-600 hover:text-primary-700 font-medium">
+                                                View Receipt (opens in new tab)
+                                            </a>
+                                            <div class="mt-2">
+                                                <img src="' . $url . '" alt="Receipt" class="max-w-md rounded-lg shadow-sm border" />
+                                            </div>
+                                        </div>'
+                                    );
+                                } else {
+                                    // Display link for PDF or other files
+                                    return new \Illuminate\Support\HtmlString(
+                                        '<a href="' . $url . '" target="_blank" class="inline-flex items-center text-primary-600 hover:text-primary-700 font-medium">
+                                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                            </svg>
+                                            View Receipt (PDF)
+                                        </a>'
+                                    );
+                                }
+                            })
+                            ->visible(fn ($record) => $record && $record->receipt_path),
                         Forms\Components\Textarea::make('admin_notes')
                             ->label('Admin Notes')
                             ->rows(3)
