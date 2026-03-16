@@ -64,7 +64,7 @@
                 </div>
 
                 <!-- Video Player -->
-                @if($module->video_url)
+                @if($module->video_url && trim($module->video_url) !== '')
                     <div class="bg-white rounded-3xl shadow-xl border-2 border-gray-200 overflow-hidden">
                         <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-8 py-4">
                             <h2 class="text-2xl font-black text-gray-900 flex items-center">
