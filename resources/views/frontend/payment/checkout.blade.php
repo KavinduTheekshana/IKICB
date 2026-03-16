@@ -61,8 +61,11 @@
 
             <!-- Payment Method Selection -->
             <div class="px-6 py-6 border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-900 mb-4">Select Payment Method</h2>
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Payment Method</h2>
                 <div class="space-y-3">
+                    {{-- PayHere Option - Hidden for now --}}
+                    {{-- Uncomment below to enable PayHere payment option --}}
+                    {{--
                     <label class="relative flex items-center p-4 cursor-pointer border-2 border-gray-200 rounded-lg hover:border-indigo-500 transition-colors">
                         <input type="radio" name="payment_method" value="payhere" checked class="sr-only peer" onchange="togglePaymentForms()">
                         <div class="flex-1">
@@ -84,9 +87,10 @@
                             </svg>
                         </div>
                     </label>
+                    --}}
 
-                    <label class="relative flex items-center p-4 cursor-pointer border-2 border-gray-200 rounded-lg hover:border-indigo-500 transition-colors">
-                        <input type="radio" name="payment_method" value="bank_transfer" class="sr-only peer" onchange="togglePaymentForms()">
+                    <label class="relative flex items-center p-4 cursor-pointer border-2 border-green-500 bg-green-50 rounded-lg">
+                        <input type="radio" name="payment_method" value="bank_transfer" checked class="sr-only peer" onchange="togglePaymentForms()">
                         <div class="flex-1">
                             <div class="flex items-center space-x-3">
                                 <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
@@ -100,8 +104,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="w-5 h-5 border-2 border-gray-300 rounded-full peer-checked:border-green-600 peer-checked:bg-green-600 flex items-center justify-center">
-                            <svg class="w-3 h-3 text-white hidden peer-checked:block" fill="currentColor" viewBox="0 0 12 10">
+                        <div class="w-5 h-5 border-2 border-green-600 bg-green-600 rounded-full flex items-center justify-center">
+                            <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 12 10">
                                 <path d="M10.97 1.97a.75.75 0 011.06 1.06l-6.5 6.5a.75.75 0 01-1.06 0l-3-3a.75.75 0 111.06-1.06L4.97 7.94l5.97-5.97z"/>
                             </svg>
                         </div>
@@ -109,8 +113,8 @@
                 </div>
             </div>
 
-            <!-- PayHere Payment Form -->
-            <div class="px-6 py-8" id="payhere-form">
+            <!-- PayHere Payment Form - Hidden -->
+            <div class="px-6 py-8 hidden" id="payhere-form">
                 <form method="post" action="{{ route('payment.payhere.process') }}" id="payhere-payment-form">
                     @csrf
                     <input type="hidden" name="merchant_id" value="{{ $paymentData['merchant_id'] }}">
@@ -310,6 +314,12 @@ function togglePaymentForms() {
         bankTransferForm.classList.remove('hidden');
     }
 }
+
+// Show bank transfer form by default on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const bankTransferForm = document.getElementById('bank-transfer-form');
+    bankTransferForm.classList.remove('hidden');
+});
 
 function displayFileName(input) {
     const fileNameDisplay = document.getElementById('file-name');
