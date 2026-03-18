@@ -3,8 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\Branch;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class BranchSeeder extends Seeder
 {
@@ -21,6 +22,7 @@ class BranchSeeder extends Seeder
                 'phone' => '0777155515',
                 'email' => 'ikbrideshub@gmail.com',
                 'is_active' => true,
+                'login_email' => 'maharagama@ikicb.com',
             ],
             [
                 'name' => 'Gampaha Branch',
@@ -29,6 +31,7 @@ class BranchSeeder extends Seeder
                 'phone' => '0777155515',
                 'email' => 'ikbrideshub@gmail.com',
                 'is_active' => true,
+                'login_email' => 'gampaha@ikicb.com',
             ],
             [
                 'name' => 'Negombo Branch',
@@ -37,6 +40,7 @@ class BranchSeeder extends Seeder
                 'phone' => '0777155515',
                 'email' => 'ikbrideshub@gmail.com',
                 'is_active' => true,
+                'login_email' => 'negombo@ikicb.com',
             ],
             [
                 'name' => 'Ratnapura Branch',
@@ -45,11 +49,31 @@ class BranchSeeder extends Seeder
                 'phone' => '0777155515',
                 'email' => 'ikbrideshub@gmail.com',
                 'is_active' => true,
+                'login_email' => 'ratnapura@ikicb.com',
             ],
         ];
 
-        foreach ($branches as $branch) {
-            Branch::create($branch);
+        foreach ($branches as $data) {
+            $loginEmail = $data['login_email'];
+            unset($data['login_email']);
+
+            $branch = Branch::create($data);
+
+            User::updateOrCreate(
+                ['email' => $loginEmail],
+                [
+                    'name' => $branch->name . ' Admin',
+                    'password' => Hash::make('password'),
+                    'role' => 'branch_admin',
+                    'branch_id' => $branch->id,
+                ]
+            );
         }
+
+        $this->command->info('Branches and branch admin users created!');
+        $this->command->info('Maharagama: maharagama@ikicb.com / password');
+        $this->command->info('Gampaha: gampaha@ikicb.com / password');
+        $this->command->info('Negombo: negombo@ikicb.com / password');
+        $this->command->info('Ratnapura: ratnapura@ikicb.com / password');
     }
 }

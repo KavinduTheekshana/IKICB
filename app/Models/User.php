@@ -57,6 +57,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->role === 'admin';
     }
 
+    public function isBranchAdmin(): bool
+    {
+        return $this->role === 'branch_admin';
+    }
+
     public function isInstructor(): bool
     {
         return $this->role === 'instructor';
@@ -69,7 +74,11 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->isAdmin();
+        return match ($panel->getId()) {
+            'admin'  => $this->isAdmin(),
+            'branch' => $this->isBranchAdmin(),
+            default  => false,
+        };
     }
 
     public function courses()

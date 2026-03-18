@@ -96,10 +96,13 @@ class CourseController extends Controller
             ->latest()
             ->get();
 
+        // Check if user has already attempted the quiz
+        $hasAttempted = $quizAttempts->isNotEmpty();
+
         // Check if module is completed
         $isCompleted = auth()->user()->hasCompletedModule($module->id);
 
-        return view('frontend.courses.module', compact('module', 'mcqQuestions', 'quizAttempts', 'isCompleted'));
+        return view('frontend.courses.module', compact('module', 'mcqQuestions', 'quizAttempts', 'hasAttempted', 'isCompleted'));
     }
 
     public function submitQuiz(Request $request, Module $module)
@@ -116,6 +119,16 @@ class CourseController extends Controller
 
         if (!$hasAccess) {
             abort(403, 'You do not have access to this module.');
+        }
+
+        // Block if already attempted
+        $alreadyAttempted = QuizAttempt::where('user_id', auth()->id())
+            ->where('module_id', $module->id)
+            ->exists();
+
+        if ($alreadyAttempted) {
+            return redirect()->route('courses.module', $module)
+                ->with('error', 'You have already submitted this quiz. Only one attempt is allowed.');
         }
 
         $validated = $request->validate([

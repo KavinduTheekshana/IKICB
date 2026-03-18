@@ -223,43 +223,53 @@
                             @endif
 
                             <!-- Quiz Form -->
-                            <form action="{{ route('courses.module.quiz', $module) }}" method="POST" id="quizForm">
-                                @csrf
-                                <div class="space-y-8">
-                                    @foreach($mcqQuestions as $index => $question)
-                                        <div class="border-b-2 border-gray-200 pb-8 last:border-0">
-                                            <p class="font-black text-gray-900 mb-4 text-lg">
-                                                {{ $index + 1 }}. {{ $question->question }}
-                                                <span class="text-sm text-yellow-600 font-bold ml-2">({{ $question->marks }} marks)</span>
-                                            </p>
-                                            @if($question->mcq_options)
-                                                <div class="space-y-3 ml-6">
-                                                    @foreach($question->mcq_options as $optionKey => $option)
-                                                        <label class="flex items-center space-x-4 p-4 rounded-2xl border-2 border-gray-200 hover:bg-yellow-50 hover:border-yellow-400 cursor-pointer transition-all group">
-                                                            <input
-                                                                type="radio"
-                                                                name="answers[{{ $question->id }}]"
-                                                                value="{{ $optionKey }}"
-                                                                class="h-5 w-5 text-yellow-600 focus:ring-yellow-500 focus:ring-2"
-                                                                required>
-                                                            <span class="text-gray-700 font-semibold flex-1 group-hover:text-gray-900">{{ is_array($option) ? ($option['option'] ?? $option[0] ?? '') : $option }}</span>
-                                                        </label>
-                                                    @endforeach
-                                                </div>
-                                            @endif
-                                        </div>
-                                    @endforeach
+                            @if($hasAttempted)
+                                <div class="mt-4 p-6 bg-gray-100 border-2 border-gray-300 rounded-2xl text-center">
+                                    <svg class="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                    </svg>
+                                    <p class="text-gray-700 font-black text-lg">Quiz Already Submitted</p>
+                                    <p class="text-gray-500 font-semibold mt-1">You have already completed this quiz. Only one attempt is allowed.</p>
                                 </div>
+                            @else
+                                <form action="{{ route('courses.module.quiz', $module) }}" method="POST" id="quizForm">
+                                    @csrf
+                                    <div class="space-y-8">
+                                        @foreach($mcqQuestions as $index => $question)
+                                            <div class="border-b-2 border-gray-200 pb-8 last:border-0">
+                                                <p class="font-black text-gray-900 mb-4 text-lg">
+                                                    {{ $index + 1 }}. {{ $question->question }}
+                                                    <span class="text-sm text-yellow-600 font-bold ml-2">({{ $question->marks }} marks)</span>
+                                                </p>
+                                                @if($question->mcq_options)
+                                                    <div class="space-y-3 ml-6">
+                                                        @foreach($question->mcq_options as $optionKey => $option)
+                                                            <label class="flex items-center space-x-4 p-4 rounded-2xl border-2 border-gray-200 hover:bg-yellow-50 hover:border-yellow-400 cursor-pointer transition-all group">
+                                                                <input
+                                                                    type="radio"
+                                                                    name="answers[{{ $question->id }}]"
+                                                                    value="{{ $optionKey }}"
+                                                                    class="h-5 w-5 text-yellow-600 focus:ring-yellow-500 focus:ring-2"
+                                                                    required>
+                                                                <span class="text-gray-700 font-semibold flex-1 group-hover:text-gray-900">{{ is_array($option) ? ($option['option'] ?? $option[0] ?? '') : $option }}</span>
+                                                            </label>
+                                                        @endforeach
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    </div>
 
-                                <div class="mt-8 pt-8 border-t-2 border-gray-200">
-                                    <button type="submit" class="w-full inline-flex items-center justify-center px-8 py-4 rounded-2xl bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-gray-900 font-black text-lg shadow-xl hover:shadow-yellow-500/50 transform hover:scale-105 transition-all">
-                                        <svg class="h-6 w-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                        </svg>
-                                        Submit Quiz
-                                    </button>
-                                </div>
-                            </form>
+                                    <div class="mt-8 pt-8 border-t-2 border-gray-200">
+                                        <button type="submit" class="w-full inline-flex items-center justify-center px-8 py-4 rounded-2xl bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-gray-900 font-black text-lg shadow-xl hover:shadow-yellow-500/50 transform hover:scale-105 transition-all">
+                                            <svg class="h-6 w-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            Submit Quiz
+                                        </button>
+                                    </div>
+                                </form>
+                            @endif
                         </div>
                     </div>
                 @endif
