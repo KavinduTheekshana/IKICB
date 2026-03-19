@@ -10,6 +10,7 @@ use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -52,6 +53,17 @@ class BranchPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->renderHook(
+                PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
+                fn () => '<div class="text-center mt-4">
+                    <a href="' . route('filament.branch.auth.forgot-password') . '"
+                       style="color:#14b8a6;font-size:0.875rem;text-decoration:none;"
+                       onmouseover="this.style.color=\'#2dd4bf\'"
+                       onmouseout="this.style.color=\'#14b8a6\'">
+                        Forgot your password?
+                    </a>
+                </div>',
+            );
     }
 }
