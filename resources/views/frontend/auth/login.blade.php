@@ -69,12 +69,15 @@
                     >
                 </div>
 
-                <!-- Remember Me -->
+                <!-- Remember Me & Forgot Password -->
                 <div class="flex items-center justify-between">
                     <label class="flex items-center cursor-pointer group">
                         <input type="checkbox" name="remember" class="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500 cursor-pointer">
                         <span class="ml-2 text-sm font-semibold text-gray-700 group-hover:text-gray-900">Remember me</span>
                     </label>
+                    <a href="{{ route('password.forgot') }}" class="text-sm font-bold text-yellow-600 hover:text-yellow-700 transition-colors">
+                        Forgot password?
+                    </a>
                 </div>
 
                 <!-- Submit Button -->
