@@ -19,32 +19,26 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
-class AdminPanelProvider extends PanelProvider
+class BranchPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->default()
-            ->id('admin')
-            ->path('admin')
+            ->id('branch')
+            ->path('branch')
             ->login()
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Teal,
             ])
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
+            ->discoverResources(in: app_path('Filament/Branch/Resources'), for: 'App\\Filament\\Branch\\Resources')
+            ->discoverPages(in: app_path('Filament/Branch/Pages'), for: 'App\\Filament\\Branch\\Pages')
             ->pages([
                 Pages\Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+            ->discoverWidgets(in: app_path('Filament/Branch/Widgets'), for: 'App\\Filament\\Branch\\Widgets')
             ->widgets([
-                \App\Filament\Widgets\StatsOverviewWidget::class,
-                \App\Filament\Widgets\RevenueChart::class,
-                \App\Filament\Widgets\EnrollmentChart::class,
-                \App\Filament\Widgets\CourseCompletionChart::class,
-                \App\Filament\Widgets\TopPerformingStudents::class,
-                \App\Filament\Widgets\PopularCourses::class,
-                \App\Filament\Widgets\RecentActivities::class,
+                Widgets\AccountWidget::class,
+                \App\Filament\Branch\Widgets\BranchStatsWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -63,10 +57,10 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
                 fn () => '<div class="text-center mt-4">
-                    <a href="' . route('filament.admin.auth.forgot-password') . '"
-                       style="color:#f59e0b;font-size:0.875rem;text-decoration:none;"
-                       onmouseover="this.style.color=\'#fbbf24\'"
-                       onmouseout="this.style.color=\'#f59e0b\'">
+                    <a href="' . route('filament.branch.auth.forgot-password') . '"
+                       style="color:#14b8a6;font-size:0.875rem;text-decoration:none;"
+                       onmouseover="this.style.color=\'#2dd4bf\'"
+                       onmouseout="this.style.color=\'#14b8a6\'">
                         Forgot your password?
                     </a>
                 </div>',

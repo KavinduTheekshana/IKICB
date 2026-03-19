@@ -40,7 +40,7 @@
                         </div>
                         <div>
                             <div class="text-xs text-gray-400">Instructor</div>
-                            <div class="font-bold text-white">{{ $course->instructor->name }}</div>
+                            <div class="font-bold text-white">ICBC Lecture Panel</div>
                         </div>
                     </div>
                     <div class="flex items-center text-gray-300">

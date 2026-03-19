@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FilamentAuthController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\CourseController;
 use App\Http\Controllers\Frontend\DashboardController;
@@ -36,6 +37,14 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
+
+    // Forgot password / OTP flow
+    Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('password.forgot');
+    Route::post('/forgot-password', [AuthController::class, 'sendOtp'])->name('password.send-otp');
+    Route::get('/verify-otp', [AuthController::class, 'showVerifyOtp'])->name('password.otp');
+    Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->name('password.verify-otp');
+    Route::get('/reset-password', [AuthController::class, 'showResetPassword'])->name('password.reset.form');
+    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset');
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
@@ -74,6 +83,30 @@ Route::middleware('auth')->group(function () {
 
 // PayHere notification (no auth required)
 Route::post('/payment/notify', [PaymentController::class, 'notify'])->name('payment.notify');
+
+// Filament panel OTP password reset (admin + branch)
+foreach (['admin', 'branch'] as $panel) {
+    Route::prefix($panel)->middleware('web')->group(function () use ($panel) {
+        Route::get('/forgot-password', [FilamentAuthController::class, 'showForgotPassword'])
+            ->defaults('panel', $panel)
+            ->name("filament.{$panel}.auth.forgot-password");
+        Route::post('/forgot-password', [FilamentAuthController::class, 'sendOtp'])
+            ->defaults('panel', $panel)
+            ->name("filament.{$panel}.auth.send-otp");
+        Route::get('/verify-otp', [FilamentAuthController::class, 'showVerifyOtp'])
+            ->defaults('panel', $panel)
+            ->name("filament.{$panel}.auth.verify-otp");
+        Route::post('/verify-otp', [FilamentAuthController::class, 'verifyOtp'])
+            ->defaults('panel', $panel)
+            ->name("filament.{$panel}.auth.verify-otp.submit");
+        Route::get('/reset-password', [FilamentAuthController::class, 'showResetPassword'])
+            ->defaults('panel', $panel)
+            ->name("filament.{$panel}.auth.reset-password");
+        Route::post('/reset-password', [FilamentAuthController::class, 'resetPassword'])
+            ->defaults('panel', $panel)
+            ->name("filament.{$panel}.auth.reset-password.submit");
+    });
+}
 
 // Fallback route - must be last
 Route::fallback(function () {
