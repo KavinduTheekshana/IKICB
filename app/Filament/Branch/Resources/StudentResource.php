@@ -114,6 +114,11 @@ class StudentResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
+                Tables\Actions\Action::make('view_progress')
+                    ->label('Progress')
+                    ->icon('heroicon-o-chart-bar')
+                    ->color('info')
+                    ->url(fn (User $record): string => StudentResource::getUrl('progress', ['record' => $record])),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
@@ -133,10 +138,11 @@ class StudentResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListStudents::route('/'),
-            'create' => Pages\CreateStudent::route('/create'),
-            'view'   => Pages\ViewStudent::route('/{record}'),
-            'edit'   => Pages\EditStudent::route('/{record}/edit'),
+            'index'    => Pages\ListStudents::route('/'),
+            'create'   => Pages\CreateStudent::route('/create'),
+            'view'     => Pages\ViewStudent::route('/{record}'),
+            'edit'     => Pages\EditStudent::route('/{record}/edit'),
+            'progress' => Pages\StudentProgress::route('/{record}/progress'),
         ];
     }
 
