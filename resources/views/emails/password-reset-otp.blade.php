@@ -42,7 +42,7 @@
                     <!-- Footer -->
                     <tr>
                         <td style="background:#f9fafb;border-top:1px solid #e5e7eb;padding:20px 40px;text-align:center;">
-                            <p style="margin:0;color:#9ca3af;font-size:12px;">© {{ date('Y') }} IKICB Campus. All rights reserved.</p>
+                            <p style="margin:0;color:#9ca3af;font-size:12px;">© {{ date('Y') }} ICBC Campus. All rights reserved.</p>
                         </td>
                     </tr>
                 </table>
