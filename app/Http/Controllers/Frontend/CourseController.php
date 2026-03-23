@@ -159,7 +159,8 @@ class CourseController extends Controller
                 $userAnswerValue = is_array($option) ? ($option['option'] ?? $option[0] ?? null) : $option;
             }
 
-            $isCorrect = $userAnswerValue == $question->correct_answer;
+            $normalize = fn($s) => preg_replace('/\s+/u', ' ', trim($s ?? ''));
+            $isCorrect = $normalize($userAnswerValue) === $normalize($question->correct_answer);
 
             if ($isCorrect) {
                 $correctAnswers++;
