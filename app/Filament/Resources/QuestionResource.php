@@ -69,11 +69,35 @@ class QuestionResource extends Resource
                             ->minItems(2)
                             ->maxItems(6)
                             ->defaultItems(4)
-                            ->columnSpanFull(),
-                        Forms\Components\TextInput::make('correct_answer')
+                            ->columnSpanFull()
+                            ->live()
+                            ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set) {
+                                $options = $get('mcq_options') ?? [];
+                                $currentCorrect = $get('correct_answer');
+                                $optionValues = collect($options)
+                                    ->map(fn($opt) => is_array($opt) ? ($opt['option'] ?? '') : $opt)
+                                    ->filter()
+                                    ->values()
+                                    ->toArray();
+                                if ($currentCorrect && !in_array($currentCorrect, $optionValues)) {
+                                    $set('correct_answer', null);
+                                }
+                            }),
+                        Forms\Components\Select::make('correct_answer')
                             ->label('Correct Answer')
-                            ->helperText('Enter the exact text of the correct option')
-                            ->maxLength(255),
+                            ->helperText('Select the correct answer from the options above')
+                            ->options(function (Forms\Get $get) {
+                                $options = $get('mcq_options') ?? [];
+                                return collect($options)
+                                    ->map(fn($opt) => is_array($opt) ? ($opt['option'] ?? '') : $opt)
+                                    ->filter()
+                                    ->mapWithKeys(fn($text) => [$text => $text])
+                                    ->toArray();
+                            })
+                            ->required()
+                            ->searchable()
+                            ->native(false)
+                            ->placeholder('— select correct answer —'),
                     ])
                     ->visible(fn (Forms\Get $get) => $get('type') === 'mcq'),
             ]);

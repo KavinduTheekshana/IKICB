@@ -150,16 +150,10 @@ class CourseController extends Controller
         $results = [];
 
         foreach ($questions as $question) {
-            $userAnswerIndex = $validated['answers'][$question->id] ?? null;
+            $userAnswerValue = $validated['answers'][$question->id] ?? null;
 
-            // Get the actual option value from the index
-            $userAnswerValue = null;
-            if ($userAnswerIndex !== null && isset($question->mcq_options[$userAnswerIndex])) {
-                $option = $question->mcq_options[$userAnswerIndex];
-                $userAnswerValue = is_array($option) ? ($option['option'] ?? $option[0] ?? null) : $option;
-            }
-
-            $isCorrect = $userAnswerValue == $question->correct_answer;
+            $normalize = fn($s) => preg_replace('/\s+/u', ' ', trim($s ?? ''));
+            $isCorrect = $normalize($userAnswerValue) === $normalize($question->correct_answer);
 
             if ($isCorrect) {
                 $correctAnswers++;
@@ -167,7 +161,6 @@ class CourseController extends Controller
 
             $results[$question->id] = [
                 'user_answer' => $userAnswerValue,
-                'user_answer_index' => $userAnswerIndex,
                 'correct_answer' => $question->correct_answer,
                 'is_correct' => $isCorrect,
             ];
