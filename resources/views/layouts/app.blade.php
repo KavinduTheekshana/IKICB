@@ -124,7 +124,7 @@
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Contact</h3>
                     <p class="text-gray-600 text-sm">
                         Email: info@ikicb.com<br>
-                        Phone: +94 XX XXX XXXX
+                        Phone: +94 77 715 5515
                     </p>
                 </div>
             </div>

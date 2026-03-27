@@ -74,15 +74,14 @@ Route::middleware('auth')->group(function () {
     Route::prefix('payment')->name('payment.')->group(function () {
         Route::post('/course/{course}', [PaymentController::class, 'initiateCoursePayment'])->name('course');
         Route::post('/module/{module}', [PaymentController::class, 'initiateModulePayment'])->name('module');
-        Route::post('/payhere/process', [PaymentController::class, 'processPayHerePayment'])->name('payhere.process');
+        Route::post('/webxpay/process', [PaymentController::class, 'processWebxpayPayment'])->name('webxpay.process');
         Route::post('/bank-transfer/submit', [PaymentController::class, 'submitBankTransfer'])->name('bank-transfer.submit');
-        Route::get('/return', [PaymentController::class, 'return'])->name('return');
         Route::get('/cancel', [PaymentController::class, 'cancel'])->name('cancel');
     });
 });
 
-// PayHere notification (no auth required)
-Route::post('/payment/notify', [PaymentController::class, 'notify'])->name('payment.notify');
+// WEBXPAY return URL (no auth required — WEBXPAY POSTs back via browser redirect)
+Route::post('/payment/webxpay/return', [PaymentController::class, 'webxpayReturn'])->name('payment.webxpay.return');
 
 // Filament panel OTP password reset (admin + branch)
 foreach (['admin', 'branch'] as $panel) {
