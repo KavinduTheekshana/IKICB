@@ -9,7 +9,7 @@
             <!-- Header -->
             <div class="bg-indigo-600 px-6 py-8">
                 <h1 class="text-2xl font-bold text-white">Complete Your Purchase</h1>
-                <p class="mt-2 text-indigo-100">Secure payment powered by PayHere</p>
+                <p class="mt-2 text-indigo-100">Secure payment powered by WEBXPAY</p>
             </div>
 
             <!-- Order Summary -->
@@ -63,11 +63,9 @@
             <div class="px-6 py-6 border-b border-gray-200">
                 <h2 class="text-lg font-semibold text-gray-900 mb-4">Payment Method</h2>
                 <div class="space-y-3">
-                    {{-- PayHere Option - Hidden for now --}}
-                    {{-- Uncomment below to enable PayHere payment option --}}
-                    {{--
-                    <label class="relative flex items-center p-4 cursor-pointer border-2 border-gray-200 rounded-lg hover:border-indigo-500 transition-colors">
-                        <input type="radio" name="payment_method" value="payhere" checked class="sr-only peer" onchange="togglePaymentForms()">
+                    <!-- WEBXPAY Online Payment -->
+                    <label class="relative flex items-center p-4 cursor-pointer border-2 border-indigo-500 bg-indigo-50 rounded-lg hover:border-indigo-500 transition-colors" id="webxpay-label">
+                        <input type="radio" name="payment_method" value="webxpay" class="sr-only peer" checked onchange="togglePaymentForms()">
                         <div class="flex-1">
                             <div class="flex items-center space-x-3">
                                 <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
@@ -76,7 +74,7 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <p class="font-semibold text-gray-900">PayHere Online Payment</p>
+                                    <p class="font-semibold text-gray-900">WEBXPAY Online Payment</p>
                                     <p class="text-sm text-gray-500">Pay securely with cards or e-wallet</p>
                                 </div>
                             </div>
@@ -87,10 +85,10 @@
                             </svg>
                         </div>
                     </label>
-                    --}}
 
-                    <label class="relative flex items-center p-4 cursor-pointer border-2 border-green-500 bg-green-50 rounded-lg">
-                        <input type="radio" name="payment_method" value="bank_transfer" checked class="sr-only peer" onchange="togglePaymentForms()">
+                    <!-- Bank Transfer -->
+                    <label class="relative items-center p-4 cursor-pointer border-2 border-gray-200 rounded-lg hidden" id="bank-label" >
+                        <input type="radio" name="payment_method" value="bank_transfer" class="sr-only peer" onchange="togglePaymentForms()">
                         <div class="flex-1">
                             <div class="flex items-center space-x-3">
                                 <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
@@ -113,37 +111,17 @@
                 </div>
             </div>
 
-            <!-- PayHere Payment Form - Hidden -->
-            <div class="px-6 py-8 hidden" id="payhere-form">
-                <form method="post" action="{{ route('payment.payhere.process') }}" id="payhere-payment-form">
+            <!-- WEBXPAY Payment Form -->
+            <div class="px-6 py-8 hidden" id="webxpay-form">
+                <form method="post" action="{{ route('payment.webxpay.process') }}" id="webxpay-payment-form">
                     @csrf
-                    <input type="hidden" name="merchant_id" value="{{ $paymentData['merchant_id'] }}">
-                    <input type="hidden" name="return_url" value="{{ $paymentData['return_url'] }}">
-                    <input type="hidden" name="cancel_url" value="{{ $paymentData['cancel_url'] }}">
-                    <input type="hidden" name="notify_url" value="{{ $paymentData['notify_url'] }}">
-
-                    <input type="hidden" name="order_id" value="{{ $paymentData['order_id'] }}">
-                    <input type="hidden" name="items" value="{{ $paymentData['items'] }}">
-                    <input type="hidden" name="currency" value="{{ $paymentData['currency'] }}">
-                    <input type="hidden" name="amount" value="{{ $paymentData['amount'] }}">
+                    <input type="hidden" name="order_id"  value="{{ $paymentData['order_id'] }}">
+                    <input type="hidden" name="items"     value="{{ $paymentData['items'] }}">
+                    <input type="hidden" name="currency"  value="{{ $paymentData['currency'] }}">
+                    <input type="hidden" name="amount"    value="{{ $paymentData['amount'] }}">
                     <input type="hidden" name="course_id" value="{{ $paymentData['course_id'] }}">
                     <input type="hidden" name="module_id" value="{{ $paymentData['module_id'] }}">
-                    <input type="hidden" name="type" value="{{ $paymentData['type'] }}">
-
-                    @php
-                        $nameParts = explode(' ', auth()->user()->name, 2);
-                        $firstName = $nameParts[0] ?? 'User';
-                        $lastName = $nameParts[1] ?? '';
-                    @endphp
-                    <input type="hidden" name="first_name" value="{{ $firstName }}">
-                    <input type="hidden" name="last_name" value="{{ $lastName }}">
-                    <input type="hidden" name="email" value="{{ auth()->user()->email }}">
-                    <input type="hidden" name="phone" value="0000000000">
-                    <input type="hidden" name="address" value="N/A">
-                    <input type="hidden" name="city" value="Colombo">
-                    <input type="hidden" name="country" value="Sri Lanka">
-
-                    <input type="hidden" name="hash" value="{{ $paymentData['hash'] }}">
+                    <input type="hidden" name="type"      value="{{ $paymentData['type'] }}">
 
                     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                         <div class="flex">
@@ -153,7 +131,7 @@
                             <div>
                                 <h3 class="text-sm font-medium text-blue-800">Secure Payment</h3>
                                 <p class="mt-1 text-sm text-blue-700">
-                                    You will be redirected to PayHere's secure payment gateway to complete your purchase.
+                                    You will be redirected to WEBXPAY's secure payment gateway to complete your purchase.
                                 </p>
                             </div>
                         </div>
@@ -205,7 +183,6 @@
                                 <p><strong>Branch:</strong> Maharagama Branch</p>
                                 <p class="mt-2">Please use your name as reference when making the transfer.</p>
                             </div>
-                        
                         </div>
                     </div>
                 </div>
@@ -295,7 +272,7 @@
 
         <!-- Trust Badges -->
         <div class="mt-8 text-center text-sm text-gray-500">
-            <p>Protected by PayHere Payment Gateway</p>
+            <p>Protected by WEBXPAY Payment Gateway</p>
         </div>
     </div>
 </div>
@@ -303,22 +280,32 @@
 <script>
 function togglePaymentForms() {
     const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
-    const payhereForm = document.getElementById('payhere-form');
+    const webxpayForm = document.getElementById('webxpay-form');
     const bankTransferForm = document.getElementById('bank-transfer-form');
+    const webxpayLabel = document.getElementById('webxpay-label');
+    const bankLabel = document.getElementById('bank-label');
 
-    if (paymentMethod === 'payhere') {
-        payhereForm.classList.remove('hidden');
+    if (paymentMethod === 'webxpay') {
+        webxpayForm.classList.remove('hidden');
         bankTransferForm.classList.add('hidden');
+        webxpayLabel.classList.add('border-indigo-500', 'bg-indigo-50');
+        webxpayLabel.classList.remove('border-gray-200');
+        bankLabel.classList.remove('border-green-500', 'bg-green-50');
+        bankLabel.classList.add('border-gray-200');
     } else {
-        payhereForm.classList.add('hidden');
+        webxpayForm.classList.add('hidden');
         bankTransferForm.classList.remove('hidden');
+        bankLabel.classList.add('border-green-500', 'bg-green-50');
+        bankLabel.classList.remove('border-gray-200');
+        webxpayLabel.classList.remove('border-indigo-500', 'bg-indigo-50');
+        webxpayLabel.classList.add('border-gray-200');
     }
 }
 
-// Show bank transfer form by default on page load
-document.addEventListener('DOMContentLoaded', function() {
-    const bankTransferForm = document.getElementById('bank-transfer-form');
-    bankTransferForm.classList.remove('hidden');
+// Show webxpay form by default on page load
+document.addEventListener('DOMContentLoaded', function () {
+    const webxpayForm = document.getElementById('webxpay-form');
+    webxpayForm.classList.remove('hidden');
 });
 
 function displayFileName(input) {

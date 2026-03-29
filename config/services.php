@@ -35,10 +35,11 @@ return [
         ],
     ],
 
-    'payhere' => [
-        'merchant_id' => env('PAYHERE_MERCHANT_ID'),
-        'merchant_secret' => env('PAYHERE_MERCHANT_SECRET'),
-        'sandbox' => env('PAYHERE_SANDBOX', true),
+    'webxpay' => [
+        'secret_key'      => env('WEBXPAY_SECRET_KEY'),
+        'public_key_path' => env('WEBXPAY_PUBLIC_KEY_PATH', storage_path('app/webxpay_public.pem')),
+        'sandbox'         => env('WEBXPAY_SANDBOX', true),
+        'cms'             => env('WEBXPAY_CMS', 'custom'),
     ],
 
 ];

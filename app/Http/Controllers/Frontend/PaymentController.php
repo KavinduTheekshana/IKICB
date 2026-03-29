@@ -6,41 +6,30 @@ use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Module;
 use App\Models\Payment;
-use App\Services\PayHereService;
+use App\Services\WebxpayService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
-    protected $payHereService;
+    protected $webxpayService;
 
-    public function __construct(PayHereService $payHereService)
+    public function __construct(WebxpayService $webxpayService)
     {
-        $this->payHereService = $payHereService;
+        $this->webxpayService = $webxpayService;
     }
 
     public function initiateCoursePayment(Course $course)
     {
-        // Prepare payment data without creating payment record yet
-        $orderId = 'COURSE-' . $course->id . '-' . auth()->id() . '-' . time();
+        $orderId = time() . $course->id . auth()->id();
 
         $paymentData = [
-            'merchant_id' => config('services.payhere.merchant_id'),
-            'return_url' => route('payment.return'),
-            'cancel_url' => route('payment.cancel'),
-            'notify_url' => route('payment.notify'),
-            'order_id' => $orderId,
-            'items' => $course->title,
-            'currency' => 'LKR',
-            'amount' => number_format($course->full_price, 2, '.', ''),
-            'hash' => $this->payHereService->generateHash([
-                'order_id' => $orderId,
-                'amount' => $course->full_price,
-                'currency' => 'LKR',
-            ]),
+            'order_id'  => $orderId,
+            'items'     => $course->title,
+            'currency'  => 'LKR',
+            'amount'    => number_format($course->full_price, 2, '.', ''),
             'course_id' => $course->id,
             'module_id' => null,
-            'type' => 'course',
+            'type'      => 'course',
         ];
 
         return view('frontend.payment.checkout', compact('paymentData', 'course'));
@@ -48,126 +37,118 @@ class PaymentController extends Controller
 
     public function initiateModulePayment(Module $module)
     {
-        // Prepare payment data without creating payment record yet
-        $orderId = 'MODULE-' . $module->id . '-' . auth()->id() . '-' . time();
+        $orderId = time() . $module->id . auth()->id();
 
         $paymentData = [
-            'merchant_id' => config('services.payhere.merchant_id'),
-            'return_url' => route('payment.return'),
-            'cancel_url' => route('payment.cancel'),
-            'notify_url' => route('payment.notify'),
-            'order_id' => $orderId,
-            'items' => $module->course->title . ' - ' . $module->title,
-            'currency' => 'LKR',
-            'amount' => number_format($module->module_price, 2, '.', ''),
-            'hash' => $this->payHereService->generateHash([
-                'order_id' => $orderId,
-                'amount' => $module->module_price,
-                'currency' => 'LKR',
-            ]),
+            'order_id'  => $orderId,
+            'items'     => $module->course->title . ' - ' . $module->title,
+            'currency'  => 'LKR',
+            'amount'    => number_format($module->module_price, 2, '.', ''),
             'course_id' => $module->course_id,
             'module_id' => $module->id,
-            'type' => 'module',
+            'type'      => 'module',
         ];
 
         return view('frontend.payment.checkout', compact('paymentData', 'module'));
     }
 
-    public function processPayHerePayment(Request $request)
+    public function processWebxpayPayment(Request $request)
     {
         $validated = $request->validate([
-            'order_id' => 'required|string',
+            'order_id'  => 'required|string',
             'course_id' => 'nullable|exists:courses,id',
             'module_id' => 'nullable|exists:modules,id',
-            'type' => 'required|in:course,module',
-            'amount' => 'required|numeric',
+            'type'      => 'required|in:course,module',
+            'amount'    => 'required|numeric',
         ]);
 
-        // Create payment record
-        $payment = Payment::create([
-            'user_id' => auth()->id(),
-            'course_id' => $validated['course_id'],
-            'module_id' => $validated['module_id'],
-            'amount' => $validated['amount'],
-            'currency' => 'LKR',
-            'payment_gateway' => 'payhere',
-            'payment_method' => 'payhere',
-            'transaction_id' => $validated['order_id'],
-            'status' => 'pending',
+        Payment::create([
+            'user_id'         => auth()->id(),
+            'course_id'       => $validated['course_id'],
+            'module_id'       => $validated['module_id'],
+            'amount'          => $validated['amount'],
+            'currency'        => 'LKR',
+            'payment_gateway' => 'webxpay',
+            'payment_method'  => 'webxpay',
+            'transaction_id'  => $validated['order_id'],
+            'status'          => 'pending',
             'payment_details' => [
                 'order_id' => $validated['order_id'],
-                'type' => $validated['type'] === 'course' ? 'full_course' : 'module',
+                'type'     => $validated['type'] === 'course' ? 'full_course' : 'module',
             ],
         ]);
 
-        // Prepare PayHere form data
-        $payHereData = [
-            'merchant_id' => $request->merchant_id,
-            'return_url' => $request->return_url,
-            'cancel_url' => $request->cancel_url,
-            'notify_url' => $request->notify_url,
-            'order_id' => $request->order_id,
-            'items' => $request->items,
-            'currency' => $request->currency,
-            'amount' => $request->amount,
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'address' => $request->address,
-            'city' => $request->city,
-            'country' => $request->country,
-            'hash' => $request->hash,
+        $user = auth()->user();
+        $nameParts = explode(' ', $user->name, 2);
+
+        $webxpayData = [
+            'payment_url'      => $this->webxpayService->getPaymentUrl(),
+            'secret_key'       => config('services.webxpay.secret_key'),
+            'payment'          => $this->webxpayService->generatePaymentField(
+                $validated['order_id'],
+                (float) $validated['amount']
+            ),
+            'custom_fields'    => $this->webxpayService->generateCustomFields([
+                $validated['course_id'] ?? '',
+                $validated['module_id'] ?? '',
+                $validated['type'] === 'course' ? 'full_course' : 'module',
+            ]),
+            'first_name'       => $nameParts[0] ?? 'User',
+            'last_name'        => $nameParts[1] ?? '',
+            'email'            => $user->email,
+            'contact_number'   => $user->phone ?? '0000000000',
+            'address_line_one' => $user->address ?? 'N/A',
+            'process_currency' => 'LKR',
+            'cms'              => config('services.webxpay.cms', 'custom'),
         ];
 
-        // Return view that auto-submits to PayHere
-        return view('frontend.payment.payhere-redirect', compact('payHereData'));
+        return view('frontend.payment.webxpay-redirect', compact('webxpayData'));
     }
 
-    public function notify(Request $request)
+    /**
+     * WEBXPAY POSTs the payment result back to this route (configured in WEBXPAY dashboard).
+     * No auth middleware — WEBXPAY sends this as a browser redirect POST.
+     */
+    public function webxpayReturn(Request $request)
     {
-        $data = $request->all();
-
-        // Verify notification
-        if (!$this->payHereService->verifyNotification($data)) {
-            return response('Invalid notification', 400);
+        if (!$request->has('payment')) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Invalid payment response received.');
         }
 
-        // Find payment
-        $payment = Payment::where('transaction_id', $data['order_id'])->first();
+        $decrypted = $this->webxpayService->decryptPayment($request->input('payment'));
+
+        if (!$decrypted) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Payment response could not be decrypted.');
+        }
+
+        // Verify authenticity via signature if WEBXPAY provides it
+        if ($request->has('signature')) {
+            if (!$this->webxpayService->verifySignature($request->input('signature'), $decrypted['raw'])) {
+                return redirect()->route('dashboard')
+                    ->with('error', 'Payment signature verification failed.');
+            }
+        }
+
+        $payment = Payment::where('transaction_id', $decrypted['order_id'])->first();
 
         if (!$payment) {
-            return response('Payment not found', 404);
+            return redirect()->route('dashboard')
+                ->with('error', 'Payment record not found.');
         }
 
-        // Handle payment based on status
-        if ($data['status_code'] == 2) { // Success
-            $this->payHereService->handleSuccessfulPayment($payment);
-        } else {
-            $this->payHereService->handleFailedPayment($payment);
-        }
+        if ($this->webxpayService->isSuccessful($decrypted['status_code'])) {
+            $this->webxpayService->handleSuccessfulPayment($payment);
 
-        return response('OK', 200);
-    }
-
-    public function return(Request $request)
-    {
-        $orderId = $request->query('order_id');
-        $payment = Payment::where('transaction_id', $orderId)->first();
-
-        if (!$payment) {
-            return redirect()->route('home')->with('error', 'Payment not found.');
-        }
-
-        // Check payment status and show appropriate message
-        if ($payment->status === 'completed') {
             return redirect()->route('dashboard')
                 ->with('success', 'Payment successful! You can now access your course.');
         }
 
-        // For pending payments, wait for server notification
+        $this->webxpayService->handleFailedPayment($payment);
+
         return redirect()->route('dashboard')
-            ->with('info', 'Payment is being processed. You will be notified once confirmed.');
+            ->with('error', 'Payment was not successful. Please try again or use bank transfer.');
     }
 
     public function cancel(Request $request)
@@ -179,38 +160,35 @@ class PaymentController extends Controller
     public function submitBankTransfer(Request $request)
     {
         $validated = $request->validate([
-            'course_id' => 'nullable|exists:courses,id',
-            'module_id' => 'nullable|exists:modules,id',
-            'amount' => 'required|numeric|min:0',
+            'course_id'        => 'nullable|exists:courses,id',
+            'module_id'        => 'nullable|exists:modules,id',
+            'amount'           => 'required|numeric|min:0',
             'reference_number' => 'required|string|max:255|unique:payments,reference_number',
-            'receipt' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
-            'notes' => 'nullable|string|max:1000',
+            'receipt'          => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'notes'            => 'nullable|string|max:1000',
         ]);
 
-        // Validate that either course_id or module_id is provided
         if (!$request->course_id && !$request->module_id) {
             return back()->with('error', 'Please select a course or module.');
         }
 
         try {
-            // Store receipt file
             $receiptPath = $request->file('receipt')->store('bank-receipts', 'public');
 
-            // Create payment record with bank transfer details
             Payment::create([
-                'user_id' => auth()->id(),
-                'course_id' => $request->course_id,
-                'module_id' => $request->module_id,
-                'amount' => $validated['amount'],
-                'currency' => 'LKR',
-                'payment_gateway' => 'bank_transfer',
-                'payment_method' => 'bank_transfer',
-                'transaction_id' => 'BANK-' . $validated['reference_number'],
+                'user_id'          => auth()->id(),
+                'course_id'        => $request->course_id,
+                'module_id'        => $request->module_id,
+                'amount'           => $validated['amount'],
+                'currency'         => 'LKR',
+                'payment_gateway'  => 'bank_transfer',
+                'payment_method'   => 'bank_transfer',
+                'transaction_id'   => 'BANK-' . $validated['reference_number'],
                 'reference_number' => $validated['reference_number'],
-                'receipt_path' => $receiptPath,
-                'status' => 'pending',
-                'payment_details' => json_encode([
-                    'notes' => $request->notes,
+                'receipt_path'     => $receiptPath,
+                'status'           => 'pending',
+                'payment_details'  => json_encode([
+                    'notes'        => $request->notes,
                     'submitted_at' => now()->toDateTimeString(),
                 ]),
             ]);
