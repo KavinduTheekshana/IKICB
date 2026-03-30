@@ -215,7 +215,8 @@ class ViewStudent extends ViewRecord
                                 Infolists\Components\TextEntry::make('transaction_id')
                                     ->label('Transaction ID')
                                     ->copyable()
-                                    ->weight('bold'),
+                                    ->weight('bold')
+                                    ->columnSpan(2),
                                 Infolists\Components\TextEntry::make('course.title')
                                     ->label('Course')
                                     ->default(fn ($record) => $record->module ? $record->module->title : 'N/A'),
@@ -289,7 +290,7 @@ class ViewStudent extends ViewRecord
                                 ])
                                 ->alignEnd(),
                             ])
-                            ->columns(7)
+                            ->columns(8)
                             ->columnSpanFull(),
                     ])
                     ->collapsible()
