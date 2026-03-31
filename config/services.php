@@ -42,4 +42,9 @@ return [
         'cms'             => env('WEBXPAY_CMS', 'custom'),
     ],
 
+    'bunny' => [
+        'stream_api_key' => env('BUNNY_STREAM_API_KEY'),
+        'library_id'     => env('BUNNY_LIBRARY_ID'),
+    ],
+
 ];

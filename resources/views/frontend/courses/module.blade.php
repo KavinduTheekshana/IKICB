@@ -63,8 +63,42 @@
                     </div>
                 </div>
 
-                <!-- Video Player -->
-                @if($module->video_url && trim($module->video_url) !== '')
+                <!-- Video Lessons (multiple, with expiry support) -->
+                @if($module->activeVideos->count() > 0)
+                    @foreach($module->activeVideos as $moduleVideo)
+                        <div class="bg-white rounded-3xl shadow-xl border-2 border-gray-200 overflow-hidden">
+                            <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-8 py-4 flex items-center justify-between">
+                                <h2 class="text-2xl font-black text-gray-900 flex items-center">
+                                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    {{ $moduleVideo->title }}
+                                </h2>
+                                @if($moduleVideo->expires_at)
+                                    <span class="text-xs font-semibold bg-white/30 text-gray-900 px-3 py-1 rounded-full">
+                                        Expires {{ $moduleVideo->expires_at->format('M d, Y') }}
+                                    </span>
+                                @endif
+                            </div>
+                            @if($moduleVideo->description)
+                                <div class="px-8 pt-4 text-gray-600">{{ $moduleVideo->description }}</div>
+                            @endif
+                            <div class="p-6">
+                                <div class="bg-black rounded-2xl overflow-hidden shadow-2xl" style="position:relative;padding-bottom:56.25%;height:0;">
+                                    <iframe
+                                        src="{{ $moduleVideo->video_url }}"
+                                        frameborder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowfullscreen
+                                        style="position:absolute;top:0;left:0;width:100%;height:100%;">
+                                    </iframe>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                @elseif($module->video_url && trim($module->video_url) !== '')
+                    {{-- Backward compat: show legacy single video --}}
                     <div class="bg-white rounded-3xl shadow-xl border-2 border-gray-200 overflow-hidden">
                         <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-8 py-4">
                             <h2 class="text-2xl font-black text-gray-900 flex items-center">
@@ -76,13 +110,13 @@
                             </h2>
                         </div>
                         <div class="p-6">
-                            <div class="aspect-w-16 aspect-h-9 bg-black rounded-2xl overflow-hidden shadow-2xl">
+                            <div class="bg-black rounded-2xl overflow-hidden shadow-2xl" style="position:relative;padding-bottom:56.25%;height:0;">
                                 <iframe
                                     src="{{ $module->video_url }}"
                                     frameborder="0"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                     allowfullscreen
-                                    class="w-full h-96">
+                                    style="position:absolute;top:0;left:0;width:100%;height:100%;">
                                 </iframe>
                             </div>
                         </div>

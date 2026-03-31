@@ -68,7 +68,7 @@ class CourseController extends Controller
             abort(404, 'This course is not available.');
         }
 
-        $module->load(['course', 'materials', 'questions.category', 'theoryExams']);
+        $module->load(['course', 'materials', 'questions.category', 'theoryExams', 'activeVideos']);
 
         // Check if user has access
         if (!auth()->check()) {

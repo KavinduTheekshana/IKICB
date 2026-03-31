@@ -6,6 +6,8 @@ use App\Http\Controllers\Frontend\CourseController;
 use App\Http\Controllers\Frontend\DashboardController;
 use App\Http\Controllers\Frontend\PaymentController;
 use App\Http\Controllers\Frontend\AuthController;
+use App\Http\Controllers\Frontend\SubmissionController;
+use App\Models\Module;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -70,6 +72,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/payments', [DashboardController::class, 'payments'])->name('.payments');
     });
 
+    // Submission routes
+    Route::prefix('submissions')->name('submissions.')->group(function () {
+        Route::get('/', [SubmissionController::class, 'index'])->name('index');
+        Route::get('/create', [SubmissionController::class, 'create'])->name('create');
+        Route::post('/', [SubmissionController::class, 'store'])->name('store');
+        Route::get('/{submission}', [SubmissionController::class, 'show'])->name('show');
+    });
+
     // Payment routes
     Route::prefix('payment')->name('payment.')->group(function () {
         Route::post('/course/{course}', [PaymentController::class, 'initiateCoursePayment'])->name('course');
@@ -106,6 +116,11 @@ foreach (['admin', 'branch'] as $panel) {
             ->name("filament.{$panel}.auth.reset-password.submit");
     });
 }
+
+// API helper: get modules for a course (used by submission create form)
+Route::get('/api/courses/{course}/modules', function (\App\Models\Course $course) {
+    return $course->modules()->orderBy('order')->get(['id', 'title']);
+})->middleware('auth');
 
 // Fallback route - must be last
 Route::fallback(function () {
