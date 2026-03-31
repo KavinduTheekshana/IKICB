@@ -85,17 +85,30 @@
                                 <div class="px-8 pt-4 text-gray-600">{{ $moduleVideo->description }}</div>
                             @endif
                             <div class="p-6">
-                                <div class="video-protected-wrapper bg-black rounded-2xl overflow-hidden shadow-2xl" style="position:relative;padding-bottom:56.25%;height:0;">
-                                    <iframe
-                                        class="protected-video-iframe"
-                                        src="{{ $moduleVideo->video_url }}"
-                                        frameborder="0"
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                        allowfullscreen
-                                        style="position:absolute;top:0;left:0;width:100%;height:100%;">
-                                    </iframe>
-                                    <!-- Transparent overlay to block right-click/drag on iframe -->
-                                    <div class="video-overlay" style="position:absolute;top:0;left:0;width:100%;height:calc(100% - 48px);z-index:10;pointer-events:none;"></div>
+                                {{-- Outer wrapper — THIS is what we fullscreen so our watermark stays inside --}}
+                                <div class="video-protected-wrapper" style="position:relative;background:#000;border-radius:1rem;overflow:hidden;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
+                                    <div style="padding-bottom:56.25%;height:0;position:relative;">
+                                        <iframe
+                                            class="protected-video-iframe"
+                                            src="{{ $moduleVideo->video_url }}"
+                                            frameborder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;">
+                                        </iframe>
+                                        {{-- Single moving watermark — sits INSIDE the wrapper so it shows in our custom fullscreen --}}
+                                        <div class="video-watermark" style="position:absolute;z-index:30;pointer-events:none;user-select:none;">
+                                            {{ auth()->user()->name }} &bull; {{ auth()->user()->email }}
+                                        </div>
+                                    </div>
+                                    {{-- Custom fullscreen button --}}
+                                    <button class="custom-fs-btn" title="Fullscreen" onclick="toggleVideoFullscreen(this)">
+                                        <svg class="fs-icon-expand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/>
+                                        </svg>
+                                        <svg class="fs-icon-compress" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4m0 5H4m11-5v5m0 0h5M4 15h5v5M20 15h-5v5"/>
+                                        </svg>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -113,23 +126,27 @@
                             </h2>
                         </div>
                         <div class="p-6">
-                            <div class="video-protected-wrapper bg-black rounded-2xl overflow-hidden shadow-2xl" style="position:relative;padding-bottom:56.25%;height:0;">
-                                <iframe
-                                    class="protected-video-iframe"
-                                    src="{{ $module->video_url }}"
-                                    frameborder="0"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowfullscreen
-                                    style="position:absolute;top:0;left:0;width:100%;height:100%;">
-                                </iframe>
-                                <div class="video-overlay" style="position:absolute;top:0;left:0;width:100%;height:calc(100% - 48px);z-index:10;pointer-events:none;"></div>
-                                <div class="video-blocked-overlay" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;z-index:50;background:rgba(0,0,0,0.92);align-items:center;justify-content:center;flex-direction:column;">
-                                    <svg class="w-16 h-16 text-red-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-                                    </svg>
-                                    <p class="text-white font-black text-xl mb-2">Content Protected</p>
-                                    <p class="text-gray-400 text-sm text-center px-8">Close developer tools to continue watching.</p>
+                            <div class="video-protected-wrapper" style="position:relative;background:#000;border-radius:1rem;overflow:hidden;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
+                                <div style="padding-bottom:56.25%;height:0;position:relative;">
+                                    <iframe
+                                        class="protected-video-iframe"
+                                        src="{{ $module->video_url }}"
+                                        frameborder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;">
+                                    </iframe>
+                                    <div class="video-watermark" style="position:absolute;z-index:30;pointer-events:none;user-select:none;">
+                                        {{ auth()->user()->name }} &bull; {{ auth()->user()->email }}
+                                    </div>
                                 </div>
+                                <button class="custom-fs-btn" title="Fullscreen" onclick="toggleVideoFullscreen(this)">
+                                    <svg class="fs-icon-expand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/>
+                                    </svg>
+                                    <svg class="fs-icon-compress" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4m0 5H4m11-5v5m0 0h5M4 15h5v5M20 15h-5v5"/>
+                                    </svg>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -397,24 +414,19 @@
 .gradient-primary {
     background: linear-gradient(135deg, #FFD700 0%, #FDB931 100%);
 }
-
 .text-gradient {
     background: linear-gradient(135deg, #FFD700 0%, #FDB931 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
-
-.animate-fade-in {
-    animation: fadeIn 0.5s ease-in-out;
-}
-
+.animate-fade-in { animation: fadeIn 0.5s ease-in-out; }
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-10px); }
     to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Video Protection ─────────────────────────────── */
+/* ── Video Protection ──────────────────────────────────── */
 .video-protected-wrapper {
     -webkit-user-select: none;
     user-select: none;
@@ -423,192 +435,121 @@
     -webkit-user-drag: none;
 }
 
-/* Watermark chips inside the video box */
+/* Single moving watermark */
 .video-watermark {
     position: absolute;
-    z-index: 20;
+    z-index: 30;
     pointer-events: none;
     user-select: none;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 800;
-    color: rgba(255, 255, 255, 0.30);
-    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
-    white-space: nowrap;
-    transform: rotate(-20deg);
-    transition: top 3s ease, left 3s ease;
-    letter-spacing: 0.06em;
-}
-
-/* Full-screen persistent watermark overlay (covers whole viewport) */
-#fs-watermark-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 2147483647;   /* highest possible */
-    pointer-events: none;
-    user-select: none;
-    overflow: hidden;
-}
-#fs-watermark-overlay .fs-wm-chip {
-    position: absolute;
-    font-size: 14px;
-    font-weight: 800;
-    color: rgba(255, 255, 255, 0.35);
+    color: rgba(255, 255, 255, 0.28);
     text-shadow: 0 1px 4px rgba(0,0,0,0.7);
     white-space: nowrap;
-    transform: rotate(-20deg);
-    letter-spacing: 0.06em;
+    transform: rotate(-22deg);
     transition: top 4s ease, left 4s ease;
+    letter-spacing: 0.05em;
 }
 
-/* Screen-share blocked warning */
-#screenshare-blocked {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 2147483646;
-    background: rgba(0,0,0,0.93);
+/* Custom fullscreen button */
+.custom-fs-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    z-index: 40;
+    background: rgba(0,0,0,0.55);
+    border: none;
+    border-radius: 8px;
+    padding: 6px 8px;
+    cursor: pointer;
+    color: #fff;
+    display: flex;
     align-items: center;
     justify-content: center;
-    flex-direction: column;
+    transition: background 0.2s;
+}
+.custom-fs-btn:hover { background: rgba(0,0,0,0.80); }
+.custom-fs-btn svg   { width: 20px; height: 20px; }
+
+/* When the wrapper itself is fullscreen */
+.video-protected-wrapper:fullscreen,
+.video-protected-wrapper:-webkit-full-screen,
+.video-protected-wrapper:-moz-full-screen {
+    background: #000;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.video-protected-wrapper:fullscreen > div,
+.video-protected-wrapper:-webkit-full-screen > div,
+.video-protected-wrapper:-moz-full-screen > div {
+    width: 100%;
+    padding-bottom: 56.25%;
 }
 </style>
-
-<!-- Full-screen watermark overlay (always in DOM, shown on fullscreen) -->
-<div id="fs-watermark-overlay">
-    <span class="fs-wm-chip" id="fs-wm-0"></span>
-    <span class="fs-wm-chip" id="fs-wm-1"></span>
-    <span class="fs-wm-chip" id="fs-wm-2"></span>
-    <span class="fs-wm-chip" id="fs-wm-3"></span>
-</div>
-
-<!-- Screen-share blocked notice -->
-<div id="screenshare-blocked">
-    <svg style="width:64px;height:64px;color:#ef4444;margin-bottom:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
-    </svg>
-    <p style="color:#fff;font-size:20px;font-weight:900;margin-bottom:8px;">Screen Recording Blocked</p>
-    <p style="color:#9ca3af;font-size:14px;text-align:center;max-width:360px;padding:0 16px;">
-        Screen capture of this content is not permitted.<br>Please close any recording tool and reload.
-    </p>
-    <button onclick="document.getElementById('screenshare-blocked').style.display='none';"
-        style="margin-top:24px;padding:10px 28px;background:#eab308;color:#111;font-weight:900;border:none;border-radius:12px;cursor:pointer;font-size:15px;">
-        Dismiss
-    </button>
-</div>
 
 <script>
 (function () {
     'use strict';
 
-    var USER_LABEL = '{{ auth()->user()->email }}';
-
-    // ── 1. Right-click block on video wrappers ───────────────
+    // ── 1. Right-click block ─────────────────────────────────
     document.querySelectorAll('.video-protected-wrapper').forEach(function (w) {
         w.addEventListener('contextmenu', function (e) { e.preventDefault(); });
     });
 
-    // ── 2. Multiple in-video watermarks (3 per wrapper) ──────
-    function makeWatermarks() {
-        document.querySelectorAll('.video-protected-wrapper').forEach(function (wrapper) {
-            // Remove existing watermarks first (idempotent)
-            wrapper.querySelectorAll('.video-watermark').forEach(function (el) { el.remove(); });
-            for (var i = 0; i < 3; i++) {
-                var wm = document.createElement('span');
-                wm.className = 'video-watermark';
-                wm.textContent = USER_LABEL;
-                wrapper.appendChild(wm);
-            }
-        });
-        repositionInVideoWatermarks();
-    }
-
-    function repositionInVideoWatermarks() {
-        var slots = [[5,5],[35,40],[65,15],[20,65],[55,55],[80,30]];
-        var used = [];
+    // ── 2. Single watermark — move every 8 seconds ──────────
+    function moveWatermarks() {
         document.querySelectorAll('.video-watermark').forEach(function (wm) {
-            var slot;
-            do { slot = slots[Math.floor(Math.random() * slots.length)]; }
-            while (used.indexOf(slot) !== -1 && used.length < slots.length);
-            used.push(slot);
-            wm.style.top  = slot[0] + '%';
-            wm.style.left = slot[1] + '%';
+            wm.style.top  = (Math.random() * 65 + 5) + '%';
+            wm.style.left = (Math.random() * 60 + 5) + '%';
         });
     }
+    moveWatermarks();
+    setInterval(moveWatermarks, 8000);
 
-    makeWatermarks();
-    setInterval(repositionInVideoWatermarks, 7000);
+    // ── 3. Custom fullscreen toggle ──────────────────────────
+    // We fullscreen the WRAPPER div, not the iframe.
+    // This keeps our watermark div inside the fullscreen element
+    // so it is always visible even in fullscreen.
+    window.toggleVideoFullscreen = function (btn) {
+        var wrapper = btn.closest('.video-protected-wrapper');
+        var expand  = btn.querySelector('.fs-icon-expand');
+        var compress = btn.querySelector('.fs-icon-compress');
 
-    // ── 3. Full-screen watermark overlay ─────────────────────
-    var fsOverlay = document.getElementById('fs-watermark-overlay');
-    var fsChips   = [
-        document.getElementById('fs-wm-0'),
-        document.getElementById('fs-wm-1'),
-        document.getElementById('fs-wm-2'),
-        document.getElementById('fs-wm-3'),
-    ];
-    fsChips.forEach(function (c) { if (c) c.textContent = USER_LABEL; });
-
-    function repositionFsWatermarks() {
-        var positions = [[8,5],[45,50],[75,10],[25,70]];
-        fsChips.forEach(function (c, i) {
-            if (!c) return;
-            c.style.top  = positions[i][0] + '%';
-            c.style.left = positions[i][1] + '%';
-        });
-    }
-
-    function shuffleFsWatermarks() {
-        fsChips.forEach(function (c) {
-            if (!c) return;
-            c.style.top  = (Math.random() * 80 + 5) + '%';
-            c.style.left = (Math.random() * 75 + 5) + '%';
-        });
-    }
-
-    repositionFsWatermarks();
-    var fsWmInterval = null;
-
-    // Show overlay whenever ANY element (including iframes) goes fullscreen
-    function onFullscreenChange() {
         var isFs = !!(document.fullscreenElement ||
                       document.webkitFullscreenElement ||
-                      document.mozFullScreenElement ||
-                      document.msFullscreenElement);
-        if (isFs) {
-            fsOverlay.style.display = 'block';
-            repositionFsWatermarks();
-            fsWmInterval = setInterval(shuffleFsWatermarks, 6000);
+                      document.mozFullScreenElement);
+
+        if (!isFs) {
+            var req = wrapper.requestFullscreen ||
+                      wrapper.webkitRequestFullscreen ||
+                      wrapper.mozRequestFullScreen;
+            if (req) req.call(wrapper);
         } else {
-            fsOverlay.style.display = 'none';
-            clearInterval(fsWmInterval);
+            var exit = document.exitFullscreen ||
+                       document.webkitExitFullscreen ||
+                       document.mozCancelFullScreen;
+            if (exit) exit.call(document);
         }
+    };
+
+    // Toggle button icon on fullscreen change
+    function onFsChange() {
+        var isFs = !!(document.fullscreenElement ||
+                      document.webkitFullscreenElement ||
+                      document.mozFullScreenElement);
+        document.querySelectorAll('.custom-fs-btn').forEach(function (btn) {
+            btn.querySelector('.fs-icon-expand').style.display  = isFs ? 'none'  : '';
+            btn.querySelector('.fs-icon-compress').style.display = isFs ? '' : 'none';
+        });
     }
+    document.addEventListener('fullscreenchange',       onFsChange);
+    document.addEventListener('webkitfullscreenchange', onFsChange);
+    document.addEventListener('mozfullscreenchange',    onFsChange);
 
-    document.addEventListener('fullscreenchange',       onFullscreenChange);
-    document.addEventListener('webkitfullscreenchange', onFullscreenChange);
-    document.addEventListener('mozfullscreenchange',    onFullscreenChange);
-    document.addEventListener('MSFullscreenChange',     onFullscreenChange);
-
-    // ── 4. Browser screen-share interception (getDisplayMedia) ──
-    // Catches Chrome extensions, browser-based recorders, and web-based tools.
-    // Does NOT stop OBS or OS-level capture — nothing browser-side can.
-    if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
-        var _original = navigator.mediaDevices.getDisplayMedia.bind(navigator.mediaDevices);
-        navigator.mediaDevices.getDisplayMedia = function (constraints) {
-            // Blank all protected iframes
-            document.querySelectorAll('.protected-video-iframe').forEach(function (iframe) {
-                if (!iframe.dataset.origSrc) iframe.dataset.origSrc = iframe.src;
-                iframe.src = 'about:blank';
-            });
-            // Show warning
-            var blocked = document.getElementById('screenshare-blocked');
-            if (blocked) blocked.style.display = 'flex';
-            return Promise.reject(new DOMException('Screen capture blocked by content policy.', 'NotAllowedError'));
-        };
-    }
-
-    // ── 5. Keyboard shortcut blocking ───────────────────────
+    // ── 4. Keyboard shortcut blocking ───────────────────────
     document.addEventListener('keydown', function (e) {
         if (e.key === 'F12') { e.preventDefault(); return false; }
         if (e.ctrlKey && e.shiftKey && 'ijusc'.indexOf(e.key.toLowerCase()) !== -1) {

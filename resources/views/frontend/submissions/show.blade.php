@@ -134,12 +134,9 @@
 
         <!-- Admin Feedback -->
         @if($submission->admin_feedback || $submission->status !== 'pending')
-        <div class="bg-white rounded-3xl shadow-xl border-2
-            {{ $submission->status === 'approved' ? 'border-green-300' : ($submission->status === 'rejected' ? 'border-red-300' : 'border-blue-300') }}
-            overflow-hidden">
-            <div class="px-8 py-4
-                {{ $submission->status === 'approved' ? 'bg-green-500' : ($submission->status === 'rejected' ? 'bg-red-500' : 'bg-blue-500') }}">
-                <h2 class="text-xl font-black text-white">Instructor Feedback</h2>
+        <div class="bg-white rounded-3xl shadow-xl border-2 overflow-hidden" style="border-color: #eab308;">
+            <div class="px-8 py-4" style="background: linear-gradient(to right, #eab308, #ca8a04);">
+                <h2 class="text-xl font-black text-gray-900">Instructor Feedback</h2>
             </div>
             <div class="p-8">
                 @if($submission->admin_feedback)
