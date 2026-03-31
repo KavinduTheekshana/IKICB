@@ -44,6 +44,22 @@ class Module extends Model
         return $this->hasMany(TheoryExam::class);
     }
 
+    public function videos()
+    {
+        return $this->hasMany(ModuleVideo::class)->orderBy('order');
+    }
+
+    public function activeVideos()
+    {
+        return $this->hasMany(ModuleVideo::class)
+            ->where('status', 'ready')
+            ->where(function ($query) {
+                $query->whereNull('expires_at')
+                      ->orWhere('expires_at', '>', now());
+            })
+            ->orderBy('order');
+    }
+
     public function unlocks()
     {
         return $this->hasMany(ModuleUnlock::class);

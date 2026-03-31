@@ -7,6 +7,7 @@ use App\Models\Course;
 use App\Models\Module;
 use App\Models\ModuleCompletion;
 use App\Models\QuizAttempt;
+use App\Services\BunnyVideoService;
 use Illuminate\Http\Request;
 
 class CourseController extends Controller
@@ -68,7 +69,7 @@ class CourseController extends Controller
             abort(404, 'This course is not available.');
         }
 
-        $module->load(['course', 'materials', 'questions.category', 'theoryExams']);
+        $module->load(['course', 'materials', 'questions.category', 'theoryExams', 'activeVideos']);
 
         // Check if user has access
         if (!auth()->check()) {
@@ -102,7 +103,30 @@ class CourseController extends Controller
         // Check if module is completed
         $isCompleted = auth()->user()->hasCompletedModule($module->id);
 
-        return view('frontend.courses.module', compact('module', 'mcqQuestions', 'quizAttempts', 'hasAttempted', 'isCompleted'));
+        // Generate signed embed URLs for each video (10-minute expiry)
+        $bunny = app(BunnyVideoService::class);
+        $signedVideoUrls = [];
+        foreach ($module->activeVideos as $video) {
+            $libraryId = $video->bunny_library_id ?: $bunny->getDefaultLibraryId();
+            $videoId   = $video->bunny_video_id;
+            if ($libraryId && $videoId) {
+                $signedVideoUrls[$video->id] = $bunny->signedEmbedUrl($libraryId, $videoId);
+            } else {
+                // Fallback: use stored video_url with download hidden via query param
+                $signedVideoUrls[$video->id] = $video->video_url . (str_contains($video->video_url, '?') ? '&' : '?') . 'hideDownload=true&hideShare=true';
+            }
+        }
+
+        // Legacy single video signed URL
+        $legacySignedUrl = null;
+        if ($module->video_url && trim($module->video_url) !== '') {
+            $legacySignedUrl = $module->video_url . (str_contains($module->video_url, '?') ? '&' : '?') . 'hideDownload=true&hideShare=true';
+        }
+
+        return view('frontend.courses.module', compact(
+            'module', 'mcqQuestions', 'quizAttempts', 'hasAttempted', 'isCompleted',
+            'signedVideoUrls', 'legacySignedUrl'
+        ));
     }
 
     public function submitQuiz(Request $request, Module $module)

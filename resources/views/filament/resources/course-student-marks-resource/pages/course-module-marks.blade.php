@@ -75,6 +75,7 @@
                                 <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Best Score</th>
                                 <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Avg Score</th>
                                 <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Completed On</th>
+                                <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-50 dark:divide-gray-800">
@@ -142,6 +143,21 @@
                                     {{-- Completed On --}}
                                     <td class="px-4 py-3 text-xs text-gray-500 dark:text-gray-400">
                                         {{ $student['completed_at'] ?? '—' }}
+                                    </td>
+                                    {{-- Actions --}}
+                                    <td class="px-4 py-3 text-center">
+                                        @if ($student['attempts'] > 0)
+                                            <button
+                                                wire:click="deleteAttempts({{ $module['id'] }}, {{ $student['id'] }})"
+                                                wire:confirm="Are you sure you want to delete all attempts for {{ $student['name'] }}? This will allow them to attempt the quiz again."
+                                                class="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-danger-600 dark:text-danger-400 hover:bg-danger-50 dark:hover:bg-danger-950/50 transition-colors"
+                                            >
+                                                <x-heroicon-o-trash class="w-3.5 h-3.5" />
+                                                Delete Attempt
+                                            </button>
+                                        @else
+                                            <span class="text-gray-400 dark:text-gray-600">—</span>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach

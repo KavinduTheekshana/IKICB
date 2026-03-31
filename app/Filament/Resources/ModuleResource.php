@@ -55,56 +55,18 @@ class ModuleResource extends Resource
                             ->helperText('Leave empty if module can only be purchased as part of full course'),
                     ])->columns(2),
 
-                Forms\Components\Section::make('Video Content')
+                Forms\Components\Section::make('Videos')
                     ->schema([
-                        Forms\Components\TextInput::make('bunny_library_id')
-                            ->label('Bunny Library ID')
-                            ->maxLength(255)
-                            ->placeholder('Enter your Bunny Library ID')
-                            ->helperText('Find this in your Bunny.net dashboard')
-                            ->live(onBlur: true),
-                        Forms\Components\TextInput::make('bunny_video_id')
-                            ->label('Bunny Video ID')
-                            ->maxLength(255)
-                            ->placeholder('Enter the Video ID')
-                            ->helperText('The unique ID of your uploaded video')
-                            ->live(onBlur: true),
-                        Forms\Components\Hidden::make('video_url')
-                            ->default(function (Forms\Get $get) {
-                                $libraryId = $get('bunny_library_id');
-                                $videoId = $get('bunny_video_id');
-                                if (!empty($libraryId) && !empty($videoId)) {
-                                    return "https://iframe.mediadelivery.net/embed/{$libraryId}/{$videoId}";
-                                }
-                                return null;
-                            })
-                            ->dehydrated(),
-                        Forms\Components\Placeholder::make('video_preview')
-                            ->label('Video Preview')
-                            ->content(function (Forms\Get $get) {
-                                $libraryId = $get('bunny_library_id');
-                                $videoId = $get('bunny_video_id');
-
-                                if (empty($libraryId) || empty($videoId)) {
-                                    return new \Illuminate\Support\HtmlString('<div class="text-gray-500 text-sm">Enter Library ID and Video ID above to see preview</div>');
-                                }
-
-                                $videoUrl = "https://iframe.mediadelivery.net/embed/{$libraryId}/{$videoId}";
-
-                                return new \Illuminate\Support\HtmlString('
-                                    <div class="rounded-lg overflow-hidden border border-gray-200" style="position: relative; padding-bottom: 56.25%; height: 0;">
-                                        <iframe
-                                            src="' . e($videoUrl) . '"
-                                            loading="lazy"
-                                            style="border: none; position: absolute; top: 0; left: 0; height: 100%; width: 100%;"
-                                            allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
-                                            allowfullscreen="true">
-                                        </iframe>
-                                    </div>
-                                ');
-                            })
+                        Forms\Components\Placeholder::make('videos_note')
+                            ->label('')
+                            ->content(new \Illuminate\Support\HtmlString(
+                                '<div class="text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-lg p-3">'
+                                . 'Manage videos for this module in the <strong>Videos</strong> tab below after saving. '
+                                . 'You can upload multiple videos with individual expiry dates.'
+                                . '</div>'
+                            ))
                             ->columnSpanFull(),
-                    ])->columns(2),
+                    ]),
             ]);
     }
 
@@ -124,13 +86,11 @@ class ModuleResource extends Resource
                     ->label('#')
                     ->sortable()
                     ->width(50),
-                Tables\Columns\IconColumn::make('video_url')
-                    ->label('Video')
-                    ->boolean()
-                    ->trueIcon('heroicon-o-video-camera')
-                    ->falseIcon('heroicon-o-x-circle')
-                    ->trueColor('success')
-                    ->falseColor('danger'),
+                Tables\Columns\TextColumn::make('videos_count')
+                    ->counts('videos')
+                    ->label('Videos')
+                    ->badge()
+                    ->color('warning'),
                 Tables\Columns\TextColumn::make('module_price')
                     ->label('Price')
                     ->money('LKR')
@@ -171,6 +131,7 @@ class ModuleResource extends Resource
     public static function getRelations(): array
     {
         return [
+            RelationManagers\VideosRelationManager::class,
             RelationManagers\MaterialsRelationManager::class,
             RelationManagers\QuestionsRelationManager::class,
         ];

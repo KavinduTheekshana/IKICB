@@ -6,6 +6,7 @@ use App\Filament\Resources\CourseStudentMarksResource;
 use App\Models\Enrollment;
 use App\Models\ModuleCompletion;
 use App\Models\QuizAttempt;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 
@@ -99,5 +100,25 @@ class CourseModuleMarks extends Page
             'modules'  => $modules,
             'total_students' => $students->count(),
         ];
+    }
+
+    public function deleteAttempts(int $moduleId, int $userId): void
+    {
+        $deleted = QuizAttempt::where('module_id', $moduleId)
+            ->where('user_id', $userId)
+            ->delete();
+
+        if ($deleted) {
+            Notification::make()
+                ->title('Attempts deleted')
+                ->body('The student\'s quiz attempts have been deleted. They can now attempt the quiz again.')
+                ->success()
+                ->send();
+        } else {
+            Notification::make()
+                ->title('No attempts found')
+                ->warning()
+                ->send();
+        }
     }
 }
