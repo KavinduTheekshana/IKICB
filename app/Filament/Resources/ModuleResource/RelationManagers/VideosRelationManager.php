@@ -94,12 +94,15 @@ class VideosRelationManager extends RelationManager
                                     : '';
 
                                 $previewHtml = '';
-                                if ($record->status === 'ready' && $record->video_url) {
+                                if ($record->status === 'ready' && $record->bunny_video_id) {
+                                    $bunny     = app(BunnyVideoService::class);
+                                    $libraryId = $record->bunny_library_id ?: $bunny->getDefaultLibraryId();
+                                    $previewUrl = $bunny->signedEmbedUrl($libraryId, $record->bunny_video_id);
                                     $previewHtml = '
                                         <div class="mt-3 rounded-lg overflow-hidden" style="position:relative;padding-bottom:56.25%;height:0;">
-                                            <iframe src="' . e($record->video_url) . '"
+                                            <iframe src="' . e($previewUrl) . '"
                                                 style="border:none;position:absolute;top:0;left:0;height:100%;width:100%;"
-                                                allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;"
+                                                allow="accelerometer;gyroscope;autoplay;encrypted-media;"
                                                 allowfullscreen="true" loading="lazy">
                                             </iframe>
                                         </div>';

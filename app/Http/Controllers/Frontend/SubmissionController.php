@@ -120,6 +120,14 @@ class SubmissionController extends Controller
 
         $submission->load(['course', 'module', 'reviewer']);
 
-        return view('frontend.submissions.show', compact('submission'));
+        // Generate signed URL if this is a Bunny video submission
+        $signedVideoUrl = null;
+        if ($submission->isVideo() && $submission->bunny_video_id) {
+            $bunny = app(BunnyVideoService::class);
+            $libraryId = $submission->bunny_library_id ?: $bunny->getDefaultLibraryId();
+            $signedVideoUrl = $bunny->signedEmbedUrl($libraryId, $submission->bunny_video_id);
+        }
+
+        return view('frontend.submissions.show', compact('submission', 'signedVideoUrl'));
     }
 }

@@ -115,6 +115,49 @@ class BunnyVideoService
         return "https://iframe.mediadelivery.net/embed/{$libraryId}/{$videoId}";
     }
 
+    /**
+     * Build a signed embed URL with token authentication and short expiry.
+     *
+     * Token authentication must be enabled in Bunny Stream:
+     *   Video Library → Security → Enable Token Authentication
+     *   Copy the token key into BUNNY_STREAM_TOKEN_KEY in .env
+     *
+     * If no token key is configured, falls back to a plain embed URL
+     * with download/share controls hidden.
+     *
+     * @param  int  $expiresInSeconds  How long the URL is valid (default 10 minutes)
+     */
+    public function signedEmbedUrl(string $libraryId, string $videoId, int $expiresInSeconds = 600): string
+    {
+        $tokenKey = config('services.bunny.token_key', '');
+
+        $baseParams = http_build_query([
+            'hideDownload' => 'true',
+            'hideShare'    => 'true',
+            'autoplay'     => 'false',
+        ]);
+
+        if (empty($tokenKey)) {
+            // Token auth not configured — return plain URL with controls hidden
+            return "https://iframe.mediadelivery.net/embed/{$libraryId}/{$videoId}?{$baseParams}";
+        }
+
+        $expires = time() + $expiresInSeconds;
+
+        // Bunny.net token format: SHA256(tokenKey + videoId + expires)
+        $token = hash('sha256', $tokenKey . $videoId . $expires);
+
+        $params = http_build_query([
+            'token'        => $token,
+            'expires'      => $expires,
+            'hideDownload' => 'true',
+            'hideShare'    => 'true',
+            'autoplay'     => 'false',
+        ]);
+
+        return "https://iframe.mediadelivery.net/embed/{$libraryId}/{$videoId}?{$params}";
+    }
+
     public function getDefaultLibraryId(): string
     {
         return config('services.bunny.library_id', '');

@@ -85,10 +85,10 @@
                 <h2 class="text-xl font-black text-gray-900">Submitted File</h2>
             </div>
             <div class="p-8">
-                @if($submission->isVideo() && $submission->video_url)
+                @if($submission->isVideo() && $signedVideoUrl)
                     <div class="bg-black rounded-2xl overflow-hidden shadow-2xl" style="position:relative;padding-bottom:56.25%;height:0;">
-                        <iframe src="{{ $submission->video_url }}" frameborder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        <iframe src="{{ $signedVideoUrl }}" frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
                             allowfullscreen
                             style="position:absolute;top:0;left:0;width:100%;height:100%;">
                         </iframe>

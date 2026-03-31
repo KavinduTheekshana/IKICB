@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use App\Services\BunnyVideoService;
 use Illuminate\Support\HtmlString;
 
 class StudentSubmissionResource extends Resource
@@ -59,12 +60,15 @@ class StudentSubmissionResource extends Resource
                                     return new HtmlString('<p class="text-gray-400">No record</p>');
                                 }
 
-                                if ($record->isVideo() && $record->video_url) {
+                                if ($record->isVideo() && $record->bunny_video_id) {
+                                    $bunny     = app(BunnyVideoService::class);
+                                    $libraryId = $record->bunny_library_id ?: $bunny->getDefaultLibraryId();
+                                    $signedUrl = $bunny->signedEmbedUrl($libraryId, $record->bunny_video_id);
                                     return new HtmlString('
                                         <div class="rounded-lg overflow-hidden" style="position:relative;padding-bottom:56.25%;height:0;">
-                                            <iframe src="' . e($record->video_url) . '"
+                                            <iframe src="' . e($signedUrl) . '"
                                                 style="border:none;position:absolute;top:0;left:0;height:100%;width:100%;"
-                                                allow="accelerometer;gyroscope;autoplay;encrypted-media;picture-in-picture;"
+                                                allow="accelerometer;gyroscope;autoplay;encrypted-media;"
                                                 allowfullscreen="true" loading="lazy">
                                             </iframe>
                                         </div>
