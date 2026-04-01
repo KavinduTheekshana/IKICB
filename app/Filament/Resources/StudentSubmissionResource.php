@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\StudentSubmissionResource\Pages;
+use App\Models\Course;
 use App\Models\StudentSubmission;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -10,6 +11,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use App\Services\BunnyVideoService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\HtmlString;
 
 class StudentSubmissionResource extends Resource
@@ -163,6 +165,53 @@ class StudentSubmissionResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
+                // Course → Module cascading filter (rendered as 2 side-by-side columns)
+                Tables\Filters\Filter::make('course_module')
+                    ->columnSpan(2)
+                    ->form([
+                        Forms\Components\Grid::make(2)
+                            ->schema([
+                                Forms\Components\Select::make('course_id')
+                                    ->label('Course')
+                                    ->placeholder('All Courses')
+                                    ->options(Course::orderBy('title')->pluck('title', 'id'))
+                                    ->live()
+                                    ->afterStateUpdated(fn (Forms\Set $set) => $set('module_id', null)),
+                                Forms\Components\Select::make('module_id')
+                                    ->label('Module')
+                                    ->placeholder(fn (Forms\Get $get) => $get('course_id') ? 'All Modules' : 'Select a course first')
+                                    ->options(fn (Forms\Get $get) =>
+                                        $get('course_id')
+                                            ? Course::find($get('course_id'))
+                                                ?->modules()
+                                                ->orderBy('order')
+                                                ->pluck('title', 'id')
+                                                ->toArray()
+                                            : []
+                                    )
+                                    ->disabled(fn (Forms\Get $get) => !$get('course_id')),
+                            ]),
+                    ])
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if (!empty($data['course_id'])) {
+                            $course = Course::find($data['course_id']);
+                            if ($course) $indicators[] = Tables\Filters\Indicator::make('Course: ' . $course->title)
+                                ->removeField('course_id');
+                        }
+                        if (!empty($data['module_id']) && !empty($data['course_id'])) {
+                            $module = Course::find($data['course_id'])?->modules()->find($data['module_id']);
+                            if ($module) $indicators[] = Tables\Filters\Indicator::make('Module: ' . $module->title)
+                                ->removeField('module_id');
+                        }
+                        return $indicators;
+                    })
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when($data['course_id'] ?? null, fn (Builder $q, $id) => $q->where('course_id', $id))
+                            ->when($data['module_id'] ?? null, fn (Builder $q, $id) => $q->where('module_id', $id));
+                    }),
+
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
                         'pending'  => 'Pending',
@@ -170,6 +219,7 @@ class StudentSubmissionResource extends Resource
                         'approved' => 'Approved',
                         'rejected' => 'Rejected',
                     ]),
+
                 Tables\Filters\SelectFilter::make('file_type')
                     ->label('Type')
                     ->options([
@@ -180,6 +230,8 @@ class StudentSubmissionResource extends Resource
                         'other'    => 'Other',
                     ]),
             ])
+            ->filtersLayout(Tables\Enums\FiltersLayout::AboveContent)
+            ->filtersFormColumns(4)
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->label('Review')
@@ -190,9 +242,24 @@ class StudentSubmissionResource extends Resource
                         }
                         return $data;
                     }),
+                Tables\Actions\DeleteAction::make()
+                    ->label('Delete')
+                    ->requiresConfirmation()
+                    ->modalHeading('Delete Submission')
+                    ->modalDescription(fn (StudentSubmission $record): string => $record->bunny_video_id
+                        ? 'This will permanently delete the submission AND the video from Bunny.net. This cannot be undone.'
+                        : 'This will permanently delete the submission and its uploaded file. This cannot be undone.'
+                    )
+                    ->modalSubmitActionLabel('Yes, delete permanently'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->label('Delete Selected')
+                        ->requiresConfirmation()
+                        ->modalHeading('Delete Selected Submissions')
+                        ->modalDescription('This will permanently delete all selected submissions and their files (including any Bunny.net videos). This cannot be undone.')
+                        ->modalSubmitActionLabel('Yes, delete all permanently'),
                     Tables\Actions\BulkAction::make('mark_reviewed')
                         ->label('Mark as Reviewed')
                         ->icon('heroicon-o-check')

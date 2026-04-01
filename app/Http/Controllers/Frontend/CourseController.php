@@ -176,7 +176,13 @@ class CourseController extends Controller
         foreach ($questions as $question) {
             $userAnswerValue = $validated['answers'][$question->id] ?? null;
 
-            $normalize = fn($s) => preg_replace('/\s+/u', ' ', trim($s ?? ''));
+            $normalize = function($s) {
+                $s = $s ?? '';
+                if (class_exists('Normalizer')) {
+                    $s = \Normalizer::normalize($s, \Normalizer::FORM_C) ?: $s;
+                }
+                return preg_replace('/[\s\x{00A0}]+/u', ' ', trim($s));
+            };
             $isCorrect = $normalize($userAnswerValue) === $normalize($question->correct_answer);
 
             if ($isCorrect) {

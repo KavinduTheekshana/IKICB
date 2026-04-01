@@ -18,9 +18,17 @@ class CourseModuleMarks extends Page
 
     protected static string $view = 'filament.resources.course-student-marks-resource.pages.course-module-marks';
 
+    public ?int $selectedModuleId = null;
+    public string $search = '';
+    public string $statusFilter = 'all';
+    public int $page = 1;
+    public int $perPage = 20;
+
     public function mount(int | string $record): void
     {
         $this->record = $this->resolveRecord($record);
+        $firstModule = $this->record->modules()->orderBy('order')->first();
+        $this->selectedModuleId = $firstModule?->id;
     }
 
     public function getTitle(): string
@@ -28,77 +36,133 @@ class CourseModuleMarks extends Page
         return 'Student Marks: ' . $this->record->title;
     }
 
-    public function getModuleMarksData(): array
+    public function selectModule(int $moduleId): void
     {
-        $course = $this->record->load(['modules' => fn ($q) => $q->orderBy('order')]);
+        $this->selectedModuleId = $moduleId;
+        $this->page = 1;
+        $this->search = '';
+        $this->statusFilter = 'all';
+    }
 
-        // All students enrolled in this course
-        $enrollments = Enrollment::with('user')
-            ->where('course_id', $course->id)
-            ->get();
+    public function updatedSearch(): void
+    {
+        $this->page = 1;
+    }
 
-        $students = $enrollments->map->user->unique('id');
+    public function updatedStatusFilter(): void
+    {
+        $this->page = 1;
+    }
 
-        $moduleIds = $course->modules->pluck('id');
+    public function getModuleTabsData(): array
+    {
+        $modules = $this->record->modules()->orderBy('order')->get();
+        $enrolledUserIds = Enrollment::where('course_id', $this->record->id)->pluck('user_id');
+        $totalEnrolled = $enrolledUserIds->count();
 
-        // Load all quiz attempts and completions for this course in one query each
-        $allAttempts = QuizAttempt::whereIn('module_id', $moduleIds)
-            ->whereIn('user_id', $students->pluck('id'))
-            ->get()
-            ->groupBy(['module_id', 'user_id']);
-
-        $allCompletions = ModuleCompletion::whereIn('module_id', $moduleIds)
-            ->whereIn('user_id', $students->pluck('id'))
-            ->get()
-            ->groupBy(['module_id', 'user_id']);
-
-        $modules = [];
-
-        foreach ($course->modules as $module) {
-            $studentMarks = [];
-
-            foreach ($students as $student) {
-                $attempts = $allAttempts[$module->id][$student->id] ?? collect();
-                $completion = ($allCompletions[$module->id][$student->id] ?? collect())->first();
-
-                $bestScore = $attempts->max('score');
-                $avgScore = $attempts->avg('score');
-                $attemptCount = $attempts->count();
-
-                $studentMarks[] = [
-                    'id'          => $student->id,
-                    'name'        => $student->name,
-                    'email'       => $student->email,
-                    'completed'   => (bool) $completion,
-                    'attempts'    => $attemptCount,
-                    'best_score'  => $bestScore !== null ? number_format($bestScore, 1) . '%' : null,
-                    'avg_score'   => $avgScore !== null ? number_format($avgScore, 1) . '%' : null,
-                    'completed_at' => $completion?->completed_at?->format('M d, Y'),
-                ];
-            }
-
-            // Sort: completed first, then by best score desc
-            usort($studentMarks, function ($a, $b) {
-                if ($a['completed'] !== $b['completed']) {
-                    return $b['completed'] <=> $a['completed'];
-                }
-                return floatval($b['best_score']) <=> floatval($a['best_score']);
-            });
-
-            $modules[] = [
-                'id'          => $module->id,
-                'title'       => $module->title,
-                'order'       => $module->order,
-                'total_enrolled' => $students->count(),
-                'completed_count' => collect($studentMarks)->where('completed', true)->count(),
-                'students'    => $studentMarks,
-            ];
-        }
+        $moduleIds = $modules->pluck('id');
+        $completionCounts = ModuleCompletion::whereIn('module_id', $moduleIds)
+            ->whereIn('user_id', $enrolledUserIds)
+            ->selectRaw('module_id, COUNT(*) as count')
+            ->groupBy('module_id')
+            ->pluck('count', 'module_id');
 
         return [
-            'course'   => $course,
-            'modules'  => $modules,
-            'total_students' => $students->count(),
+            'modules' => $modules->map(fn ($m) => [
+                'id'              => $m->id,
+                'title'           => $m->title,
+                'order'           => $m->order,
+                'completed_count' => $completionCounts[$m->id] ?? 0,
+                'total_enrolled'  => $totalEnrolled,
+            ])->toArray(),
+            'total_students' => $totalEnrolled,
+            'total_modules'  => $modules->count(),
+        ];
+    }
+
+    public function getSelectedModuleData(): ?array
+    {
+        if (! $this->selectedModuleId) {
+            return null;
+        }
+
+        $module = $this->record->modules()->find($this->selectedModuleId);
+        if (! $module) {
+            return null;
+        }
+
+        $enrolledUserIds = Enrollment::where('course_id', $this->record->id)->pluck('user_id');
+
+        $userQuery = \App\Models\User::whereIn('id', $enrolledUserIds)
+            ->when($this->search, function ($q) {
+                $q->where(function ($q) {
+                    $q->where('name', 'like', '%' . $this->search . '%')
+                      ->orWhere('email', 'like', '%' . $this->search . '%');
+                });
+            })
+            ->orderBy('name');
+
+        $allStudents = $userQuery->get();
+        $studentIds  = $allStudents->pluck('id');
+
+        $allAttempts = QuizAttempt::where('module_id', $module->id)
+            ->whereIn('user_id', $studentIds)
+            ->get()
+            ->groupBy('user_id');
+
+        $allCompletions = ModuleCompletion::where('module_id', $module->id)
+            ->whereIn('user_id', $studentIds)
+            ->get()
+            ->groupBy('user_id');
+
+        $studentData = $allStudents->map(function ($student) use ($allAttempts, $allCompletions) {
+            $attempts    = $allAttempts[$student->id] ?? collect();
+            $completion  = ($allCompletions[$student->id] ?? collect())->first();
+            $bestScore   = $attempts->max('score');
+            $avgScore    = $attempts->avg('score');
+            $attemptCount = $attempts->count();
+            $isCompleted  = (bool) $completion;
+            $status = $isCompleted ? 'completed' : ($attemptCount > 0 ? 'in_progress' : 'not_started');
+
+            return [
+                'id'           => $student->id,
+                'name'         => $student->name,
+                'email'        => $student->email,
+                'status'       => $status,
+                'completed'    => $isCompleted,
+                'attempts'     => $attemptCount,
+                'best_score'   => $bestScore !== null ? number_format($bestScore, 1) . '%' : null,
+                'avg_score'    => $avgScore !== null ? number_format($avgScore, 1) . '%' : null,
+                'completed_at' => $completion?->completed_at?->format('M d, Y'),
+            ];
+        });
+
+        if ($this->statusFilter !== 'all') {
+            $studentData = $studentData->filter(fn ($s) => $s['status'] === $this->statusFilter);
+        }
+
+        $studentData = $studentData->sortBy([
+            fn ($a, $b) => $b['completed'] <=> $a['completed'],
+            fn ($a, $b) => floatval($b['best_score']) <=> floatval($a['best_score']),
+        ])->values();
+
+        $total    = $studentData->count();
+        $lastPage = max(1, (int) ceil($total / $this->perPage));
+        $students = $studentData->slice(($this->page - 1) * $this->perPage, $this->perPage)->values();
+
+        $completedCount = ModuleCompletion::where('module_id', $module->id)
+            ->whereIn('user_id', $enrolledUserIds)
+            ->count();
+
+        return [
+            'module'          => $module,
+            'students'        => $students->toArray(),
+            'total'           => $total,
+            'total_enrolled'  => $enrolledUserIds->count(),
+            'completed_count' => $completedCount,
+            'current_page'    => $this->page,
+            'last_page'       => $lastPage,
+            'per_page'        => $this->perPage,
         ];
     }
 

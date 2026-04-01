@@ -11,12 +11,12 @@
     </div>
 
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
-                <h1 class="text-3xl sm:text-4xl font-black text-white mb-2">
+                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-white mb-2">
                     Welcome back, <span class="text-gradient-light">{{ auth()->user()->name }}</span>!
                 </h1>
-                <p class="text-gray-300 text-lg">Continue your learning journey</p>
+                <p class="text-gray-300 text-base sm:text-lg">Continue your learning journey</p>
             </div>
             <div class="flex items-center space-x-4">
                 <div class="hidden md:block">

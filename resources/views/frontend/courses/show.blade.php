@@ -22,11 +22,11 @@
                     Back to Courses
                 </a>
 
-                <h1 class="text-4xl sm:text-5xl font-black text-white leading-tight">
+                <h1 class="text-2xl sm:text-4xl lg:text-5xl font-black text-white leading-tight">
                     {{ $course->title }}
                 </h1>
 
-                <p class="text-xl text-gray-300 leading-relaxed">
+                <p class="text-base sm:text-xl text-gray-300 leading-relaxed">
                     {{ $course->description }}
                 </p>
 
@@ -84,87 +84,93 @@
         <div class="lg:grid lg:grid-cols-3 lg:gap-8">
             <!-- Modules List -->
             <div class="lg:col-span-2">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-3xl font-black text-gray-900">Course Modules</h2>
-                    <div class="px-4 py-2 rounded-xl bg-yellow-100 border border-yellow-300">
-                        <span class="text-sm font-bold text-gray-900">{{ $course->modules->count() }} Modules</span>
+                <div class="flex items-center justify-between mb-6 gap-3">
+                    <h2 class="text-2xl sm:text-3xl font-black text-gray-900">Course Modules</h2>
+                    <div class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-yellow-100 border border-yellow-300 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-bold text-gray-900">{{ $course->modules->count() }} Modules</span>
                     </div>
                 </div>
 
                 <div class="space-y-4">
                     @forelse($course->modules as $index => $module)
                         <div class="group bg-white rounded-2xl shadow-lg overflow-hidden border-2 {{ $isEnrolled && $unlockedModules->contains($module->id) ? 'border-yellow-300 hover:border-yellow-400' : 'border-gray-200 hover:border-gray-300' }} transition-all hover:shadow-xl">
-                            <div class="p-6">
-                                <div class="flex items-start justify-between">
-                                    <div class="flex-1">
-                                        <div class="flex items-center mb-3">
-                                            <span class="inline-flex items-center justify-center h-10 w-10 rounded-xl gradient-primary text-white font-black text-base mr-4 shadow-lg">
-                                                {{ $index + 1 }}
-                                            </span>
-                                            <h3 class="text-xl font-black text-gray-900 group-hover:text-yellow-600 transition-colors">
+                            <div class="p-4 sm:p-6">
+                                <div class="flex items-start gap-3 sm:gap-4">
+                                    <!-- Number badge: fixed size, dark text on yellow for readability -->
+                                    <span class="inline-flex items-center justify-center h-10 w-10 flex-shrink-0 rounded-xl gradient-primary text-gray-900 font-black text-base shadow-lg">
+                                        {{ $index + 1 }}
+                                    </span>
+
+                                    <!-- Content area -->
+                                    <div class="flex-1 min-w-0">
+                                        <!-- Title + status: flex-wrap so badge drops below on mobile, side-by-side on sm+ -->
+                                        <div class="flex flex-wrap sm:flex-nowrap items-start gap-x-4 gap-y-2 mb-3">
+                                            <h3 class="w-full sm:flex-1 sm:min-w-0 text-lg sm:text-xl font-black text-gray-900 group-hover:text-yellow-600 transition-colors leading-snug">
                                                 {{ $module->title }}
                                             </h3>
+
+                                            <!-- Status badge -->
+                                            <div class="flex-shrink-0">
+                                                @if($completedModules->contains($module->id))
+                                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-bold bg-green-100 text-green-800 border border-green-300 whitespace-nowrap">
+                                                        <svg class="h-4 w-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                                        </svg>
+                                                        Completed
+                                                    </span>
+                                                @elseif($unlockedModules->contains($module->id))
+                                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-bold bg-blue-100 text-blue-800 border border-blue-300 whitespace-nowrap">
+                                                        <svg class="h-4 w-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+                                                        </svg>
+                                                        In Progress
+                                                    </span>
+                                                @elseif($module->module_price)
+                                                    <div class="text-left sm:text-right">
+                                                        <div class="text-xl font-black text-gradient mb-2 whitespace-nowrap">
+                                                            LKR {{ number_format($module->module_price, 2) }}
+                                                        </div>
+                                                        @auth
+                                                            <form action="{{ route('payment.module', $module) }}" method="POST">
+                                                                @csrf
+                                                                <button type="submit" class="inline-flex items-center px-4 py-2 rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-gray-900 font-bold text-sm shadow-lg hover:shadow-yellow-500/50 transform hover:scale-105 transition-all">
+                                                                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/>
+                                                                    </svg>
+                                                                    Unlock Module
+                                                                </button>
+                                                            </form>
+                                                        @else
+                                                            <a href="{{ route('login') }}" class="text-sm text-yellow-600 hover:text-yellow-700 font-bold whitespace-nowrap">
+                                                                Login to unlock
+                                                            </a>
+                                                        @endauth
+                                                    </div>
+                                                @else
+                                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-bold bg-gray-100 text-gray-800 border border-gray-300 whitespace-nowrap">
+                                                        <svg class="h-4 w-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                                        </svg>
+                                                        Locked
+                                                    </span>
+                                                @endif
+                                            </div>
                                         </div>
-                                        <p class="text-gray-600 ml-14 mb-4">
+
+                                        <!-- Description -->
+                                        <p class="text-gray-600 text-sm sm:text-base mb-4">
                                             {{ $module->description }}
                                         </p>
 
+                                        <!-- Start Learning button -->
                                         @if($unlockedModules->contains($module->id))
-                                            <div class="ml-14">
-                                                <a href="{{ route('courses.module', $module) }}" class="inline-flex items-center px-6 py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-gray-900 font-bold shadow-lg hover:shadow-yellow-500/50 transform hover:scale-105 transition-all">
-                                                    <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                                    </svg>
-                                                    Start Learning
-                                                </a>
-                                            </div>
-                                        @endif
-                                    </div>
-
-                                    <div class="ml-4 flex-shrink-0">
-                                        @if($completedModules->contains($module->id))
-                                            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-green-100 text-green-800 border border-green-300">
-                                                <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                                </svg>
-                                                Completed
-                                            </span>
-                                        @elseif($unlockedModules->contains($module->id))
-                                            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-blue-100 text-blue-800 border border-blue-300">
-                                                <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
-                                                </svg>
-                                                In Progress
-                                            </span>
-                                        @elseif($module->module_price)
-                                            <div class="text-right">
-                                                <div class="text-2xl font-black text-gradient mb-2">
-                                                    LKR {{ number_format($module->module_price, 2) }}
-                                                </div>
-                                                @auth
-                                                    <form action="{{ route('payment.module', $module) }}" method="POST">
-                                                        @csrf
-                                                        <button type="submit" class="inline-flex items-center px-4 py-2 rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-gray-900 font-bold text-sm shadow-lg hover:shadow-yellow-500/50 transform hover:scale-105 transition-all">
-                                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/>
-                                                            </svg>
-                                                            Unlock Module
-                                                        </button>
-                                                    </form>
-                                                @else
-                                                    <a href="{{ route('login') }}" class="text-sm text-yellow-600 hover:text-yellow-700 font-bold">
-                                                        Login to unlock
-                                                    </a>
-                                                @endauth
-                                            </div>
-                                        @else
-                                            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-bold bg-gray-100 text-gray-800 border border-gray-300">
+                                            <a href="{{ route('courses.module', $module) }}" class="inline-flex w-full sm:w-auto items-center justify-center px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-gray-900 font-bold text-sm shadow-lg hover:shadow-yellow-500/50 transform hover:scale-105 transition-all">
                                                 <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                 </svg>
-                                                Locked
-                                            </span>
+                                                Start Learning
+                                            </a>
                                         @endif
                                     </div>
                                 </div>
@@ -185,8 +191,8 @@
             </div>
 
             <!-- Sidebar -->
-            <div class="mt-12 lg:mt-0">
-                <div class="bg-white rounded-3xl shadow-2xl border-2 border-yellow-200 sticky top-24 overflow-hidden">
+            <div class="mt-10 lg:mt-0">
+                <div class="bg-white rounded-3xl shadow-2xl border-2 border-yellow-200 lg:sticky lg:top-24 overflow-hidden">
                     <!-- Price Header -->
                     <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 p-6 text-center">
                         <div class="text-sm font-bold text-gray-900 mb-2">Full Course Access</div>
