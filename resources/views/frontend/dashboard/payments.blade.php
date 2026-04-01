@@ -40,6 +40,9 @@
             <a href="{{ route('dashboard.my-courses') }}" class="whitespace-nowrap py-4 px-1 border-b-4 border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300 font-bold text-sm transition-colors">
                 My Courses
             </a>
+            <a href="{{ route('submissions.index') }}" class="whitespace-nowrap py-4 px-1 border-b-4 border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300 font-bold text-sm transition-colors">
+                My Submissions
+            </a>
             <a href="{{ route('dashboard.payments') }}" class="whitespace-nowrap py-4 px-1 border-b-4 border-yellow-500 text-yellow-600 font-black text-sm">
                 Payments
             </a>

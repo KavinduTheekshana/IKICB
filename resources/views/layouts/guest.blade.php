@@ -308,9 +308,15 @@
 
                 <!-- Right Side Actions -->
                 <div class="hidden lg:flex items-center space-x-4">
-                    <a href="{{ route('login') }}" class="px-6 py-3 text-sm font-bold text-gray-700 hover:text-yellow-600 hover:bg-gray-50 rounded-xl transition-all duration-300">
-                        Sign In
-                    </a>
+                    @auth
+                        <a href="{{ route('dashboard') }}" class="px-6 py-3 text-sm font-bold text-gray-700 hover:text-yellow-600 hover:bg-gray-50 rounded-xl transition-all duration-300">
+                            Dashboard
+                        </a>
+                    @else
+                        <a href="{{ route('login') }}" class="px-6 py-3 text-sm font-bold text-gray-700 hover:text-yellow-600 hover:bg-gray-50 rounded-xl transition-all duration-300">
+                            Sign In
+                        </a>
+                    @endauth
                     <a href="{{ route('register') }}" class="relative px-8 py-3.5 text-sm font-black text-white btn-primary rounded-xl shadow-xl transform hover:scale-105 transition-all duration-300">
                         <span class="relative z-10 flex items-center space-x-2">
                             <span>Get Started Free</span>
@@ -348,9 +354,15 @@
                         Contact
                     </a>
                     <div class="pt-4 space-y-2">
-                        <a href="{{ route('login') }}" class="block px-4 py-3 rounded-xl text-base font-bold text-gray-700 hover:bg-gray-100 transition-all">
-                            Sign In
-                        </a>
+                        @auth
+                            <a href="{{ route('dashboard') }}" class="block px-4 py-3 rounded-xl text-base font-bold text-gray-700 hover:bg-gray-100 transition-all">
+                                Dashboard
+                            </a>
+                        @else
+                            <a href="{{ route('login') }}" class="block px-4 py-3 rounded-xl text-base font-bold text-gray-700 hover:bg-gray-100 transition-all">
+                                Sign In
+                            </a>
+                        @endauth
                         <a href="{{ route('register') }}" class="block px-4 py-3 rounded-xl text-base font-black text-white gradient-primary text-center shadow-lg">
                             Get Started Free
                         </a>
