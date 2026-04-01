@@ -11,15 +11,15 @@
     </div>
 
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
-                <h1 class="text-3xl sm:text-4xl font-black text-white mb-2">
+                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-white mb-2">
                     My Courses
                 </h1>
-                <p class="text-lg text-gray-300">All courses you've enrolled in</p>
+                <p class="text-base sm:text-lg text-gray-300">All courses you've enrolled in</p>
             </div>
-            <a href="{{ route('courses.index') }}" class="hidden sm:inline-flex items-center px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl text-gray-900 font-bold shadow-lg hover:shadow-yellow-500/50 transform hover:scale-105 transition-all">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <a href="{{ route('courses.index') }}" class="inline-flex items-center px-5 py-2.5 sm:px-6 sm:py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl text-gray-900 font-bold shadow-lg hover:shadow-yellow-500/50 transform hover:scale-105 transition-all text-sm sm:text-base">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                 </svg>
                 Browse More Courses
@@ -29,24 +29,36 @@
 </div>
 
 <!-- Navigation Tabs -->
-<div class="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <nav class="-mb-px flex space-x-8 overflow-x-auto" aria-label="Tabs">
-            <a href="{{ route('dashboard') }}" class="whitespace-nowrap py-4 px-1 border-b-4 border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300 font-bold text-sm transition-colors">
+<section class="bg-white border-b border-gray-200 sticky top-20 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-x-auto">
+        <nav class="flex space-x-4 sm:space-x-8 -mb-px min-w-max">
+            <a href="{{ route('dashboard') }}" class="group inline-flex items-center py-4 px-1 border-b-4 border-transparent text-gray-500 hover:text-yellow-600 hover:border-yellow-300 font-bold text-xs sm:text-sm transition-all whitespace-nowrap">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                </svg>
                 Overview
             </a>
-            <a href="{{ route('dashboard.my-courses') }}" class="whitespace-nowrap py-4 px-1 border-b-4 border-yellow-500 text-yellow-600 font-black text-sm">
+            <a href="{{ route('dashboard.my-courses') }}" class="group inline-flex items-center py-4 px-1 border-b-4 border-yellow-500 text-yellow-600 font-black text-xs sm:text-sm transition-all whitespace-nowrap">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
                 My Courses
             </a>
-            <a href="{{ route('submissions.index') }}" class="whitespace-nowrap py-4 px-1 border-b-4 border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300 font-bold text-sm transition-colors">
+            <a href="{{ route('submissions.index') }}" class="group inline-flex items-center py-4 px-1 border-b-4 border-transparent text-gray-500 hover:text-yellow-600 hover:border-yellow-300 font-bold text-xs sm:text-sm transition-all whitespace-nowrap">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                </svg>
                 My Submissions
             </a>
-            <a href="{{ route('dashboard.payments') }}" class="whitespace-nowrap py-4 px-1 border-b-4 border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300 font-bold text-sm transition-colors">
+            <a href="{{ route('dashboard.payments') }}" class="group inline-flex items-center py-4 px-1 border-b-4 border-transparent text-gray-500 hover:text-yellow-600 hover:border-yellow-300 font-bold text-xs sm:text-sm transition-all whitespace-nowrap">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                </svg>
                 Payments
             </a>
         </nav>
     </div>
-</div>
+</section>
 
 <!-- Main Content -->
 <div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-yellow-50 py-12">

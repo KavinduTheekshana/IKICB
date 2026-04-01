@@ -5,10 +5,10 @@
 @section('content')
 <div class="bg-gradient-to-br from-gray-50 via-white to-yellow-50 min-h-screen">
     <!-- Breadcrumb Header -->
-    <div class="bg-gradient-to-r from-gray-900 to-black py-6 border-b border-gray-800">
+    <div class="bg-gradient-to-r from-gray-900 to-black py-4 sm:py-6 border-b border-gray-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <nav class="mb-2">
-                <ol class="flex items-center space-x-3 text-sm">
+                <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
                     <li>
                         <a href="{{ route('courses.index') }}" class="text-yellow-400 hover:text-yellow-300 font-semibold transition-colors">
                             Courses
@@ -46,15 +46,15 @@
             <!-- Main Content -->
             <div class="lg:col-span-2 space-y-6">
                 <!-- Module Header with Completion Status -->
-                <div class="bg-white rounded-3xl shadow-xl border-2 border-yellow-200 p-8">
-                    <div class="flex items-start justify-between">
-                        <div class="flex-1">
-                            <h1 class="text-4xl font-black text-gray-900 mb-3">{{ $module->title }}</h1>
-                            <p class="text-lg text-gray-600">{{ $module->description }}</p>
+                <div class="bg-white rounded-3xl shadow-xl border-2 border-yellow-200 p-4 sm:p-8">
+                    <div class="flex flex-wrap sm:flex-nowrap items-start gap-3 sm:gap-6 sm:justify-between">
+                        <div class="w-full sm:flex-1">
+                            <h1 class="text-2xl sm:text-4xl font-black text-gray-900 mb-2 sm:mb-3">{{ $module->title }}</h1>
+                            <p class="text-sm sm:text-lg text-gray-600">{{ $module->description }}</p>
                         </div>
                         @if($isCompleted)
-                            <span class="inline-flex items-center px-5 py-3 rounded-2xl text-sm font-black bg-green-100 text-green-800 border-2 border-green-300 shadow-lg">
-                                <svg class="h-6 w-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <span class="inline-flex items-center px-3 py-1.5 sm:px-5 sm:py-3 rounded-2xl text-sm font-black bg-green-100 text-green-800 border-2 border-green-300 shadow-lg whitespace-nowrap flex-shrink-0">
+                                <svg class="h-4 w-4 sm:h-6 sm:w-6 mr-1.5 sm:mr-2" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                                 </svg>
                                 Completed
@@ -77,8 +77,8 @@
                 </div>
                     @foreach($module->activeVideos as $moduleVideo)
                         <div class="bg-white rounded-3xl shadow-xl border-2 border-gray-200 overflow-hidden">
-                            <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-8 py-4 flex items-center justify-between">
-                                <h2 class="text-2xl font-black text-gray-900 flex items-center">
+                            <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-4 py-3 sm:px-8 sm:py-4 flex flex-wrap items-center justify-between gap-2">
+                                <h2 class="text-lg sm:text-2xl font-black text-gray-900 flex items-center">
                                     <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -152,7 +152,7 @@
                     </div>
                     <div class="bg-white rounded-3xl shadow-xl border-2 border-gray-200 overflow-hidden">
                         <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-8 py-4">
-                            <h2 class="text-2xl font-black text-gray-900 flex items-center">
+                            <h2 class="text-lg sm:text-2xl font-black text-gray-900 flex items-center">
                                 <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -204,43 +204,41 @@
                 <!-- Materials -->
                 @if($module->materials->count() > 0)
                     <div class="bg-white rounded-3xl shadow-xl border-2 border-gray-200 overflow-hidden">
-                        <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-8 py-4">
-                            <h2 class="text-2xl font-black text-gray-900 flex items-center">
-                                <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-4 py-3 sm:px-8 sm:py-4">
+                            <h2 class="text-lg sm:text-2xl font-black text-gray-900 flex items-center">
+                                <svg class="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                 </svg>
                                 Learning Materials
                             </h2>
                         </div>
-                        <div class="p-6">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="p-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 @foreach($module->materials->sortBy('order') as $material)
-                                    <div class="group border-2 border-gray-200 rounded-2xl overflow-hidden hover:border-yellow-400 hover:shadow-xl transition-all">
-                                        <div class="mb-3">
-                                            @if($material->type === 'image')
-                                                <img src="{{ Storage::url($material->file_path) }}" alt="{{ $material->title }}" class="w-full h-56 object-cover">
-                                            @else
-                                                <div class="flex items-center justify-center h-32 bg-gradient-to-br
-                                                    {{ $material->type === 'pdf' ? 'from-red-100 to-red-200' : 'from-blue-100 to-blue-200' }}">
-                                                    @if($material->type === 'pdf')
-                                                        <svg class="h-20 w-20 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"></path>
-                                                        </svg>
-                                                    @else
-                                                        <svg class="h-20 w-20 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
-                                                        </svg>
-                                                    @endif
-                                                </div>
-                                            @endif
-                                        </div>
-                                        <div class="p-4">
-                                            <h3 class="text-lg font-black text-gray-900 mb-2 group-hover:text-yellow-600 transition-colors">{{ $material->title }}</h3>
+                                    <div class="group border-2 border-gray-200 rounded-xl overflow-hidden hover:border-yellow-400 hover:shadow-lg transition-all flex flex-col">
+                                        @if($material->type === 'image')
+                                            <img src="{{ Storage::url($material->file_path) }}" alt="{{ $material->title }}" class="w-full h-36 object-cover">
+                                        @else
+                                            <div class="flex items-center justify-center h-20 bg-gradient-to-br
+                                                {{ $material->type === 'pdf' ? 'from-red-100 to-red-200' : 'from-blue-100 to-blue-200' }}">
+                                                @if($material->type === 'pdf')
+                                                    <svg class="h-10 w-10 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"></path>
+                                                    </svg>
+                                                @else
+                                                    <svg class="h-10 w-10 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
+                                                    </svg>
+                                                @endif
+                                            </div>
+                                        @endif
+                                        <div class="p-3 flex flex-col flex-1">
+                                            <h3 class="text-sm font-black text-gray-900 mb-1 group-hover:text-yellow-600 transition-colors">{{ $material->title }}</h3>
                                             @if($material->description)
-                                                <p class="text-sm text-gray-600 mb-4">{{ $material->description }}</p>
+                                                <p class="text-xs text-gray-600 mb-3">{{ $material->description }}</p>
                                             @endif
-                                            <a href="{{ Storage::url($material->file_path) }}" download class="w-full inline-flex items-center justify-center px-4 py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-gray-900 font-bold shadow-lg hover:shadow-yellow-500/50 transform hover:scale-105 transition-all">
-                                                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <a href="{{ Storage::url($material->file_path) }}" download class="mt-auto w-full inline-flex items-center justify-center px-3 py-2 rounded-lg bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-gray-900 font-bold text-sm shadow hover:shadow-yellow-500/50 transition-all">
+                                                <svg class="h-4 w-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                                 </svg>
                                                 Download
@@ -257,7 +255,7 @@
                 @if($mcqQuestions->count() > 0)
                     <div class="bg-white rounded-3xl shadow-xl border-2 border-gray-200 overflow-hidden">
                         <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-8 py-4">
-                            <h2 class="text-2xl font-black text-gray-900 flex items-center">
+                            <h2 class="text-lg sm:text-2xl font-black text-gray-900 flex items-center">
                                 <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
                                 </svg>
