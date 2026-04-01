@@ -2,11 +2,34 @@
 
 namespace App\Models;
 
+use App\Services\BunnyVideoService;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class StudentSubmission extends Model
 {
+    protected static function booted(): void
+    {
+        static::deleting(function (StudentSubmission $submission) {
+            // Delete video from Bunny.net
+            if ($submission->bunny_video_id) {
+                try {
+                    $bunny     = app(BunnyVideoService::class);
+                    $libraryId = $submission->bunny_library_id ?: $bunny->getDefaultLibraryId();
+                    $bunny->deleteVideo($libraryId, $submission->bunny_video_id);
+                } catch (\Throwable $e) {
+                    Log::error('Failed to delete Bunny video for submission ' . $submission->id . ': ' . $e->getMessage());
+                }
+            }
+
+            // Delete local file from storage
+            if ($submission->file_path && Storage::disk('public')->exists($submission->file_path)) {
+                Storage::disk('public')->delete($submission->file_path);
+            }
+        });
+    }
+
     protected $fillable = [
         'user_id',
         'course_id',

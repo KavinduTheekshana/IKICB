@@ -126,13 +126,61 @@
 
                 <!-- Video note -->
                 <div id="videoNote" class="mt-4 bg-amber-50 border border-amber-200 rounded-xl p-3 text-sm text-amber-700">
-                    <strong>Video uploads</strong> are streamed directly to Bunny.net — your video will NOT be stored on our server.
+                    <strong>Video uploads</strong> are streamed directly to Bunny.net - your video will NOT be stored on our server.
                     Large files may take a few minutes to upload. Please wait after clicking Submit.
                 </div>
             </div>
 
+            <!-- Upload Progress (hidden until upload starts) -->
+            <div id="uploadProgressWrapper" class="hidden mb-4 bg-white rounded-2xl shadow-lg border-2 border-yellow-200 p-5">
+
+                <!-- Stage indicators -->
+                <div class="flex items-center gap-2 mb-4">
+                    <div id="stageUpload" class="flex items-center gap-1.5">
+                        <span id="stageUploadDot" class="w-3 h-3 rounded-full bg-yellow-400 animate-pulse"></span>
+                        <span class="text-xs font-bold text-yellow-600">Uploading</span>
+                    </div>
+                    <div class="flex-1 h-px bg-gray-200"></div>
+                    <div id="stageProcess" class="flex items-center gap-1.5 opacity-30">
+                        <span id="stageProcessDot" class="w-3 h-3 rounded-full bg-gray-400"></span>
+                        <span class="text-xs font-bold text-gray-500">Processing</span>
+                    </div>
+                    <div class="flex-1 h-px bg-gray-200"></div>
+                    <div id="stageDone" class="flex items-center gap-1.5 opacity-30">
+                        <span id="stageDoneDot" class="w-3 h-3 rounded-full bg-green-400"></span>
+                        <span class="text-xs font-bold text-gray-500">Ready</span>
+                    </div>
+                </div>
+
+                <!-- Progress bar -->
+                <div class="flex items-center justify-between mb-2">
+                    <span id="uploadStatusText" class="text-sm font-bold text-gray-700">Uploading…</span>
+                    <span id="uploadPercent" class="text-sm font-black text-yellow-600">0%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                    <div id="uploadProgressBar"
+                         class="h-4 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-300"
+                         style="width: 0%"></div>
+                </div>
+                <p id="uploadSizeText" class="text-xs text-gray-500 mt-2"></p>
+
+                <!-- Success message (hidden until done) -->
+                <div id="uploadSuccessMsg" class="hidden mt-4 bg-green-50 border-2 border-green-300 rounded-xl p-4">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <div>
+                            <p class="font-black text-green-800 text-sm" id="uploadSuccessTitle">Upload Successful!</p>
+                            <p class="text-green-700 text-xs mt-1" id="uploadSuccessDetail"></p>
+                            <p class="text-green-600 text-xs mt-2 font-semibold">Redirecting you to your submissions… please do not close this page.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Submit -->
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3" id="submitRow">
                 <button type="submit" id="submitBtn"
                         class="flex-1 inline-flex items-center justify-center px-5 py-3 sm:px-8 sm:py-4 rounded-xl sm:rounded-2xl bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-gray-900 font-black text-base sm:text-lg shadow-xl hover:shadow-yellow-500/50 transform hover:scale-105 transition-all">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -201,16 +249,129 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Show uploading state on submit
-    document.getElementById('submissionForm').addEventListener('submit', function () {
-        const btn  = document.getElementById('submitBtn');
-        const text = document.getElementById('submitText');
-        btn.disabled = true;
-        btn.classList.remove('hover:scale-105');
-        btn.classList.add('opacity-75', 'cursor-not-allowed');
-        text.textContent = getSelectedType() === 'video'
-            ? 'Uploading video… please wait'
-            : 'Submitting…';
+    // XHR upload with progress bar
+    document.getElementById('submissionForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const form        = this;
+        const btn         = document.getElementById('submitBtn');
+        const submitRow   = document.getElementById('submitRow');
+        const progressWrap = document.getElementById('uploadProgressWrapper');
+        const bar         = document.getElementById('uploadProgressBar');
+        const percent     = document.getElementById('uploadPercent');
+        const statusText  = document.getElementById('uploadStatusText');
+        const sizeText    = document.getElementById('uploadSizeText');
+        const isVideo     = getSelectedType() === 'video';
+
+        // Hide submit row, show progress
+        submitRow.classList.add('hidden');
+        progressWrap.classList.remove('hidden');
+        statusText.textContent = isVideo ? 'Uploading video… please wait' : 'Uploading file… please wait';
+
+        const formData = new FormData(form);
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', form.action);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+        function setStage(stage) {
+            // stage: 'uploading' | 'processing' | 'done'
+            const upload  = document.getElementById('stageUpload');
+            const process = document.getElementById('stageProcess');
+            const done    = document.getElementById('stageDone');
+            const uploadDot  = document.getElementById('stageUploadDot');
+            const processDot = document.getElementById('stageProcessDot');
+            const doneDot    = document.getElementById('stageDoneDot');
+
+            // Reset all to dim
+            [upload, process, done].forEach(el => el.classList.add('opacity-30'));
+            [uploadDot, processDot, doneDot].forEach(el => el.classList.remove('animate-pulse'));
+
+            if (stage === 'uploading') {
+                upload.classList.remove('opacity-30');
+                uploadDot.classList.add('animate-pulse');
+            } else if (stage === 'processing') {
+                upload.classList.remove('opacity-30');
+                uploadDot.classList.replace('bg-yellow-400', 'bg-green-400');
+                process.classList.remove('opacity-30');
+                processDot.classList.replace('bg-gray-400', 'bg-yellow-400');
+                processDot.classList.add('animate-pulse');
+            } else if (stage === 'done') {
+                upload.classList.remove('opacity-30');
+                process.classList.remove('opacity-30');
+                done.classList.remove('opacity-30');
+                doneDot.classList.replace('bg-green-400', 'bg-green-500');
+                bar.style.width = '100%';
+                bar.classList.replace('from-yellow-400', 'from-green-400');
+                bar.classList.replace('to-yellow-600', 'to-green-600');
+            }
+        }
+
+        setStage('uploading');
+
+        xhr.upload.addEventListener('progress', function (e) {
+            if (!e.lengthComputable) return;
+            const pct = Math.round((e.loaded / e.total) * 100);
+            bar.style.width = pct + '%';
+            percent.textContent = pct + '%';
+            const loaded = (e.loaded / 1048576).toFixed(1);
+            const total  = (e.total  / 1048576).toFixed(1);
+            sizeText.textContent = loaded + ' MB / ' + total + ' MB uploaded';
+            if (pct === 100) {
+                setStage('processing');
+                statusText.textContent = isVideo
+                    ? 'File uploaded! Server is now processing your video…'
+                    : 'File uploaded! Server is processing your submission…';
+                percent.textContent = '100%';
+            }
+        });
+
+        xhr.addEventListener('load', function () {
+            if (xhr.status >= 200 && xhr.status < 400) {
+                // Show success message before redirecting
+                setStage('done');
+                statusText.textContent = 'Done!';
+                percent.textContent = '100%';
+                sizeText.textContent = '';
+
+                const successMsg   = document.getElementById('uploadSuccessMsg');
+                const successTitle = document.getElementById('uploadSuccessTitle');
+                const successDetail = document.getElementById('uploadSuccessDetail');
+
+                successTitle.textContent  = isVideo ? 'Video Uploaded Successfully!' : 'File Uploaded Successfully!';
+                successDetail.textContent = isVideo
+                    ? 'Your video has been received and is ready. You can now view it in your submissions.'
+                    : 'Your file has been received. You can now view it in your submissions.';
+                successMsg.classList.remove('hidden');
+
+                // Redirect after 2.5 seconds so the student can read the message
+                const redirect = xhr.responseURL || xhr.getResponseHeader('Location');
+                setTimeout(function () {
+                    if (redirect) {
+                        window.location.href = redirect;
+                    } else {
+                        try {
+                            const json = JSON.parse(xhr.responseText);
+                            if (json.redirect) { window.location.href = json.redirect; return; }
+                        } catch (_) {}
+                        window.location.href = '{{ route('submissions.index') }}';
+                    }
+                }, 2500);
+            } else {
+                // Show error, restore submit button
+                progressWrap.classList.add('hidden');
+                submitRow.classList.remove('hidden');
+                alert('Upload failed (HTTP ' + xhr.status + '). Please try again.');
+            }
+        });
+
+        xhr.addEventListener('error', function () {
+            progressWrap.classList.add('hidden');
+            submitRow.classList.remove('hidden');
+            alert('Network error during upload. Please check your connection and try again.');
+        });
+
+        xhr.send(formData);
     });
 
     // Course → modules AJAX
