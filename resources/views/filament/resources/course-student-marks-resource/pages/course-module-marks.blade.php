@@ -142,6 +142,19 @@
                         <span class="text-primary-600 dark:text-primary-400">(filtered)</span>
                     @endif
                 </span>
+
+                {{-- Export Button --}}
+                <div class="ml-auto">
+                    <button
+                        wire:click="exportExcel"
+                        wire:loading.attr="disabled"
+                        class="inline-flex items-center gap-1.5 rounded-lg border border-success-300 dark:border-success-700 bg-success-50 dark:bg-success-950/40 px-3 py-2 text-xs font-medium text-success-700 dark:text-success-300 hover:bg-success-100 dark:hover:bg-success-950/70 transition-colors disabled:opacity-60"
+                    >
+                        <x-heroicon-o-arrow-down-tray class="w-4 h-4" />
+                        <span wire:loading.remove wire:target="exportExcel">Export Excel</span>
+                        <span wire:loading wire:target="exportExcel">Exporting…</span>
+                    </button>
+                </div>
             </div>
 
             {{-- Students Table --}}

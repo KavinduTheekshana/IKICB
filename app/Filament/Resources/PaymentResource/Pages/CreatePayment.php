@@ -9,4 +9,19 @@ use Filament\Resources\Pages\CreateRecord;
 class CreatePayment extends CreateRecord
 {
     protected static string $resource = PaymentResource::class;
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data['currency'] = 'LKR';
+        return $data;
+    }
+
+    protected function afterCreate(): void
+    {
+        $payment = $this->record;
+
+        if ($payment->status === 'completed') {
+            PaymentResource::handlePaymentCompleted($payment);
+        }
+    }
 }

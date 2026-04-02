@@ -158,6 +158,15 @@ class BunnyVideoService
         return "https://iframe.mediadelivery.net/embed/{$libraryId}/{$videoId}?{$params}";
     }
 
+    /**
+     * Generate an AuthorizationSignature for a tus direct-upload from the browser.
+     * Formula: SHA256(libraryId + apiKey + expiry + videoId)
+     */
+    public function generateTusSignature(string $libraryId, string $videoId, int $expiry): string
+    {
+        return hash('sha256', $libraryId . $this->apiKey . $expiry . $videoId);
+    }
+
     public function getDefaultLibraryId(): string
     {
         return config('services.bunny.library_id', '');

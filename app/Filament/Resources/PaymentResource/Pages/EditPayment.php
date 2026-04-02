@@ -16,4 +16,19 @@ class EditPayment extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $data['currency'] = 'LKR';
+        return $data;
+    }
+
+    protected function afterSave(): void
+    {
+        $payment = $this->record;
+
+        if ($payment->status === 'completed') {
+            PaymentResource::handlePaymentCompleted($payment);
+        }
+    }
 }

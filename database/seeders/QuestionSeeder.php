@@ -25,424 +25,435 @@ class QuestionSeeder extends Seeder
         $spaCat      = QuestionCategory::where('name', 'Spa & Massage')->first();
         $safetyCat   = QuestionCategory::where('name', 'Health & Safety')->first();
 
-        $questions = [
-            // ── Makeup Artistry MCQs ──────────────────────────────────────────
-            [
-                'question_category_id' => $makeupCat->id,
-                'type' => 'mcq',
-                'question' => 'Which type of brush is best used for applying powder foundation?',
-                'mcq_options' => [
-                    ['option' => 'Flat foundation brush'],
-                    ['option' => 'Kabuki brush'],
-                    ['option' => 'Fan brush'],
-                    ['option' => 'Angled brush'],
-                ],
-                'correct_answer' => 'Kabuki brush',
-                'marks' => 2,
-            ],
-            [
-                'question_category_id' => $makeupCat->id,
-                'type' => 'mcq',
-                'question' => 'What is the purpose of a primer in makeup application?',
-                'mcq_options' => [
-                    ['option' => 'Add color'],
-                    ['option' => 'Create a smooth base and extend makeup wear'],
-                    ['option' => 'Moisturise the skin'],
-                    ['option' => 'Set the makeup'],
-                ],
-                'correct_answer' => 'Create a smooth base and extend makeup wear',
-                'marks' => 2,
-            ],
-            [
-                'question_category_id' => $makeupCat->id,
-                'type' => 'mcq',
-                'question' => 'Which color corrector is used to neutralize dark under-eye circles?',
-                'mcq_options' => [
-                    ['option' => 'Green'],
-                    ['option' => 'Yellow'],
-                    ['option' => 'Peach / Orange'],
-                    ['option' => 'Purple'],
-                ],
-                'correct_answer' => 'Peach / Orange',
-                'marks' => 3,
-            ],
-            [
-                'question_category_id' => $makeupCat->id,
-                'type' => 'mcq',
-                'question' => 'Contouring is used to:',
-                'mcq_options' => [
-                    ['option' => 'Brighten the face'],
-                    ['option' => 'Add color'],
-                    ['option' => 'Create shadows to define facial structure'],
-                    ['option' => 'Moisturize'],
-                ],
-                'correct_answer' => 'Create shadows to define facial structure',
-                'marks' => 2,
-            ],
-            [
-                'question_category_id' => $makeupCat->id,
-                'type' => 'mcq',
-                'question' => 'What undertone does a person with pinkish skin typically have?',
-                'mcq_options' => [
-                    ['option' => 'Warm'],
-                    ['option' => 'Cool'],
-                    ['option' => 'Neutral'],
-                    ['option' => 'Golden'],
-                ],
-                'correct_answer' => 'Cool',
-                'marks' => 2,
-            ],
-            [
-                'question_category_id' => $makeupCat->id,
-                'type' => 'mcq',
-                'question' => 'Which product is applied last in a makeup routine to set and lock makeup?',
-                'mcq_options' => [
-                    ['option' => 'Primer'],
-                    ['option' => 'Foundation'],
-                    ['option' => 'Setting spray or powder'],
-                    ['option' => 'Concealer'],
-                ],
-                'correct_answer' => 'Setting spray or powder',
-                'marks' => 2,
-            ],
-            [
-                'question_category_id' => $makeupCat->id,
-                'type' => 'theory',
-                'question' => 'Explain the steps involved in a professional bridal makeup application.',
-                'mcq_options' => null,
-                'correct_answer' => null,
-                'marks' => 10,
-            ],
+        // Helper: build options array with ids and return [options, correct_answer_id]
+        $makeOptions = function (array $texts, string $correctText): array {
+            $options = array_map(fn($t) => ['id' => 'opt_' . md5($t), 'option' => $t], $texts);
+            $correctId = null;
+            foreach ($options as $opt) {
+                if ($opt['option'] === $correctText) {
+                    $correctId = $opt['id'];
+                    break;
+                }
+            }
+            return [$options, $correctId];
+        };
 
-            // ── Hair Styling MCQs ─────────────────────────────────────────────
-            [
-                'question_category_id' => $hairCat->id,
-                'type' => 'mcq',
-                'question' => 'Which scissors technique involves cutting into the hair to remove bulk?',
-                'mcq_options' => [
-                    ['option' => 'Blunt cutting'],
-                    ['option' => 'Point cutting'],
-                    ['option' => 'Texturizing / Thinning'],
-                    ['option' => 'Layering'],
-                ],
-                'correct_answer' => 'Texturizing / Thinning',
-                'marks' => 2,
-            ],
-            [
-                'question_category_id' => $hairCat->id,
-                'type' => 'mcq',
-                'question' => 'What does the term "balayage" refer to?',
-                'mcq_options' => [
-                    ['option' => 'A type of hair cut'],
-                    ['option' => 'A freehand hair coloring technique creating a sun-kissed effect'],
-                    ['option' => 'A hair straightening method'],
-                    ['option' => 'A deep conditioning treatment'],
-                ],
-                'correct_answer' => 'A freehand hair coloring technique creating a sun-kissed effect',
-                'marks' => 2,
-            ],
-            [
-                'question_category_id' => $hairCat->id,
-                'type' => 'mcq',
-                'question' => 'What is the primary purpose of a toner in hair coloring?',
-                'mcq_options' => [
-                    ['option' => 'Darken the hair'],
-                    ['option' => 'Neutralize unwanted warm tones after bleaching'],
-                    ['option' => 'Add moisture'],
-                    ['option' => 'Thicken the hair'],
-                ],
-                'correct_answer' => 'Neutralize unwanted warm tones after bleaching',
-                'marks' => 3,
-            ],
-            [
-                'question_category_id' => $hairCat->id,
-                'type' => 'mcq',
-                'question' => 'Which hair type is best suited for a blunt cut?',
-                'mcq_options' => [
-                    ['option' => 'Very curly hair'],
-                    ['option' => 'Straight to slightly wavy hair'],
-                    ['option' => 'Coarse thick hair'],
-                    ['option' => 'Fine hair'],
-                ],
-                'correct_answer' => 'Straight to slightly wavy hair',
-                'marks' => 2,
-            ],
-            [
-                'question_category_id' => $hairCat->id,
-                'type' => 'mcq',
-                'question' => 'What is the correct developer volume for a subtle lift of 1-2 levels?',
-                'mcq_options' => [
-                    ['option' => '10 vol'],
-                    ['option' => '20 vol'],
-                    ['option' => '30 vol'],
-                    ['option' => '40 vol'],
-                ],
-                'correct_answer' => '20 vol',
-                'marks' => 3,
-            ],
-            [
-                'question_category_id' => $hairCat->id,
-                'type' => 'theory',
-                'question' => 'Describe the process and precautions for applying a keratin hair treatment.',
-                'mcq_options' => null,
-                'correct_answer' => null,
-                'marks' => 10,
-            ],
+        $questions = [];
 
-            // ── Nail Technology MCQs ──────────────────────────────────────────
-            [
-                'question_category_id' => $nailCat->id,
-                'type' => 'mcq',
-                'question' => 'What is the name of the skin that grows over the base of the nail plate?',
-                'mcq_options' => [
-                    ['option' => 'Nail bed'],
-                    ['option' => 'Cuticle'],
-                    ['option' => 'Lunula'],
-                    ['option' => 'Hyponychium'],
-                ],
-                'correct_answer' => 'Cuticle',
-                'marks' => 2,
-            ],
-            [
-                'question_category_id' => $nailCat->id,
-                'type' => 'mcq',
-                'question' => 'Which lamp is required to cure gel nail polish?',
-                'mcq_options' => [
-                    ['option' => 'Infrared lamp'],
-                    ['option' => 'UV or LED lamp'],
-                    ['option' => 'Halogen lamp'],
-                    ['option' => 'Fluorescent lamp'],
-                ],
-                'correct_answer' => 'UV or LED lamp',
-                'marks' => 2,
-            ],
-            [
-                'question_category_id' => $nailCat->id,
-                'type' => 'mcq',
-                'question' => 'What is the correct way to remove acrylic nails?',
-                'mcq_options' => [
-                    ['option' => 'Peel them off'],
-                    ['option' => 'File them off completely'],
-                    ['option' => 'Soak in acetone and gently push off'],
-                    ['option' => 'Cut with nail clippers'],
-                ],
-                'correct_answer' => 'Soak in acetone and gently push off',
-                'marks' => 3,
-            ],
-            [
-                'question_category_id' => $nailCat->id,
-                'type' => 'mcq',
-                'question' => 'Which nail shape is known for being the most natural-looking and low-maintenance?',
-                'mcq_options' => [
-                    ['option' => 'Almond'],
-                    ['option' => 'Coffin'],
-                    ['option' => 'Square'],
-                    ['option' => 'Oval'],
-                ],
-                'correct_answer' => 'Oval',
-                'marks' => 2,
-            ],
-            [
-                'question_category_id' => $nailCat->id,
-                'type' => 'theory',
-                'question' => 'What are the key differences between gel nails and acrylic nails? When would you recommend each to a client?',
-                'mcq_options' => null,
-                'correct_answer' => null,
-                'marks' => 10,
-            ],
+        // ── Makeup Artistry MCQs ──────────────────────────────────────────
+        [$opts, $correct] = $makeOptions(
+            ['Flat foundation brush', 'Kabuki brush', 'Fan brush', 'Angled brush'],
+            'Kabuki brush'
+        );
+        $questions[] = [
+            'question_category_id' => $makeupCat->id,
+            'type' => 'mcq',
+            'question' => 'Which type of brush is best used for applying powder foundation?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 2,
+        ];
 
-            // ── Skincare & Facials MCQs ───────────────────────────────────────
-            [
-                'question_category_id' => $skinCat->id,
-                'type' => 'mcq',
-                'question' => 'Which skin type is characterized by an overproduction of sebum?',
-                'mcq_options' => [
-                    ['option' => 'Dry skin'],
-                    ['option' => 'Oily skin'],
-                    ['option' => 'Sensitive skin'],
-                    ['option' => 'Normal skin'],
-                ],
-                'correct_answer' => 'Oily skin',
-                'marks' => 2,
-            ],
-            [
-                'question_category_id' => $skinCat->id,
-                'type' => 'mcq',
-                'question' => 'What is the Fitzpatrick scale used for?',
-                'mcq_options' => [
-                    ['option' => 'Measuring skin hydration'],
-                    ['option' => 'Classifying skin type by reaction to UV exposure'],
-                    ['option' => 'Identifying skin infections'],
-                    ['option' => 'Measuring sebum production'],
-                ],
-                'correct_answer' => 'Classifying skin type by reaction to UV exposure',
-                'marks' => 3,
-            ],
-            [
-                'question_category_id' => $skinCat->id,
-                'type' => 'mcq',
-                'question' => 'Which ingredient is commonly used to treat hyperpigmentation?',
-                'mcq_options' => [
-                    ['option' => 'Retinol'],
-                    ['option' => 'Vitamin C'],
-                    ['option' => 'Hyaluronic acid'],
-                    ['option' => 'Benzoyl peroxide'],
-                ],
-                'correct_answer' => 'Vitamin C',
-                'marks' => 2,
-            ],
-            [
-                'question_category_id' => $skinCat->id,
-                'type' => 'mcq',
-                'question' => 'What is the recommended SPF for daily sun protection?',
-                'mcq_options' => [
-                    ['option' => 'SPF 10'],
-                    ['option' => 'SPF 15'],
-                    ['option' => 'SPF 30 or higher'],
-                    ['option' => 'SPF 5'],
-                ],
-                'correct_answer' => 'SPF 30 or higher',
-                'marks' => 2,
-            ],
-            [
-                'question_category_id' => $skinCat->id,
-                'type' => 'theory',
-                'question' => 'Explain how you would customize a facial treatment for a client with acne-prone skin.',
-                'mcq_options' => null,
-                'correct_answer' => null,
-                'marks' => 10,
-            ],
+        [$opts, $correct] = $makeOptions(
+            ['Add color', 'Create a smooth base and extend makeup wear', 'Moisturise the skin', 'Set the makeup'],
+            'Create a smooth base and extend makeup wear'
+        );
+        $questions[] = [
+            'question_category_id' => $makeupCat->id,
+            'type' => 'mcq',
+            'question' => 'What is the purpose of a primer in makeup application?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 2,
+        ];
 
-            // ── Bridal Services MCQs ──────────────────────────────────────────
-            [
-                'question_category_id' => $bridalCat->id,
-                'type' => 'mcq',
-                'question' => 'When should a bridal trial be conducted?',
-                'mcq_options' => [
-                    ['option' => 'On the wedding day'],
-                    ['option' => '1-2 weeks before the wedding'],
-                    ['option' => '3-6 months before the wedding'],
-                    ['option' => 'A day before'],
-                ],
-                'correct_answer' => '3-6 months before the wedding',
-                'marks' => 2,
-            ],
-            [
-                'question_category_id' => $bridalCat->id,
-                'type' => 'mcq',
-                'question' => 'What type of foundation is most suitable for long-lasting bridal makeup?',
-                'mcq_options' => [
-                    ['option' => 'Water-based foundation'],
-                    ['option' => 'Full-coverage matte foundation'],
-                    ['option' => 'Tinted moisturizer'],
-                    ['option' => 'BB cream'],
-                ],
-                'correct_answer' => 'Full-coverage matte foundation',
-                'marks' => 2,
-            ],
-            [
-                'question_category_id' => $bridalCat->id,
-                'type' => 'mcq',
-                'question' => 'Which hairstyle is most popular for traditional Sri Lankan brides?',
-                'mcq_options' => [
-                    ['option' => 'Beach waves'],
-                    ['option' => 'Sleek ponytail'],
-                    ['option' => 'Elaborate updo with accessories'],
-                    ['option' => 'Bob cut'],
-                ],
-                'correct_answer' => 'Elaborate updo with accessories',
-                'marks' => 2,
-            ],
+        [$opts, $correct] = $makeOptions(
+            ['Green', 'Yellow', 'Peach / Orange', 'Purple'],
+            'Peach / Orange'
+        );
+        $questions[] = [
+            'question_category_id' => $makeupCat->id,
+            'type' => 'mcq',
+            'question' => 'Which color corrector is used to neutralize dark under-eye circles?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 3,
+        ];
 
-            // ── Spa & Massage MCQs ────────────────────────────────────────────
-            [
-                'question_category_id' => $spaCat->id,
-                'type' => 'mcq',
-                'question' => 'Which massage technique uses long gliding strokes?',
-                'mcq_options' => [
-                    ['option' => 'Petrissage'],
-                    ['option' => 'Effleurage'],
-                    ['option' => 'Tapotement'],
-                    ['option' => 'Friction'],
-                ],
-                'correct_answer' => 'Effleurage',
-                'marks' => 2,
-            ],
-            [
-                'question_category_id' => $spaCat->id,
-                'type' => 'mcq',
-                'question' => 'What is the ideal temperature for hot stones used in hot stone massage?',
-                'mcq_options' => [
-                    ['option' => '30-40°C'],
-                    ['option' => '45-55°C'],
-                    ['option' => '60-70°C'],
-                    ['option' => '75-85°C'],
-                ],
-                'correct_answer' => '45-55°C',
-                'marks' => 3,
-            ],
-            [
-                'question_category_id' => $spaCat->id,
-                'type' => 'mcq',
-                'question' => 'Which essential oil is most commonly used for relaxation in aromatherapy?',
-                'mcq_options' => [
-                    ['option' => 'Peppermint'],
-                    ['option' => 'Lavender'],
-                    ['option' => 'Eucalyptus'],
-                    ['option' => 'Tea tree'],
-                ],
-                'correct_answer' => 'Lavender',
-                'marks' => 2,
-            ],
-            [
-                'question_category_id' => $spaCat->id,
-                'type' => 'theory',
-                'question' => 'Describe the contraindications for providing a full body massage and why they are important.',
-                'mcq_options' => null,
-                'correct_answer' => null,
-                'marks' => 10,
-            ],
+        [$opts, $correct] = $makeOptions(
+            ['Brighten the face', 'Add color', 'Create shadows to define facial structure', 'Moisturize'],
+            'Create shadows to define facial structure'
+        );
+        $questions[] = [
+            'question_category_id' => $makeupCat->id,
+            'type' => 'mcq',
+            'question' => 'Contouring is used to:',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 2,
+        ];
 
-            // ── Health & Safety MCQs ──────────────────────────────────────────
-            [
-                'question_category_id' => $safetyCat->id,
-                'type' => 'mcq',
-                'question' => 'How often should makeup brushes used on clients be sanitized?',
-                'mcq_options' => [
-                    ['option' => 'Once a week'],
-                    ['option' => 'Once a month'],
-                    ['option' => 'After every client'],
-                    ['option' => 'Once a day'],
-                ],
-                'correct_answer' => 'After every client',
-                'marks' => 2,
-            ],
-            [
-                'question_category_id' => $safetyCat->id,
-                'type' => 'mcq',
-                'question' => 'What does COSHH stand for?',
-                'mcq_options' => [
-                    ['option' => 'Control of Substances Hazardous to Health'],
-                    ['option' => 'Care of Safety and Health Hazards'],
-                    ['option' => 'Control of Safety, Hygiene and Health'],
-                    ['option' => 'Chemical and Organic Substances Health Handbook'],
-                ],
-                'correct_answer' => 'Control of Substances Hazardous to Health',
-                'marks' => 3,
-            ],
-            [
-                'question_category_id' => $safetyCat->id,
-                'type' => 'mcq',
-                'question' => 'Which action should be taken before performing any beauty treatment on a new client?',
-                'mcq_options' => [
-                    ['option' => 'Start the treatment immediately'],
-                    ['option' => 'Conduct a consultation and patch test'],
-                    ['option' => 'Apply products directly'],
-                    ['option' => 'Ask them to sign a waiver only'],
-                ],
-                'correct_answer' => 'Conduct a consultation and patch test',
-                'marks' => 2,
-            ],
+        [$opts, $correct] = $makeOptions(
+            ['Warm', 'Cool', 'Neutral', 'Golden'],
+            'Cool'
+        );
+        $questions[] = [
+            'question_category_id' => $makeupCat->id,
+            'type' => 'mcq',
+            'question' => 'What undertone does a person with pinkish skin typically have?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 2,
+        ];
+
+        [$opts, $correct] = $makeOptions(
+            ['Primer', 'Foundation', 'Setting spray or powder', 'Concealer'],
+            'Setting spray or powder'
+        );
+        $questions[] = [
+            'question_category_id' => $makeupCat->id,
+            'type' => 'mcq',
+            'question' => 'Which product is applied last in a makeup routine to set and lock makeup?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 2,
+        ];
+
+        $questions[] = [
+            'question_category_id' => $makeupCat->id,
+            'type' => 'theory',
+            'question' => 'Explain the steps involved in a professional bridal makeup application.',
+            'mcq_options' => null,
+            'correct_answer' => null,
+            'marks' => 10,
+        ];
+
+        // ── Hair Styling MCQs ─────────────────────────────────────────────
+        [$opts, $correct] = $makeOptions(
+            ['Blunt cutting', 'Point cutting', 'Texturizing / Thinning', 'Layering'],
+            'Texturizing / Thinning'
+        );
+        $questions[] = [
+            'question_category_id' => $hairCat->id,
+            'type' => 'mcq',
+            'question' => 'Which scissors technique involves cutting into the hair to remove bulk?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 2,
+        ];
+
+        [$opts, $correct] = $makeOptions(
+            ['A type of hair cut', 'A freehand hair coloring technique creating a sun-kissed effect', 'A hair straightening method', 'A deep conditioning treatment'],
+            'A freehand hair coloring technique creating a sun-kissed effect'
+        );
+        $questions[] = [
+            'question_category_id' => $hairCat->id,
+            'type' => 'mcq',
+            'question' => 'What does the term "balayage" refer to?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 2,
+        ];
+
+        [$opts, $correct] = $makeOptions(
+            ['Darken the hair', 'Neutralize unwanted warm tones after bleaching', 'Add moisture', 'Thicken the hair'],
+            'Neutralize unwanted warm tones after bleaching'
+        );
+        $questions[] = [
+            'question_category_id' => $hairCat->id,
+            'type' => 'mcq',
+            'question' => 'What is the primary purpose of a toner in hair coloring?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 3,
+        ];
+
+        [$opts, $correct] = $makeOptions(
+            ['Very curly hair', 'Straight to slightly wavy hair', 'Coarse thick hair', 'Fine hair'],
+            'Straight to slightly wavy hair'
+        );
+        $questions[] = [
+            'question_category_id' => $hairCat->id,
+            'type' => 'mcq',
+            'question' => 'Which hair type is best suited for a blunt cut?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 2,
+        ];
+
+        [$opts, $correct] = $makeOptions(
+            ['10 vol', '20 vol', '30 vol', '40 vol'],
+            '20 vol'
+        );
+        $questions[] = [
+            'question_category_id' => $hairCat->id,
+            'type' => 'mcq',
+            'question' => 'What is the correct developer volume for a subtle lift of 1-2 levels?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 3,
+        ];
+
+        $questions[] = [
+            'question_category_id' => $hairCat->id,
+            'type' => 'theory',
+            'question' => 'Describe the process and precautions for applying a keratin hair treatment.',
+            'mcq_options' => null,
+            'correct_answer' => null,
+            'marks' => 10,
+        ];
+
+        // ── Nail Technology MCQs ──────────────────────────────────────────
+        [$opts, $correct] = $makeOptions(
+            ['Nail bed', 'Cuticle', 'Lunula', 'Hyponychium'],
+            'Cuticle'
+        );
+        $questions[] = [
+            'question_category_id' => $nailCat->id,
+            'type' => 'mcq',
+            'question' => 'What is the name of the skin that grows over the base of the nail plate?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 2,
+        ];
+
+        [$opts, $correct] = $makeOptions(
+            ['Infrared lamp', 'UV or LED lamp', 'Halogen lamp', 'Fluorescent lamp'],
+            'UV or LED lamp'
+        );
+        $questions[] = [
+            'question_category_id' => $nailCat->id,
+            'type' => 'mcq',
+            'question' => 'Which lamp is required to cure gel nail polish?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 2,
+        ];
+
+        [$opts, $correct] = $makeOptions(
+            ['Peel them off', 'File them off completely', 'Soak in acetone and gently push off', 'Cut with nail clippers'],
+            'Soak in acetone and gently push off'
+        );
+        $questions[] = [
+            'question_category_id' => $nailCat->id,
+            'type' => 'mcq',
+            'question' => 'What is the correct way to remove acrylic nails?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 3,
+        ];
+
+        [$opts, $correct] = $makeOptions(
+            ['Almond', 'Coffin', 'Square', 'Oval'],
+            'Oval'
+        );
+        $questions[] = [
+            'question_category_id' => $nailCat->id,
+            'type' => 'mcq',
+            'question' => 'Which nail shape is known for being the most natural-looking and low-maintenance?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 2,
+        ];
+
+        $questions[] = [
+            'question_category_id' => $nailCat->id,
+            'type' => 'theory',
+            'question' => 'What are the key differences between gel nails and acrylic nails? When would you recommend each to a client?',
+            'mcq_options' => null,
+            'correct_answer' => null,
+            'marks' => 10,
+        ];
+
+        // ── Skincare & Facials MCQs ───────────────────────────────────────
+        [$opts, $correct] = $makeOptions(
+            ['Dry skin', 'Oily skin', 'Sensitive skin', 'Normal skin'],
+            'Oily skin'
+        );
+        $questions[] = [
+            'question_category_id' => $skinCat->id,
+            'type' => 'mcq',
+            'question' => 'Which skin type is characterized by an overproduction of sebum?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 2,
+        ];
+
+        [$opts, $correct] = $makeOptions(
+            ['Measuring skin hydration', 'Classifying skin type by reaction to UV exposure', 'Identifying skin infections', 'Measuring sebum production'],
+            'Classifying skin type by reaction to UV exposure'
+        );
+        $questions[] = [
+            'question_category_id' => $skinCat->id,
+            'type' => 'mcq',
+            'question' => 'What is the Fitzpatrick scale used for?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 3,
+        ];
+
+        [$opts, $correct] = $makeOptions(
+            ['Retinol', 'Vitamin C', 'Hyaluronic acid', 'Benzoyl peroxide'],
+            'Vitamin C'
+        );
+        $questions[] = [
+            'question_category_id' => $skinCat->id,
+            'type' => 'mcq',
+            'question' => 'Which ingredient is commonly used to treat hyperpigmentation?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 2,
+        ];
+
+        [$opts, $correct] = $makeOptions(
+            ['SPF 10', 'SPF 15', 'SPF 30 or higher', 'SPF 5'],
+            'SPF 30 or higher'
+        );
+        $questions[] = [
+            'question_category_id' => $skinCat->id,
+            'type' => 'mcq',
+            'question' => 'What is the recommended SPF for daily sun protection?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 2,
+        ];
+
+        $questions[] = [
+            'question_category_id' => $skinCat->id,
+            'type' => 'theory',
+            'question' => 'Explain how you would customize a facial treatment for a client with acne-prone skin.',
+            'mcq_options' => null,
+            'correct_answer' => null,
+            'marks' => 10,
+        ];
+
+        // ── Bridal Services MCQs ──────────────────────────────────────────
+        [$opts, $correct] = $makeOptions(
+            ['On the wedding day', '1-2 weeks before the wedding', '3-6 months before the wedding', 'A day before'],
+            '3-6 months before the wedding'
+        );
+        $questions[] = [
+            'question_category_id' => $bridalCat->id,
+            'type' => 'mcq',
+            'question' => 'When should a bridal trial be conducted?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 2,
+        ];
+
+        [$opts, $correct] = $makeOptions(
+            ['Water-based foundation', 'Full-coverage matte foundation', 'Tinted moisturizer', 'BB cream'],
+            'Full-coverage matte foundation'
+        );
+        $questions[] = [
+            'question_category_id' => $bridalCat->id,
+            'type' => 'mcq',
+            'question' => 'What type of foundation is most suitable for long-lasting bridal makeup?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 2,
+        ];
+
+        [$opts, $correct] = $makeOptions(
+            ['Beach waves', 'Sleek ponytail', 'Elaborate updo with accessories', 'Bob cut'],
+            'Elaborate updo with accessories'
+        );
+        $questions[] = [
+            'question_category_id' => $bridalCat->id,
+            'type' => 'mcq',
+            'question' => 'Which hairstyle is most popular for traditional Sri Lankan brides?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 2,
+        ];
+
+        // ── Spa & Massage MCQs ────────────────────────────────────────────
+        [$opts, $correct] = $makeOptions(
+            ['Petrissage', 'Effleurage', 'Tapotement', 'Friction'],
+            'Effleurage'
+        );
+        $questions[] = [
+            'question_category_id' => $spaCat->id,
+            'type' => 'mcq',
+            'question' => 'Which massage technique uses long gliding strokes?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 2,
+        ];
+
+        [$opts, $correct] = $makeOptions(
+            ['30-40°C', '45-55°C', '60-70°C', '75-85°C'],
+            '45-55°C'
+        );
+        $questions[] = [
+            'question_category_id' => $spaCat->id,
+            'type' => 'mcq',
+            'question' => 'What is the ideal temperature for hot stones used in hot stone massage?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 3,
+        ];
+
+        [$opts, $correct] = $makeOptions(
+            ['Peppermint', 'Lavender', 'Eucalyptus', 'Tea tree'],
+            'Lavender'
+        );
+        $questions[] = [
+            'question_category_id' => $spaCat->id,
+            'type' => 'mcq',
+            'question' => 'Which essential oil is most commonly used for relaxation in aromatherapy?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 2,
+        ];
+
+        $questions[] = [
+            'question_category_id' => $spaCat->id,
+            'type' => 'theory',
+            'question' => 'Describe the contraindications for providing a full body massage and why they are important.',
+            'mcq_options' => null,
+            'correct_answer' => null,
+            'marks' => 10,
+        ];
+
+        // ── Health & Safety MCQs ──────────────────────────────────────────
+        [$opts, $correct] = $makeOptions(
+            ['Once a week', 'Once a month', 'After every client', 'Once a day'],
+            'After every client'
+        );
+        $questions[] = [
+            'question_category_id' => $safetyCat->id,
+            'type' => 'mcq',
+            'question' => 'How often should makeup brushes used on clients be sanitized?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 2,
+        ];
+
+        [$opts, $correct] = $makeOptions(
+            ['Control of Substances Hazardous to Health', 'Care of Safety and Health Hazards', 'Control of Safety, Hygiene and Health', 'Chemical and Organic Substances Health Handbook'],
+            'Control of Substances Hazardous to Health'
+        );
+        $questions[] = [
+            'question_category_id' => $safetyCat->id,
+            'type' => 'mcq',
+            'question' => 'What does COSHH stand for?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 3,
+        ];
+
+        [$opts, $correct] = $makeOptions(
+            ['Start the treatment immediately', 'Conduct a consultation and patch test', 'Apply products directly', 'Ask them to sign a waiver only'],
+            'Conduct a consultation and patch test'
+        );
+        $questions[] = [
+            'question_category_id' => $safetyCat->id,
+            'type' => 'mcq',
+            'question' => 'Which action should be taken before performing any beauty treatment on a new client?',
+            'mcq_options' => $opts,
+            'correct_answer' => $correct,
+            'marks' => 2,
         ];
 
         $createdQuestions = [];

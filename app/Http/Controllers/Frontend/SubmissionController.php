@@ -10,6 +10,7 @@ use App\Services\BunnyVideoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class SubmissionController extends Controller
 {
@@ -109,6 +110,87 @@ class SubmissionController extends Controller
 
         return redirect()->route('submissions.show', $submission)
             ->with('success', 'Your submission has been uploaded successfully!');
+    }
+
+    /**
+     * Step 1 of direct video upload:
+     * Create a video entry on Bunny.net and return tus signing credentials to the browser.
+     * The video file is NOT sent to this endpoint — only form metadata.
+     * Submission data is held in the session (keyed by a random token) until confirmed.
+     */
+    public function prepareBunnyUpload(Request $request)
+    {
+        $request->validate([
+            'title'       => 'required|string|max:255',
+            'description' => 'required|string|max:2000',
+            'course_id'   => 'nullable|exists:courses,id',
+            'module_id'   => 'nullable|exists:modules,id',
+        ]);
+
+        $libraryId = config('services.bunny.library_id');
+
+        if (empty($libraryId)) {
+            return response()->json(['error' => 'Video upload service is not configured. Please contact admin.'], 503);
+        }
+
+        try {
+            $service    = app(BunnyVideoService::class);
+            $bunnyVideo = $service->createVideo($libraryId, $request->input('title'));
+            $videoId    = $bunnyVideo['guid'];
+            $expiry     = time() + 3600; // signature valid for 1 hour
+            $signature  = $service->generateTusSignature($libraryId, $videoId, $expiry);
+
+            // Hold submission data in session — DB record is created only on confirm
+            $token = Str::random(40);
+            session(["bunny_upload_{$token}" => [
+                'user_id'          => auth()->id(),
+                'course_id'        => $request->input('course_id') ?: null,
+                'module_id'        => $request->input('module_id') ?: null,
+                'title'            => $request->input('title'),
+                'description'      => $request->input('description'),
+                'bunny_library_id' => $libraryId,
+                'bunny_video_id'   => $videoId,
+                'video_url'        => $service->embedUrl($libraryId, $videoId),
+            ]]);
+
+            return response()->json([
+                'token'      => $token,
+                'video_id'   => $videoId,
+                'library_id' => $libraryId,
+                'signature'  => $signature,
+                'expiry'     => $expiry,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Bunny prepare upload failed: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to prepare upload. Please try again.'], 500);
+        }
+    }
+
+    /**
+     * Step 2 of direct video upload:
+     * Called by the browser after the tus upload completes.
+     * Reads the session token, creates the submission as 'pending', and returns a redirect URL.
+     */
+    public function confirmBunnyUpload(Request $request)
+    {
+        $token = $request->input('token');
+        $key   = "bunny_upload_{$token}";
+        $data  = session($key);
+
+        if (!$data || $data['user_id'] !== auth()->id()) {
+            return response()->json(['error' => 'Invalid or expired upload session. Please try again.'], 422);
+        }
+
+        $submission = StudentSubmission::create(array_merge($data, [
+            'file_type' => 'video',
+            'status'    => 'pending',
+        ]));
+
+        session()->forget($key);
+
+        return response()->json([
+            'redirect' => route('submissions.show', $submission),
+        ]);
     }
 
     public function show(StudentSubmission $submission)

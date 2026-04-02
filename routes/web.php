@@ -77,6 +77,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [SubmissionController::class, 'index'])->name('index');
         Route::get('/create', [SubmissionController::class, 'create'])->name('create');
         Route::post('/', [SubmissionController::class, 'store'])->name('store');
+        Route::post('/bunny-prepare', [SubmissionController::class, 'prepareBunnyUpload'])->name('bunny.prepare');
+        Route::post('/bunny-confirm', [SubmissionController::class, 'confirmBunnyUpload'])->name('bunny.confirm');
         Route::get('/{submission}', [SubmissionController::class, 'show'])->name('show');
     });
 
@@ -116,6 +118,11 @@ foreach (['admin', 'branch'] as $panel) {
             ->name("filament.{$panel}.auth.reset-password.submit");
     });
 }
+
+// Admin: prepare direct Bunny.net video upload (returns tus credentials; file never touches this server)
+Route::post('/admin-api/bunny-prepare-video', [\App\Http\Controllers\Admin\BunnyController::class, 'prepareVideoUpload'])
+    ->middleware('auth')
+    ->name('admin.bunny.prepare.video');
 
 // API helper: get modules for a course (used by submission create form)
 Route::get('/api/courses/{course}/modules', function (\App\Models\Course $course) {

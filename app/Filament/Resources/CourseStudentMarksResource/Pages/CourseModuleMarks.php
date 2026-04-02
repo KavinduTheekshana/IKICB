@@ -166,6 +166,86 @@ class CourseModuleMarks extends Page
         ];
     }
 
+    public function exportExcel(): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        if (! $this->selectedModuleId) {
+            Notification::make()->title('No module selected')->warning()->send();
+        }
+
+        $module = $this->record->modules()->find($this->selectedModuleId);
+
+        $enrolledUserIds = Enrollment::where('course_id', $this->record->id)->pluck('user_id');
+
+        $userQuery = \App\Models\User::whereIn('id', $enrolledUserIds)
+            ->when($this->search, function ($q) {
+                $q->where(function ($q) {
+                    $q->where('name', 'like', '%' . $this->search . '%')
+                      ->orWhere('email', 'like', '%' . $this->search . '%');
+                });
+            })
+            ->orderBy('name');
+
+        $allStudents = $userQuery->get();
+        $studentIds  = $allStudents->pluck('id');
+
+        $allAttempts = QuizAttempt::where('module_id', $module->id)
+            ->whereIn('user_id', $studentIds)
+            ->get()
+            ->groupBy('user_id');
+
+        $allCompletions = ModuleCompletion::where('module_id', $module->id)
+            ->whereIn('user_id', $studentIds)
+            ->get()
+            ->groupBy('user_id');
+
+        $studentData = $allStudents->map(function ($student) use ($allAttempts, $allCompletions) {
+            $attempts    = $allAttempts[$student->id] ?? collect();
+            $completion  = ($allCompletions[$student->id] ?? collect())->first();
+            $bestScore   = $attempts->max('score');
+            $avgScore    = $attempts->avg('score');
+            $attemptCount = $attempts->count();
+            $isCompleted  = (bool) $completion;
+            $status = $isCompleted ? 'Completed' : ($attemptCount > 0 ? 'In Progress' : 'Not Started');
+
+            return [
+                $student->name,
+                $student->email,
+                $status,
+                $attemptCount,
+                $bestScore !== null ? number_format($bestScore, 1) . '%' : '',
+                $avgScore !== null ? number_format($avgScore, 1) . '%' : '',
+                $completion?->completed_at?->format('Y-m-d H:i') ?? '',
+            ];
+        });
+
+        if ($this->statusFilter !== 'all') {
+            $statusMap = ['completed' => 'Completed', 'in_progress' => 'In Progress', 'not_started' => 'Not Started'];
+            $label = $statusMap[$this->statusFilter] ?? '';
+            $studentData = $studentData->filter(fn ($row) => $row[2] === $label);
+        }
+
+        $courseName = $this->record->title;
+        $moduleName = $module->title;
+        $filename   = 'marks_' . \Str::slug($courseName) . '_' . \Str::slug($moduleName) . '.csv';
+
+        $rows = $studentData->values()->toArray();
+        array_unshift($rows, ['Student Name', 'Email', 'Status', 'Attempts', 'Best Score', 'Avg Score', 'Completed On']);
+        array_unshift($rows, ["Course: {$courseName}", '', '', '', '', '', '']);
+        array_unshift($rows, ["Module: {$moduleName}", '', '', '', '', '', '']);
+
+        return response()->streamDownload(function () use ($rows) {
+            $handle = fopen('php://output', 'w');
+            // UTF-8 BOM for Excel compatibility
+            fwrite($handle, "\xEF\xBB\xBF");
+            foreach ($rows as $row) {
+                fputcsv($handle, $row);
+            }
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
     public function deleteAttempts(int $moduleId, int $userId): void
     {
         $deleted = QuizAttempt::where('module_id', $moduleId)
