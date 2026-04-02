@@ -119,6 +119,11 @@ foreach (['admin', 'branch'] as $panel) {
     });
 }
 
+// Admin: prepare direct Bunny.net video upload (returns tus credentials; file never touches this server)
+Route::post('/admin-api/bunny-prepare-video', [\App\Http\Controllers\Admin\BunnyController::class, 'prepareVideoUpload'])
+    ->middleware('auth')
+    ->name('admin.bunny.prepare.video');
+
 // API helper: get modules for a course (used by submission create form)
 Route::get('/api/courses/{course}/modules', function (\App\Models\Course $course) {
     return $course->modules()->orderBy('order')->get(['id', 'title']);

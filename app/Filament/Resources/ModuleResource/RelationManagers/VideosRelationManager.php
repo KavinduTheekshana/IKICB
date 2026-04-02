@@ -52,23 +52,125 @@ class VideosRelationManager extends RelationManager
 
                 Forms\Components\Section::make('Video Upload')
                     ->schema([
-                        Forms\Components\FileUpload::make('temp_file_path')
-                            ->label('Upload Video')
-                            ->disk('public')
-                            ->directory('temp-videos')
-                            ->acceptedFileTypes(['video/mp4', 'video/webm', 'video/ogg', 'video/avi', 'video/quicktime', 'video/x-matroska', 'video/*'])
-                            ->maxSize(1024 * 10240) // 10 GB in KB
-                            ->helperText('Video will be streamed to Bunny.net and removed from this server immediately after upload.')
-                            ->columnSpanFull(),
+                        // Hidden field — populated by the tus upload JS below
+                        Forms\Components\Hidden::make('bunny_video_id'),
 
-                        Forms\Components\Placeholder::make('upload_note')
-                            ->label('')
-                            ->content(new HtmlString(
-                                '<div class="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-lg p-3">'
-                                . '<strong>Note:</strong> The video is streamed directly to Bunny.net on save. '
-                                . 'Large files may take several minutes — please wait for the page to respond before closing.'
-                                . '</div>'
-                            ))
+                        Forms\Components\Placeholder::make('tus_uploader')
+                            ->label('Upload Video')
+                            ->content(new HtmlString(<<<'HTML'
+<div
+    x-data="{
+        file: null,
+        progress: 0,
+        status: 'idle',
+        errorMsg: '',
+        filename: '',
+        selectFile(e) {
+            this.file = e.target.files[0];
+            this.filename = this.file ? this.file.name : '';
+            this.status = 'idle';
+            this.progress = 0;
+            this.errorMsg = '';
+        },
+        loadTus() {
+            return new Promise((resolve, reject) => {
+                if (window.tus) { resolve(); return; }
+                const s = document.createElement('script');
+                s.src = 'https://cdn.jsdelivr.net/npm/tus-js-client@4/dist/tus.min.js';
+                s.onload = resolve;
+                s.onerror = () => reject(new Error('Failed to load tus-js-client'));
+                document.head.appendChild(s);
+            });
+        },
+        async upload() {
+            if (!this.file) return;
+            await this.loadTus();
+            this.status = 'preparing';
+            this.errorMsg = '';
+            const csrf = document.querySelector('meta[name=csrf-token]').content;
+            // Filament v3 table-action modals store form data under mountedTableActionsData.0
+            const title = this.$wire.get('mountedTableActionsData.0.title') || 'Untitled';
+            const libraryId = this.$wire.get('mountedTableActionsData.0.bunny_library_id') || '';
+            try {
+                const prep = await fetch('/admin-api/bunny-prepare-video', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
+                    body: JSON.stringify({ title, library_id: libraryId }),
+                });
+                const prepText = await prep.text();
+                if (!prep.ok) {
+                    let msg = 'HTTP ' + prep.status;
+                    try { const j = JSON.parse(prepText); msg = j.error || j.message || msg; } catch(_) {}
+                    throw new Error(msg);
+                }
+                const { video_id, library_id, signature, expiry } = JSON.parse(prepText);
+                this.status = 'uploading';
+                const self = this;
+                await new Promise((resolve, reject) => {
+                    const up = new tus.Upload(self.file, {
+                        endpoint: 'https://video.bunnycdn.com/tusupload',
+                        retryDelays: [0, 3000, 5000, 10000, 20000],
+                        headers: { AuthorizationSignature: signature, AuthorizationExpire: String(expiry), VideoId: video_id, LibraryId: String(library_id) },
+                        metadata: { filetype: self.file.type, title },
+                        onError(err) { reject(err); },
+                        onProgress(b, t) { self.progress = Math.round(b/t*100); },
+                        onSuccess() { resolve(video_id); },
+                    });
+                    up.start();
+                });
+                this.$wire.set('mountedTableActionsData.0.bunny_video_id', video_id);
+                this.status = 'done';
+            } catch(err) {
+                this.status = 'error';
+                this.errorMsg = err.message || 'Upload failed';
+            }
+        }
+    }"
+    class="space-y-3"
+>
+
+    <!-- File picker -->
+    <div class="flex items-center gap-3">
+        <label class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed border-gray-300 hover:border-primary-400 bg-white text-sm font-medium text-gray-700 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.069A1 1 0 0121 8.882v6.235a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            <span x-text="filename || 'Choose video file'"></span>
+            <input type="file" accept="video/mp4,video/webm,video/ogg,video/avi,video/quicktime,video/x-matroska" class="sr-only" @change="selectFile($event)">
+        </label>
+        <button type="button"
+            @click="upload()"
+            :disabled="!file || status === 'uploading' || status === 'preparing' || status === 'done'"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+            <span x-text="status === 'preparing' ? 'Preparing…' : status === 'uploading' ? 'Uploading…' : status === 'done' ? 'Uploaded ✓' : 'Upload to Bunny.net'"></span>
+        </button>
+    </div>
+
+    <!-- Progress bar -->
+    <div x-show="status === 'uploading' || status === 'preparing'" class="space-y-1">
+        <div class="flex justify-between text-xs text-gray-500">
+            <span x-text="status === 'preparing' ? 'Preparing upload…' : 'Uploading directly to Bunny.net…'"></span>
+            <span x-text="progress + '%'"></span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+            <div class="h-2 rounded-full bg-primary-500 transition-all duration-300" :style="'width:' + progress + '%'"></div>
+        </div>
+    </div>
+
+    <!-- Success -->
+    <div x-show="status === 'done'" class="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-2">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Video uploaded to Bunny.net. Now click <strong>Save</strong> to store the record.
+    </div>
+
+    <!-- Error -->
+    <div x-show="status === 'error'" class="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg p-3" x-text="errorMsg"></div>
+
+    <!-- Idle note -->
+    <div x-show="status === 'idle'" class="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg p-3">
+        <strong>Direct upload:</strong> Video goes straight to Bunny.net — this server handles zero bytes.
+    </div>
+</div>
+HTML))
                             ->columnSpanFull(),
                     ]),
 
@@ -159,7 +261,13 @@ class VideosRelationManager extends RelationManager
             ->headerActions([
                 Tables\Actions\CreateAction::make()
                     ->after(function (ModuleVideo $record): void {
-                        $this->uploadToBunny($record);
+                        if ($record->bunny_video_id) {
+                            $service = app(BunnyVideoService::class);
+                            $record->update([
+                                'video_url' => $service->embedUrl($record->bunny_library_id, $record->bunny_video_id),
+                                'status'    => 'processing',
+                            ]);
+                        }
                     }),
             ])
             ->actions([
@@ -199,9 +307,16 @@ class VideosRelationManager extends RelationManager
                     }),
                 Tables\Actions\EditAction::make()
                     ->after(function (ModuleVideo $record): void {
-                        // Only re-upload if a new file was selected
-                        if ($record->temp_file_path) {
-                            $this->uploadToBunny($record);
+                        // Recompute video_url whenever bunny_video_id is present but url is missing or stale
+                        if ($record->bunny_video_id) {
+                            $service    = app(BunnyVideoService::class);
+                            $freshUrl   = $service->embedUrl($record->bunny_library_id, $record->bunny_video_id);
+                            if ($record->video_url !== $freshUrl || $record->status === 'uploading') {
+                                $record->update([
+                                    'video_url' => $freshUrl,
+                                    'status'    => 'processing',
+                                ]);
+                            }
                         }
                     }),
                 Tables\Actions\DeleteAction::make()
@@ -239,60 +354,4 @@ class VideosRelationManager extends RelationManager
             ]);
     }
 
-    /**
-     * Upload the temp file to Bunny.net, then delete it locally.
-     * Runs in the `after` callback so the file is guaranteed to be on disk.
-     */
-    protected function uploadToBunny(ModuleVideo $record): void
-    {
-        if (!$record->temp_file_path) {
-            return;
-        }
-
-        // FileUpload uses disk('public') → files go to storage/app/public/
-        $localPath = storage_path('app/public/' . $record->temp_file_path);
-
-        if (!file_exists($localPath)) {
-            Notification::make()
-                ->title('Upload failed: temporary file not found at ' . $localPath)
-                ->danger()
-                ->send();
-            $record->update(['status' => 'failed', 'temp_file_path' => null]);
-            return;
-        }
-
-        try {
-            $service    = app(BunnyVideoService::class);
-            $libraryId  = $record->bunny_library_id;
-            $bunnyVideo = $service->createVideo($libraryId, $record->title);
-            $videoId    = $bunnyVideo['guid'];
-
-            $service->uploadVideo($libraryId, $videoId, $localPath);
-
-            $record->update([
-                'bunny_video_id' => $videoId,
-                'video_url'      => $service->embedUrl($libraryId, $videoId),
-                'status'         => 'processing',
-                'temp_file_path' => null,
-            ]);
-
-            Notification::make()
-                ->title('Video uploaded to Bunny.net. Processing may take a few minutes.')
-                ->success()
-                ->send();
-        } catch (\Throwable $e) {
-            Log::error('Bunny video upload failed: ' . $e->getMessage());
-
-            if (file_exists($localPath)) {
-                unlink($localPath);
-            }
-
-            $record->update(['status' => 'failed', 'temp_file_path' => null]);
-
-            Notification::make()
-                ->title('Video upload failed: ' . $e->getMessage())
-                ->danger()
-                ->send();
-        }
-    }
 }
