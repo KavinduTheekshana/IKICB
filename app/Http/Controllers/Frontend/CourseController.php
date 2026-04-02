@@ -176,23 +176,23 @@ class CourseController extends Controller
         foreach ($questions as $question) {
             $userAnswerValue = $validated['answers'][$question->id] ?? null;
 
-            $normalize = function($s) {
-                $s = $s ?? '';
-                if (class_exists('Normalizer')) {
-                    $s = \Normalizer::normalize($s, \Normalizer::FORM_C) ?: $s;
-                }
-                return preg_replace('/[\s\x{00A0}]+/u', ' ', trim($s));
-            };
-            $isCorrect = $normalize($userAnswerValue) === $normalize($question->correct_answer);
+            // Build a map of option id → text for display purposes
+            $optionMap = collect($question->mcq_options ?? [])
+                ->filter(fn($opt) => is_array($opt) && !empty($opt['id']))
+                ->mapWithKeys(fn($opt) => [$opt['id'] => $opt['option'] ?? ''])
+                ->toArray();
+
+            // Compare by ID — no text encoding issues
+            $isCorrect = $userAnswerValue !== null && $userAnswerValue === $question->correct_answer;
 
             if ($isCorrect) {
                 $correctAnswers++;
             }
 
             $results[$question->id] = [
-                'user_answer' => $userAnswerValue,
-                'correct_answer' => $question->correct_answer,
-                'is_correct' => $isCorrect,
+                'user_answer'    => $optionMap[$userAnswerValue] ?? $userAnswerValue,
+                'correct_answer' => $optionMap[$question->correct_answer] ?? $question->correct_answer,
+                'is_correct'     => $isCorrect,
             ];
         }
 

@@ -354,13 +354,16 @@
                                                 @if($question->mcq_options)
                                                     <div class="space-y-3 ml-6">
                                                         @foreach($question->mcq_options as $option)
-                                                            @php $optionText = is_array($option) ? ($option['option'] ?? '') : $option; @endphp
-                                                            @if($optionText)
+                                                            @php
+                                                                $optionText = is_array($option) ? ($option['option'] ?? '') : $option;
+                                                                $optionId   = is_array($option) ? ($option['id'] ?? '') : '';
+                                                            @endphp
+                                                            @if($optionText && $optionId)
                                                             <label class="flex items-center space-x-4 p-4 rounded-2xl border-2 border-gray-200 hover:bg-yellow-50 hover:border-yellow-400 cursor-pointer transition-all group">
                                                                 <input
                                                                     type="radio"
                                                                     name="answers[{{ $question->id }}]"
-                                                                    value="{{ $optionText }}"
+                                                                    value="{{ $optionId }}"
                                                                     class="h-5 w-5 text-yellow-600 focus:ring-yellow-500 focus:ring-2"
                                                                     required>
                                                                 <span class="text-gray-700 font-semibold flex-1 group-hover:text-gray-900">{{ $optionText }}</span>

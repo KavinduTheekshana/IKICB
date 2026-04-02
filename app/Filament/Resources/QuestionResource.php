@@ -7,6 +7,7 @@ use App\Filament\Resources\QuestionResource\RelationManagers;
 use App\Models\Question;
 use App\Models\QuestionCategory;
 use Filament\Forms;
+use Illuminate\Support\Str;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -62,6 +63,8 @@ class QuestionResource extends Resource
                         Forms\Components\Repeater::make('mcq_options')
                             ->label('Answer Options')
                             ->schema([
+                                Forms\Components\Hidden::make('id')
+                                    ->default(fn () => (string) Str::uuid()),
                                 Forms\Components\TextInput::make('option')
                                     ->required()
                                     ->maxLength(255),
@@ -72,14 +75,26 @@ class QuestionResource extends Resource
                             ->columnSpanFull()
                             ->live()
                             ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set) {
+                                // Ensure every option has an id
                                 $options = $get('mcq_options') ?? [];
+                                $changed = false;
+                                foreach ($options as $key => $opt) {
+                                    if (is_array($opt) && empty($opt['id'])) {
+                                        $options[$key]['id'] = (string) Str::uuid();
+                                        $changed = true;
+                                    }
+                                }
+                                if ($changed) {
+                                    $set('mcq_options', $options);
+                                }
+
+                                // Reset correct_answer if the selected id is no longer in the list
                                 $currentCorrect = $get('correct_answer');
-                                $optionValues = collect($options)
-                                    ->map(fn($opt) => is_array($opt) ? ($opt['option'] ?? '') : $opt)
+                                $optionIds = collect($options)
+                                    ->pluck('id')
                                     ->filter()
-                                    ->values()
                                     ->toArray();
-                                if ($currentCorrect && !in_array($currentCorrect, $optionValues)) {
+                                if ($currentCorrect && !in_array($currentCorrect, $optionIds)) {
                                     $set('correct_answer', null);
                                 }
                             }),
@@ -89,9 +104,8 @@ class QuestionResource extends Resource
                             ->options(function (Forms\Get $get) {
                                 $options = $get('mcq_options') ?? [];
                                 return collect($options)
-                                    ->map(fn($opt) => is_array($opt) ? ($opt['option'] ?? '') : $opt)
-                                    ->filter()
-                                    ->mapWithKeys(fn($text) => [$text => $text])
+                                    ->filter(fn($opt) => is_array($opt) && !empty($opt['id']) && !empty($opt['option']))
+                                    ->mapWithKeys(fn($opt) => [$opt['id'] => $opt['option']])
                                     ->toArray();
                             })
                             ->required()
