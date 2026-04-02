@@ -2,9 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Course;
-use App\Models\Enrollment;
-use App\Models\ModuleUnlock;
+use App\Filament\Resources\PaymentResource;
 use App\Models\Payment;
 
 class WebxpayService
@@ -113,38 +111,7 @@ class WebxpayService
     {
         $payment->update(['status' => 'completed', 'completed_at' => now()]);
 
-        $details = $payment->payment_details;
-
-        if (!isset($details['type'])) {
-            $details['type'] = ($payment->course_id && !$payment->module_id)
-                ? 'full_course'
-                : 'module';
-        }
-
-        if ($details['type'] === 'full_course') {
-            Enrollment::updateOrCreate(
-                ['user_id' => $payment->user_id, 'course_id' => $payment->course_id],
-                ['purchase_type' => 'full_course', 'status' => 'active']
-            );
-
-            $modules = Course::find($payment->course_id)->modules;
-            foreach ($modules as $module) {
-                ModuleUnlock::updateOrCreate(
-                    ['user_id' => $payment->user_id, 'module_id' => $module->id],
-                    ['payment_id' => $payment->id, 'unlocked_at' => now()]
-                );
-            }
-        } elseif ($details['type'] === 'module') {
-            Enrollment::updateOrCreate(
-                ['user_id' => $payment->user_id, 'course_id' => $payment->course_id],
-                ['purchase_type' => 'module_wise', 'status' => 'active']
-            );
-
-            ModuleUnlock::updateOrCreate(
-                ['user_id' => $payment->user_id, 'module_id' => $payment->module_id],
-                ['payment_id' => $payment->id, 'unlocked_at' => now()]
-            );
-        }
+        PaymentResource::handlePaymentCompleted($payment);
     }
 
     public function handleFailedPayment(Payment $payment): void
