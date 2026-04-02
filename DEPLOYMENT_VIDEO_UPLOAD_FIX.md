@@ -7,11 +7,50 @@ The mountedTableActionsData.0.temp_file_path field must not be greater than 1228
 ```
 
 ## Root Cause
-PHP's `post_max_size` (8M) and `upload_max_filesize` (2M) are too small for the 10GB video uploads configured in the application.
+**Two separate limits** are blocking your uploads:
+1. **Livewire/Filament has a hardcoded 12MB limit** (this is causing your error!)
+2. PHP's `post_max_size` and `upload_max_filesize` also need to be increased
+
+Both must be fixed for video uploads to work.
 
 ---
 
 ## 🚀 Step-by-Step Fix for cPanel
+
+### Step 0: Fix Livewire Config (CRITICAL - Do This First!)
+
+**This is the main issue!** Livewire has a built-in 12288 KB (12MB) validation rule.
+
+1. Upload the updated `config/livewire.php` file from this project to your server
+2. OR manually edit your production `config/livewire.php` file and change line ~68:
+
+**Change from:**
+```php
+'rules' => null,  // Default: ['required', 'file', 'max:12288'] (12MB)
+```
+
+**Change to:**
+```php
+'rules' => ['required', 'file', 'max:10485760'],  // 10GB in KB
+```
+
+Also change line ~76:
+```php
+'max_upload_time' => 60,  // Increased from 5 to 60 minutes
+```
+
+3. Clear Laravel config cache:
+```bash
+php artisan config:cache
+```
+
+OR via cPanel Terminal/SSH:
+```bash
+cd ~/public_html  # Your Laravel directory
+php artisan config:cache
+```
+
+**If you don't have SSH/Terminal access:** Delete the file `bootstrap/cache/config.php` via cPanel File Manager.
 
 ### Step 1: Configure PHP Settings in cPanel (MultiPHP INI Editor)
 
