@@ -63,84 +63,60 @@
                     </div>
                 </div>
 
-                <!-- Video Lessons (multiple, with expiry support) -->
-                @if($module->activeVideos->count() > 0)
-                <!-- Video Protection Notice -->
-                <div class="flex items-start gap-3 bg-red-50 border-2 border-red-200 rounded-2xl px-5 py-4">
-                    <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-                    </svg>
-                    <div>
-                        <p class="text-sm font-black text-red-800">Protected Content — No Recording or Sharing</p>
-                        <p class="text-xs text-red-600 mt-0.5">This video is watermarked with your account identity. Unauthorized recording, screen capture, or sharing is a violation of our Terms of Service and may result in immediate account suspension and legal action.</p>
-                    </div>
+                @php
+                    $hasVideos    = $module->activeVideos->count() > 0 || ($module->video_url && trim($module->video_url) !== '');
+                    $hasMaterials = $module->materials->count() > 0;
+                    $hasQuiz      = $mcqQuestions->count() > 0;
+                    $defaultTab   = $hasVideos ? 'videos' : ($hasMaterials ? 'materials' : 'quiz');
+                    // Auto-open quiz tab if quiz results just came back
+                    if (session('quiz_results')) { $defaultTab = 'quiz'; }
+                @endphp
+
+                <!-- Tab Navigation -->
+                @if($hasVideos || $hasMaterials || $hasQuiz)
+                <div class="bg-white rounded-2xl shadow-md border-2 border-gray-200 overflow-hidden">
+                    <nav class="flex overflow-x-auto scrollbar-hide">
+                        @if($hasVideos)
+                        <button onclick="switchModuleTab('videos')" id="tab-btn-videos"
+                            class="module-tab-btn flex items-center gap-2 px-5 py-3.5 font-bold text-sm whitespace-nowrap border-b-4 transition-all
+                                {{ $defaultTab === 'videos' ? 'border-yellow-500 text-yellow-600 bg-yellow-50' : 'border-transparent text-gray-500 hover:text-yellow-600 hover:bg-gray-50' }}">
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Video Lessons
+                        </button>
+                        @endif
+
+                        @if($hasMaterials)
+                        <button onclick="switchModuleTab('materials')" id="tab-btn-materials"
+                            class="module-tab-btn flex items-center gap-2 px-5 py-3.5 font-bold text-sm whitespace-nowrap border-b-4 transition-all
+                                {{ $defaultTab === 'materials' ? 'border-yellow-500 text-yellow-600 bg-yellow-50' : 'border-transparent text-gray-500 hover:text-yellow-600 hover:bg-gray-50' }}">
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            Materials
+                        </button>
+                        @endif
+
+                        @if($hasQuiz)
+                        <button onclick="switchModuleTab('quiz')" id="tab-btn-quiz"
+                            class="module-tab-btn flex items-center gap-2 px-5 py-3.5 font-bold text-sm whitespace-nowrap border-b-4 transition-all
+                                {{ $defaultTab === 'quiz' ? 'border-yellow-500 text-yellow-600 bg-yellow-50' : 'border-transparent text-gray-500 hover:text-yellow-600 hover:bg-gray-50' }}">
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                            </svg>
+                            Practice Quiz
+                        </button>
+                        @endif
+                    </nav>
                 </div>
-                    @foreach($module->activeVideos as $moduleVideo)
-                        <div class="bg-white rounded-3xl shadow-xl border-2 border-gray-200 overflow-hidden">
-                            <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-4 py-3 sm:px-8 sm:py-4 flex flex-wrap items-center justify-between gap-2">
-                                <h2 class="text-lg sm:text-2xl font-black text-gray-900 flex items-center">
-                                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                    {{ $moduleVideo->title }}
-                                </h2>
-                                @if($moduleVideo->expires_at)
-                                    <span class="text-xs font-semibold bg-white/30 text-gray-900 px-3 py-1 rounded-full">
-                                        Expires {{ $moduleVideo->expires_at->format('M d, Y') }}
-                                    </span>
-                                @endif
-                            </div>
-                            @if($moduleVideo->description)
-                                <div class="px-8 pt-4 text-gray-600">{{ $moduleVideo->description }}</div>
-                            @endif
-                            <div class="p-6">
-                                {{-- Outer wrapper — THIS is what we fullscreen so our watermark stays inside --}}
-                                <div class="video-protected-wrapper" style="position:relative;background:#000;border-radius:1rem;overflow:hidden;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
-                                    <div style="padding-bottom:56.25%;height:0;position:relative;">
-                                        <iframe
-                                            class="protected-video-iframe"
-                                            data-src="{{ base64_encode($signedVideoUrls[$moduleVideo->id] ?? $moduleVideo->video_url) }}"
-                                            frameborder="0"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
-                                            sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
-                                            style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;">
-                                        </iframe>
-                                        {{-- Single moving watermark — sits INSIDE the wrapper so it shows in our custom fullscreen --}}
-                                        <div class="video-watermark" style="position:absolute;z-index:30;pointer-events:none;user-select:none;">
-                                            {{ auth()->user()->name }} &bull; {{ auth()->user()->email }}
-                                        </div>
-                                    </div>
-                                    {{-- Custom fullscreen button --}}
-                                    <button class="custom-fs-btn" title="Fullscreen" onclick="toggleVideoFullscreen(this)">
-                                        <svg class="fs-icon-expand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/>
-                                        </svg>
-                                        <svg class="fs-icon-compress" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none;">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4m0 5H4m11-5v5m0 0h5M4 15h5v5M20 15h-5v5"/>
-                                        </svg>
-                                    </button>
-                                    {{-- Tab-hidden blur overlay --}}
-                                    <div class="tab-hidden-overlay" style="display:none;position:absolute;inset:0;z-index:45;background:rgba(0,0,0,0.88);align-items:center;justify-content:center;flex-direction:column;">
-                                        <svg style="width:48px;height:48px;color:#eab308;margin-bottom:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
-                                        </svg>
-                                        <p style="color:#fff;font-weight:900;font-size:16px;margin-bottom:4px;">Video Paused</p>
-                                        <p style="color:#9ca3af;font-size:13px;">Return to this tab to continue watching.</p>
-                                    </div>
-                                </div>
-                            </div>
-                            {{-- Per-video identity footer --}}
-                            <div class="px-6 pb-4">
-                                <p class="text-xs text-gray-400 text-right font-semibold">
-                                    <svg class="inline w-3 h-3 mr-1 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
-                                    Watermarked for {{ auth()->user()->email }}
-                                </p>
-                            </div>
-                        </div>
-                    @endforeach
-                @elseif($module->video_url && trim($module->video_url) !== '')
-                    {{-- Backward compat: show legacy single video --}}
+                @endif
+
+                <!-- ── TAB: Videos ─────────────────────────────────── -->
+                @if($hasVideos)
+                <div id="tab-content-videos" class="module-tab-content space-y-4 {{ $defaultTab !== 'videos' ? 'hidden' : '' }}">
+                    <!-- Video Protection Notice -->
                     <div class="flex items-start gap-3 bg-red-50 border-2 border-red-200 rounded-2xl px-5 py-4">
                         <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
@@ -150,111 +126,186 @@
                             <p class="text-xs text-red-600 mt-0.5">This video is watermarked with your account identity. Unauthorized recording, screen capture, or sharing is a violation of our Terms of Service and may result in immediate account suspension and legal action.</p>
                         </div>
                     </div>
-                    <div class="bg-white rounded-3xl shadow-xl border-2 border-gray-200 overflow-hidden">
-                        <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-8 py-4">
-                            <h2 class="text-lg sm:text-2xl font-black text-gray-900 flex items-center">
-                                <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                Video Lesson
-                            </h2>
-                        </div>
-                        <div class="p-6">
-                            <div class="video-protected-wrapper" style="position:relative;background:#000;border-radius:1rem;overflow:hidden;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
-                                <div style="padding-bottom:56.25%;height:0;position:relative;">
-                                    <iframe
-                                        class="protected-video-iframe"
-                                        data-src="{{ base64_encode($legacySignedUrl ?? $module->video_url) }}"
-                                        frameborder="0"
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
-                                        sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
-                                        style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;">
-                                    </iframe>
-                                    <div class="video-watermark" style="position:absolute;z-index:30;pointer-events:none;user-select:none;">
-                                        {{ auth()->user()->name }} &bull; {{ auth()->user()->email }}
+
+                    @if($module->activeVideos->count() > 0)
+                        @foreach($module->activeVideos as $moduleVideo)
+                            <div class="bg-white rounded-3xl shadow-xl border-2 border-gray-200 overflow-hidden">
+                                <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-4 py-3 sm:px-8 sm:py-4 flex flex-wrap items-center justify-between gap-2">
+                                    <h2 class="text-lg sm:text-2xl font-black text-gray-900 flex items-center">
+                                        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        {{ $moduleVideo->title }}
+                                    </h2>
+                                    @if($moduleVideo->expires_at)
+                                        <span class="text-xs font-semibold bg-white/30 text-gray-900 px-3 py-1 rounded-full">
+                                            Expires {{ $moduleVideo->expires_at->format('M d, Y') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                @if($moduleVideo->description)
+                                    <div class="px-8 pt-4 text-gray-600">{{ $moduleVideo->description }}</div>
+                                @endif
+                                <div class="p-6">
+                                    <div class="video-protected-wrapper" style="position:relative;background:#000;border-radius:1rem;overflow:hidden;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
+                                        <div style="padding-bottom:56.25%;height:0;position:relative;">
+                                            <iframe
+                                                class="protected-video-iframe"
+                                                data-src="{{ base64_encode($signedVideoUrls[$moduleVideo->id] ?? $moduleVideo->video_url) }}"
+                                                frameborder="0"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
+                                                sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
+                                                style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;">
+                                            </iframe>
+                                            <div class="video-watermark" style="position:absolute;z-index:30;pointer-events:none;user-select:none;">
+                                                {{ auth()->user()->name }} &bull; {{ auth()->user()->email }}
+                                            </div>
+                                        </div>
+                                        <button class="custom-fs-btn" title="Fullscreen" onclick="toggleVideoFullscreen(this)">
+                                            <svg class="fs-icon-expand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/>
+                                            </svg>
+                                            <svg class="fs-icon-compress" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none;">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4m0 5H4m11-5v5m0 0h5M4 15h5v5M20 15h-5v5"/>
+                                            </svg>
+                                        </button>
+                                        <div class="tab-hidden-overlay" style="display:none;position:absolute;inset:0;z-index:45;background:rgba(0,0,0,0.88);align-items:center;justify-content:center;flex-direction:column;">
+                                            <svg style="width:48px;height:48px;color:#eab308;margin-bottom:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                                            </svg>
+                                            <p style="color:#fff;font-weight:900;font-size:16px;margin-bottom:4px;">Video Paused</p>
+                                            <p style="color:#9ca3af;font-size:13px;">Return to this tab to continue watching.</p>
+                                        </div>
                                     </div>
                                 </div>
-                                <button class="custom-fs-btn" title="Fullscreen" onclick="toggleVideoFullscreen(this)">
-                                    <svg class="fs-icon-expand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/>
-                                    </svg>
-                                    <svg class="fs-icon-compress" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none;">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4m0 5H4m11-5v5m0 0h5M4 15h5v5M20 15h-5v5"/>
-                                    </svg>
-                                </button>
-                                <div class="tab-hidden-overlay" style="display:none;position:absolute;inset:0;z-index:45;background:rgba(0,0,0,0.88);align-items:center;justify-content:center;flex-direction:column;">
-                                    <svg style="width:48px;height:48px;color:#eab308;margin-bottom:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
-                                    </svg>
-                                    <p style="color:#fff;font-weight:900;font-size:16px;margin-bottom:4px;">Video Paused</p>
-                                    <p style="color:#9ca3af;font-size:13px;">Return to this tab to continue watching.</p>
+                                <div class="px-6 pb-4">
+                                    <p class="text-xs text-gray-400 text-right font-semibold">
+                                        <svg class="inline w-3 h-3 mr-1 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+                                        Watermarked for {{ auth()->user()->email }}
+                                    </p>
                                 </div>
                             </div>
+                        @endforeach
+                    @elseif($module->video_url && trim($module->video_url) !== '')
+                        {{-- Backward compat: legacy single video --}}
+                        <div class="bg-white rounded-3xl shadow-xl border-2 border-gray-200 overflow-hidden">
+                            <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-8 py-4">
+                                <h2 class="text-lg sm:text-2xl font-black text-gray-900 flex items-center">
+                                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Video Lesson
+                                </h2>
+                            </div>
+                            <div class="p-6">
+                                <div class="video-protected-wrapper" style="position:relative;background:#000;border-radius:1rem;overflow:hidden;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
+                                    <div style="padding-bottom:56.25%;height:0;position:relative;">
+                                        <iframe
+                                            class="protected-video-iframe"
+                                            data-src="{{ base64_encode($legacySignedUrl ?? $module->video_url) }}"
+                                            frameborder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
+                                            sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
+                                            style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;">
+                                        </iframe>
+                                        <div class="video-watermark" style="position:absolute;z-index:30;pointer-events:none;user-select:none;">
+                                            {{ auth()->user()->name }} &bull; {{ auth()->user()->email }}
+                                        </div>
+                                    </div>
+                                    <button class="custom-fs-btn" title="Fullscreen" onclick="toggleVideoFullscreen(this)">
+                                        <svg class="fs-icon-expand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/>
+                                        </svg>
+                                        <svg class="fs-icon-compress" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4m0 5H4m11-5v5m0 0h5M4 15h5v5M20 15h-5v5"/>
+                                        </svg>
+                                    </button>
+                                    <div class="tab-hidden-overlay" style="display:none;position:absolute;inset:0;z-index:45;background:rgba(0,0,0,0.88);align-items:center;justify-content:center;flex-direction:column;">
+                                        <svg style="width:48px;height:48px;color:#eab308;margin-bottom:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                                        </svg>
+                                        <p style="color:#fff;font-weight:900;font-size:16px;margin-bottom:4px;">Video Paused</p>
+                                        <p style="color:#9ca3af;font-size:13px;">Return to this tab to continue watching.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="px-6 pb-4">
+                                <p class="text-xs text-gray-400 text-right font-semibold">
+                                    <svg class="inline w-3 h-3 mr-1 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+                                    Watermarked for {{ auth()->user()->email }}
+                                </p>
+                            </div>
                         </div>
-                        <div class="px-6 pb-4">
-                            <p class="text-xs text-gray-400 text-right font-semibold">
-                                <svg class="inline w-3 h-3 mr-1 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
-                                Watermarked for {{ auth()->user()->email }}
-                            </p>
-                        </div>
-                    </div>
+                    @endif
+                </div>
                 @endif
 
-                <!-- Materials -->
-                @if($module->materials->count() > 0)
+                <!-- ── TAB: Materials ──────────────────────────────── -->
+                @if($hasMaterials)
+                <div id="tab-content-materials" class="module-tab-content {{ $defaultTab !== 'materials' ? 'hidden' : '' }}">
                     <div class="bg-white rounded-3xl shadow-xl border-2 border-gray-200 overflow-hidden">
-                        <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-4 py-3 sm:px-8 sm:py-4">
-                            <h2 class="text-lg sm:text-2xl font-black text-gray-900 flex items-center">
-                                <svg class="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-between">
+                            <h2 class="text-lg font-black text-gray-900 flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                 </svg>
                                 Learning Materials
                             </h2>
+                            <span class="text-xs font-bold bg-black/20 text-gray-900 px-2.5 py-1 rounded-full">{{ $module->materials->count() }} {{ $module->materials->count() === 1 ? 'file' : 'files' }}</span>
                         </div>
-                        <div class="p-4">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                @foreach($module->materials->sortBy('order') as $material)
-                                    <div class="group border-2 border-gray-200 rounded-xl overflow-hidden hover:border-yellow-400 hover:shadow-lg transition-all flex flex-col">
-                                        @if($material->type === 'image')
-                                            <img src="{{ Storage::url($material->file_path) }}" alt="{{ $material->title }}" class="w-full h-36 object-cover">
-                                        @else
-                                            <div class="flex items-center justify-center h-20 bg-gradient-to-br
-                                                {{ $material->type === 'pdf' ? 'from-red-100 to-red-200' : 'from-blue-100 to-blue-200' }}">
-                                                @if($material->type === 'pdf')
-                                                    <svg class="h-10 w-10 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"></path>
-                                                    </svg>
-                                                @else
-                                                    <svg class="h-10 w-10 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
-                                                    </svg>
-                                                @endif
-                                            </div>
-                                        @endif
-                                        <div class="p-3 flex flex-col flex-1">
-                                            <h3 class="text-sm font-black text-gray-900 mb-1 group-hover:text-yellow-600 transition-colors">{{ $material->title }}</h3>
-                                            @if($material->description)
-                                                <p class="text-xs text-gray-600 mb-3">{{ $material->description }}</p>
-                                            @endif
-                                            <a href="{{ Storage::url($material->file_path) }}" download class="mt-auto w-full inline-flex items-center justify-center px-3 py-2 rounded-lg bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-gray-900 font-bold text-sm shadow hover:shadow-yellow-500/50 transition-all">
-                                                <svg class="h-4 w-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                                </svg>
-                                                Download
-                                            </a>
-                                        </div>
-                                    </div>
-                                @endforeach
+                        <div class="divide-y divide-gray-100">
+                            @foreach($module->materials->sortBy('order') as $material)
+                            <div class="flex items-center gap-3 sm:gap-4 px-4 sm:px-6 py-4 hover:bg-yellow-50 transition-colors group">
+                                <!-- Type icon -->
+                                <div class="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center
+                                    {{ $material->type === 'image' ? 'bg-purple-100' : ($material->type === 'pdf' ? 'bg-red-100' : 'bg-blue-100') }}">
+                                    @if($material->type === 'image')
+                                        <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                    @elseif($material->type === 'pdf')
+                                        <svg class="h-6 w-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
+                                        </svg>
+                                    @else
+                                        <svg class="h-6 w-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
+                                        </svg>
+                                    @endif
+                                </div>
+                                <!-- Info -->
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-bold text-gray-900 text-sm truncate group-hover:text-yellow-700 transition-colors">{{ $material->title }}</p>
+                                    @if($material->description)
+                                        <p class="text-xs text-gray-500 truncate mt-0.5">{{ $material->description }}</p>
+                                    @endif
+                                    <span class="inline-block mt-1 text-xs font-semibold uppercase tracking-wide
+                                        {{ $material->type === 'image' ? 'text-purple-500' : ($material->type === 'pdf' ? 'text-red-500' : 'text-blue-500') }}">
+                                        {{ strtoupper($material->type) }}
+                                    </span>
+                                </div>
+                                <!-- Download button -->
+                                <a href="{{ Storage::url($material->file_path) }}" download
+                                   class="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-gray-900 font-bold text-xs shadow hover:shadow-yellow-500/40 transition-all">
+                                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                    </svg>
+                                    Download
+                                </a>
                             </div>
+                            @endforeach
                         </div>
                     </div>
+                </div>
                 @endif
 
-                <!-- MCQ Quiz -->
-                @if($mcqQuestions->count() > 0)
+                <!-- ── TAB: Quiz ───────────────────────────────────── -->
+                @if($hasQuiz)
+                <div id="tab-content-quiz" class="module-tab-content {{ $defaultTab !== 'quiz' ? 'hidden' : '' }}">
                     <div class="bg-white rounded-3xl shadow-xl border-2 border-gray-200 overflow-hidden">
-                        <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-8 py-4">
+                        <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 px-4 py-3 sm:px-8 sm:py-4">
                             <h2 class="text-lg sm:text-2xl font-black text-gray-900 flex items-center">
                                 <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
@@ -278,18 +329,12 @@
                                         </svg>
                                         <span>{{ session('quiz_results')['correct'] }} out of {{ session('quiz_results')['total'] }} correct</span>
                                     </div>
-
-                                    <!-- Detailed Results -->
                                     <div class="space-y-4">
                                         @foreach($mcqQuestions as $index => $question)
-                                            @php
-                                                $result = session('quiz_results')['results'][$question->id] ?? null;
-                                            @endphp
+                                            @php $result = session('quiz_results')['results'][$question->id] ?? null; @endphp
                                             @if($result)
                                                 <div class="border-l-4 {{ $result['is_correct'] ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50' }} p-5 rounded-r-2xl shadow-md">
-                                                    <p class="font-black text-gray-900 mb-3 text-base">
-                                                        {{ $index + 1 }}. {{ $question->question }}
-                                                    </p>
+                                                    <p class="font-black text-gray-900 mb-3 text-base">{{ $index + 1 }}. {{ $question->question }}</p>
                                                     <div class="text-sm font-semibold">
                                                         <p class="text-gray-700">
                                                             <strong>Your answer:</strong> {{ $result['user_answer'] ?? 'Not answered' }}
@@ -300,9 +345,7 @@
                                                             @endif
                                                         </p>
                                                         @if(!$result['is_correct'])
-                                                            <p class="text-green-700 mt-2">
-                                                                <strong>Correct answer:</strong> {{ $result['correct_answer'] }}
-                                                            </p>
+                                                            <p class="text-green-700 mt-2"><strong>Correct answer:</strong> {{ $result['correct_answer'] }}</p>
                                                         @endif
                                                     </div>
                                                 </div>
@@ -334,7 +377,7 @@
 
                             <!-- Quiz Form -->
                             @if($hasAttempted)
-                                <div class="mt-4 p-6 bg-gray-100 border-2 border-gray-300 rounded-2xl text-center">
+                                <div class="p-6 bg-gray-100 border-2 border-gray-300 rounded-2xl text-center">
                                     <svg class="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                                     </svg>
@@ -360,12 +403,8 @@
                                                             @endphp
                                                             @if($optionText && $optionId)
                                                             <label class="flex items-center space-x-4 p-4 rounded-2xl border-2 border-gray-200 hover:bg-yellow-50 hover:border-yellow-400 cursor-pointer transition-all group">
-                                                                <input
-                                                                    type="radio"
-                                                                    name="answers[{{ $question->id }}]"
-                                                                    value="{{ $optionId }}"
-                                                                    class="h-5 w-5 text-yellow-600 focus:ring-yellow-500 focus:ring-2"
-                                                                    required>
+                                                                <input type="radio" name="answers[{{ $question->id }}]" value="{{ $optionId }}"
+                                                                    class="h-5 w-5 text-yellow-600 focus:ring-yellow-500 focus:ring-2" required>
                                                                 <span class="text-gray-700 font-semibold flex-1 group-hover:text-gray-900">{{ $optionText }}</span>
                                                             </label>
                                                             @endif
@@ -375,11 +414,10 @@
                                             </div>
                                         @endforeach
                                     </div>
-
                                     <div class="mt-8 pt-8 border-t-2 border-gray-200">
                                         <button type="submit" class="w-full inline-flex items-center justify-center px-8 py-4 rounded-2xl bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-gray-900 font-black text-lg shadow-xl hover:shadow-yellow-500/50 transform hover:scale-105 transition-all">
                                             <svg class="h-6 w-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                             </svg>
                                             Submit Quiz
                                         </button>
@@ -388,22 +426,27 @@
                             @endif
                         </div>
                     </div>
+                </div>
                 @endif
 
-                <!-- Module Completion Button -->
+                <!-- Module Completion Button (always visible) -->
                 @if(!$isCompleted)
-                    <div class="bg-white rounded-3xl shadow-xl border-2 border-green-200 p-8">
-                        <h3 class="text-2xl font-black text-gray-900 mb-4">Complete This Module</h3>
-                        <p class="text-gray-600 mb-6 text-lg">Once you've finished all the materials and completed the quiz, mark this module as complete.</p>
-                        <form action="{{ route('courses.module.complete', $module) }}" method="POST">
-                            @csrf
-                            <button type="submit" class="w-full inline-flex items-center justify-center px-8 py-4 rounded-2xl bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-black text-lg shadow-xl hover:shadow-green-500/50 transform hover:scale-105 transition-all">
-                                <svg class="h-6 w-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                </svg>
-                                Mark as Complete
-                            </button>
-                        </form>
+                    <div class="bg-white rounded-3xl shadow-xl border-2 border-green-200 p-6 sm:p-8">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div>
+                                <h3 class="text-xl font-black text-gray-900">Complete This Module</h3>
+                                <p class="text-gray-500 text-sm mt-1">Mark as done once you've reviewed all materials.</p>
+                            </div>
+                            <form action="{{ route('courses.module.complete', $module) }}" method="POST" class="flex-shrink-0">
+                                @csrf
+                                <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-black shadow-xl hover:shadow-green-500/50 transform hover:scale-105 transition-all">
+                                    <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Mark as Complete
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 @endif
             </div>
@@ -700,6 +743,34 @@
             return false;
         }
     });
+
+    // ── 0b. Module tab switching ────────────────────────────
+    window.switchModuleTab = function (tab) {
+        document.querySelectorAll('.module-tab-content').forEach(function (el) {
+            el.classList.add('hidden');
+        });
+        document.querySelectorAll('.module-tab-btn').forEach(function (btn) {
+            btn.classList.remove('border-yellow-500', 'text-yellow-600', 'bg-yellow-50');
+            btn.classList.add('border-transparent', 'text-gray-500');
+            var badge = btn.querySelector('.tab-badge');
+            if (badge) {
+                badge.style.background = '#6b7280';
+                badge.style.color = '#ffffff';
+            }
+        });
+        var content = document.getElementById('tab-content-' + tab);
+        if (content) content.classList.remove('hidden');
+        var activeBtn = document.getElementById('tab-btn-' + tab);
+        if (activeBtn) {
+            activeBtn.classList.remove('border-transparent', 'text-gray-500');
+            activeBtn.classList.add('border-yellow-500', 'text-yellow-600', 'bg-yellow-50');
+            var badge = activeBtn.querySelector('.tab-badge');
+            if (badge) {
+                badge.style.background = '#eab308';
+                badge.style.color = '#111827';
+            }
+        }
+    };
 
     // ── 10. Toast notification ───────────────────────────────
     function showToast(msg) {
