@@ -1,3 +1,15 @@
+# PHP Configuration for Large Video Uploads (LiteSpeed/Apache)
+# Must be at the very top of .htaccess
+php_value upload_max_filesize 11000M
+php_value post_max_size 11000M
+php_value max_execution_time 3600
+php_value max_input_time 3600
+php_value memory_limit 1024M
+php_value max_input_vars 10000
+
+# LiteSpeed specific - increase request body limit
+LimitRequestBody 11811160064
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
