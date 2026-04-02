@@ -23,12 +23,14 @@ class BunnyVideoService
      */
     public function createVideo(string $libraryId, string $title): array
     {
-        $response = Http::withHeaders([
-            'AccessKey' => $this->apiKey,
-            'Accept'    => 'application/json',
-        ])->post("{$this->baseUrl}/library/{$libraryId}/videos", [
-            'title' => $title,
-        ]);
+        $response = Http::timeout(60)
+            ->connectTimeout(30)
+            ->withHeaders([
+                'AccessKey' => $this->apiKey,
+                'Accept'    => 'application/json',
+            ])->post("{$this->baseUrl}/library/{$libraryId}/videos", [
+                'title' => $title,
+            ]);
 
         if (!$response->successful()) {
             throw new RuntimeException(
@@ -83,9 +85,11 @@ class BunnyVideoService
      */
     public function deleteVideo(string $libraryId, string $videoId): bool
     {
-        $response = Http::withHeaders([
-            'AccessKey' => $this->apiKey,
-        ])->delete("{$this->baseUrl}/library/{$libraryId}/videos/{$videoId}");
+        $response = Http::timeout(60)
+            ->connectTimeout(30)
+            ->withHeaders([
+                'AccessKey' => $this->apiKey,
+            ])->delete("{$this->baseUrl}/library/{$libraryId}/videos/{$videoId}");
 
         return $response->successful();
     }
@@ -95,10 +99,12 @@ class BunnyVideoService
      */
     public function getVideoStatus(string $libraryId, string $videoId): array
     {
-        $response = Http::withHeaders([
-            'AccessKey' => $this->apiKey,
-            'Accept'    => 'application/json',
-        ])->get("{$this->baseUrl}/library/{$libraryId}/videos/{$videoId}");
+        $response = Http::timeout(60)
+            ->connectTimeout(30)
+            ->withHeaders([
+                'AccessKey' => $this->apiKey,
+                'Accept'    => 'application/json',
+            ])->get("{$this->baseUrl}/library/{$libraryId}/videos/{$videoId}");
 
         if (!$response->successful()) {
             return [];
