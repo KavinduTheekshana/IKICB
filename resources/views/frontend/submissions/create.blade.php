@@ -197,6 +197,7 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/tus-js-client@4/dist/tus.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const fileTypeHints = {
@@ -207,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function () {
         other:    'Any file type (max 50 MB)',
     };
 
-    const videoAccept   = 'video/mp4,video/webm,video/ogg,video/avi,video/quicktime,video/x-matroska';
+    const videoAccept = 'video/mp4,video/webm,video/ogg,video/avi,video/quicktime,video/x-matroska';
     const fileAccepts = {
         video:    videoAccept,
         pdf:      'application/pdf',
@@ -215,6 +216,8 @@ document.addEventListener('DOMContentLoaded', function () {
         document: '.doc,.docx,.xls,.xlsx,.ppt,.pptx',
         other:    '*',
     };
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
     function getSelectedType() {
         return document.querySelector('input[name="file_type"]:checked')?.value ?? 'video';
@@ -249,135 +252,223 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // XHR upload with progress bar
+    // UI helpers
+    const bar        = document.getElementById('uploadProgressBar');
+    const percent    = document.getElementById('uploadPercent');
+    const statusText = document.getElementById('uploadStatusText');
+    const sizeText   = document.getElementById('uploadSizeText');
+    const progressWrap = document.getElementById('uploadProgressWrapper');
+    const submitRow    = document.getElementById('submitRow');
+
+    function setStage(stage) {
+        const upload     = document.getElementById('stageUpload');
+        const process    = document.getElementById('stageProcess');
+        const done       = document.getElementById('stageDone');
+        const uploadDot  = document.getElementById('stageUploadDot');
+        const processDot = document.getElementById('stageProcessDot');
+        const doneDot    = document.getElementById('stageDoneDot');
+
+        [upload, process, done].forEach(el => el.classList.add('opacity-30'));
+        [uploadDot, processDot, doneDot].forEach(el => el.classList.remove('animate-pulse'));
+
+        if (stage === 'uploading') {
+            upload.classList.remove('opacity-30');
+            uploadDot.classList.add('animate-pulse');
+        } else if (stage === 'processing') {
+            upload.classList.remove('opacity-30');
+            uploadDot.classList.replace('bg-yellow-400', 'bg-green-400');
+            process.classList.remove('opacity-30');
+            processDot.classList.replace('bg-gray-400', 'bg-yellow-400');
+            processDot.classList.add('animate-pulse');
+        } else if (stage === 'done') {
+            upload.classList.remove('opacity-30');
+            process.classList.remove('opacity-30');
+            done.classList.remove('opacity-30');
+            doneDot.classList.replace('bg-green-400', 'bg-green-500');
+            bar.style.width = '100%';
+            bar.classList.replace('from-yellow-400', 'from-green-400');
+            bar.classList.replace('to-yellow-600', 'to-green-600');
+        }
+    }
+
+    function showSuccess(isVideo) {
+        setStage('done');
+        statusText.textContent = 'Done!';
+        percent.textContent = '100%';
+        sizeText.textContent = '';
+        const successMsg    = document.getElementById('uploadSuccessMsg');
+        const successTitle  = document.getElementById('uploadSuccessTitle');
+        const successDetail = document.getElementById('uploadSuccessDetail');
+        successTitle.textContent  = isVideo ? 'Video Uploaded Successfully!' : 'File Uploaded Successfully!';
+        successDetail.textContent = isVideo
+            ? 'Your video has been sent directly to our media server. You can now view it in your submissions.'
+            : 'Your file has been received. You can now view it in your submissions.';
+        successMsg.classList.remove('hidden');
+    }
+
+    function showError(msg) {
+        progressWrap.classList.add('hidden');
+        submitRow.classList.remove('hidden');
+        alert(msg);
+    }
+
+    // ── VIDEO: direct tus upload to Bunny.net ──────────────────────────────
+    async function handleVideoUpload(form) {
+        const file        = document.getElementById('fileInput').files[0];
+        const title       = form.querySelector('[name="title"]').value;
+        const description = form.querySelector('[name="description"]').value;
+        const courseId    = form.querySelector('[name="course_id"]').value || null;
+        const moduleId    = document.getElementById('moduleSelect').value || null;
+
+        // Step 1 — tell the server to create the video entry on Bunny and get signing credentials
+        statusText.textContent = 'Preparing upload…';
+        const prepResp = await fetch('{{ route("submissions.bunny.prepare") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ title, description, course_id: courseId, module_id: moduleId }),
+        });
+
+        if (!prepResp.ok) {
+            const err = await prepResp.json().catch(() => ({}));
+            throw new Error(err.error || 'Failed to prepare upload. Please try again.');
+        }
+
+        const { token, video_id, library_id, signature, expiry } = await prepResp.json();
+
+        statusText.textContent = 'Uploading video directly to media server…';
+
+        // Step 2 — tus upload straight from the browser to Bunny.net
+        await new Promise((resolve, reject) => {
+            const upload = new tus.Upload(file, {
+                endpoint: 'https://video.bunnycdn.com/tusupload',
+                retryDelays: [0, 3000, 5000, 10000, 20000],
+                headers: {
+                    AuthorizationSignature: signature,
+                    AuthorizationExpire: String(expiry),
+                    VideoId: video_id,
+                    LibraryId: String(library_id),
+                },
+                metadata: {
+                    filetype: file.type,
+                    title: title,
+                },
+                onError(err) {
+                    reject(new Error('Upload failed: ' + err.message));
+                },
+                onProgress(bytesUploaded, bytesTotal) {
+                    const pct = Math.round((bytesUploaded / bytesTotal) * 100);
+                    bar.style.width = pct + '%';
+                    percent.textContent = pct + '%';
+                    sizeText.textContent =
+                        (bytesUploaded / 1048576).toFixed(1) + ' MB / ' +
+                        (bytesTotal    / 1048576).toFixed(1) + ' MB uploaded';
+                    if (pct === 100) {
+                        setStage('processing');
+                        statusText.textContent = 'File uploaded! Finalizing your submission…';
+                    }
+                },
+                async onSuccess() {
+                    // Step 3 — confirm on our server (creates the submission as 'pending')
+                    try {
+                        const confirmResp = await fetch('{{ route("submissions.bunny.confirm") }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json',
+                            },
+                            body: JSON.stringify({ token }),
+                        });
+                        if (!confirmResp.ok) {
+                            reject(new Error('Upload succeeded but could not save your submission. Please contact support.'));
+                            return;
+                        }
+                        const data = await confirmResp.json();
+                        resolve(data.redirect);
+                    } catch (e) {
+                        reject(e);
+                    }
+                },
+            });
+            upload.start();
+        }).then(redirectUrl => {
+            showSuccess(true);
+            setTimeout(() => { window.location.href = redirectUrl || '{{ route("submissions.index") }}'; }, 2500);
+        });
+    }
+
+    // ── NON-VIDEO: regular XHR form upload ────────────────────────────────
+    function handleFileUpload(form) {
+        return new Promise((resolve, reject) => {
+            const formData = new FormData(form);
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', form.action);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+            xhr.upload.addEventListener('progress', function (e) {
+                if (!e.lengthComputable) return;
+                const pct = Math.round((e.loaded / e.total) * 100);
+                bar.style.width = pct + '%';
+                percent.textContent = pct + '%';
+                sizeText.textContent =
+                    (e.loaded / 1048576).toFixed(1) + ' MB / ' +
+                    (e.total  / 1048576).toFixed(1) + ' MB uploaded';
+                if (pct === 100) {
+                    setStage('processing');
+                    statusText.textContent = 'File uploaded! Server is processing your submission…';
+                    percent.textContent = '100%';
+                }
+            });
+
+            xhr.addEventListener('load', function () {
+                if (xhr.status >= 200 && xhr.status < 400) {
+                    let redirectUrl = xhr.responseURL || xhr.getResponseHeader('Location');
+                    if (!redirectUrl) {
+                        try {
+                            const json = JSON.parse(xhr.responseText);
+                            if (json.redirect) redirectUrl = json.redirect;
+                        } catch (_) {}
+                    }
+                    resolve(redirectUrl || '{{ route("submissions.index") }}');
+                } else {
+                    reject(new Error('Upload failed (HTTP ' + xhr.status + '). Please try again.'));
+                }
+            });
+
+            xhr.addEventListener('error', function () {
+                reject(new Error('Network error during upload. Please check your connection and try again.'));
+            });
+
+            xhr.send(formData);
+        }).then(redirectUrl => {
+            showSuccess(false);
+            setTimeout(() => { window.location.href = redirectUrl; }, 2500);
+        });
+    }
+
+    // ── Form submit dispatcher ─────────────────────────────────────────────
     document.getElementById('submissionForm').addEventListener('submit', function (e) {
         e.preventDefault();
 
-        const form        = this;
-        const btn         = document.getElementById('submitBtn');
-        const submitRow   = document.getElementById('submitRow');
-        const progressWrap = document.getElementById('uploadProgressWrapper');
-        const bar         = document.getElementById('uploadProgressBar');
-        const percent     = document.getElementById('uploadPercent');
-        const statusText  = document.getElementById('uploadStatusText');
-        const sizeText    = document.getElementById('uploadSizeText');
-        const isVideo     = getSelectedType() === 'video';
-
-        // Hide submit row, show progress
         submitRow.classList.add('hidden');
         progressWrap.classList.remove('hidden');
-        statusText.textContent = isVideo ? 'Uploading video… please wait' : 'Uploading file… please wait';
-
-        const formData = new FormData(form);
-
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', form.action);
-        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-
-        function setStage(stage) {
-            // stage: 'uploading' | 'processing' | 'done'
-            const upload  = document.getElementById('stageUpload');
-            const process = document.getElementById('stageProcess');
-            const done    = document.getElementById('stageDone');
-            const uploadDot  = document.getElementById('stageUploadDot');
-            const processDot = document.getElementById('stageProcessDot');
-            const doneDot    = document.getElementById('stageDoneDot');
-
-            // Reset all to dim
-            [upload, process, done].forEach(el => el.classList.add('opacity-30'));
-            [uploadDot, processDot, doneDot].forEach(el => el.classList.remove('animate-pulse'));
-
-            if (stage === 'uploading') {
-                upload.classList.remove('opacity-30');
-                uploadDot.classList.add('animate-pulse');
-            } else if (stage === 'processing') {
-                upload.classList.remove('opacity-30');
-                uploadDot.classList.replace('bg-yellow-400', 'bg-green-400');
-                process.classList.remove('opacity-30');
-                processDot.classList.replace('bg-gray-400', 'bg-yellow-400');
-                processDot.classList.add('animate-pulse');
-            } else if (stage === 'done') {
-                upload.classList.remove('opacity-30');
-                process.classList.remove('opacity-30');
-                done.classList.remove('opacity-30');
-                doneDot.classList.replace('bg-green-400', 'bg-green-500');
-                bar.style.width = '100%';
-                bar.classList.replace('from-yellow-400', 'from-green-400');
-                bar.classList.replace('to-yellow-600', 'to-green-600');
-            }
-        }
-
         setStage('uploading');
 
-        xhr.upload.addEventListener('progress', function (e) {
-            if (!e.lengthComputable) return;
-            const pct = Math.round((e.loaded / e.total) * 100);
-            bar.style.width = pct + '%';
-            percent.textContent = pct + '%';
-            const loaded = (e.loaded / 1048576).toFixed(1);
-            const total  = (e.total  / 1048576).toFixed(1);
-            sizeText.textContent = loaded + ' MB / ' + total + ' MB uploaded';
-            if (pct === 100) {
-                setStage('processing');
-                statusText.textContent = isVideo
-                    ? 'File uploaded! Server is now processing your video…'
-                    : 'File uploaded! Server is processing your submission…';
-                percent.textContent = '100%';
-            }
-        });
+        const isVideo = getSelectedType() === 'video';
+        statusText.textContent = isVideo ? 'Preparing upload…' : 'Uploading file… please wait';
 
-        xhr.addEventListener('load', function () {
-            if (xhr.status >= 200 && xhr.status < 400) {
-                // Show success message before redirecting
-                setStage('done');
-                statusText.textContent = 'Done!';
-                percent.textContent = '100%';
-                sizeText.textContent = '';
-
-                const successMsg   = document.getElementById('uploadSuccessMsg');
-                const successTitle = document.getElementById('uploadSuccessTitle');
-                const successDetail = document.getElementById('uploadSuccessDetail');
-
-                successTitle.textContent  = isVideo ? 'Video Uploaded Successfully!' : 'File Uploaded Successfully!';
-                successDetail.textContent = isVideo
-                    ? 'Your video has been received and is ready. You can now view it in your submissions.'
-                    : 'Your file has been received. You can now view it in your submissions.';
-                successMsg.classList.remove('hidden');
-
-                // Redirect after 2.5 seconds so the student can read the message
-                const redirect = xhr.responseURL || xhr.getResponseHeader('Location');
-                setTimeout(function () {
-                    if (redirect) {
-                        window.location.href = redirect;
-                    } else {
-                        try {
-                            const json = JSON.parse(xhr.responseText);
-                            if (json.redirect) { window.location.href = json.redirect; return; }
-                        } catch (_) {}
-                        window.location.href = '{{ route('submissions.index') }}';
-                    }
-                }, 2500);
-            } else {
-                // Show error, restore submit button
-                progressWrap.classList.add('hidden');
-                submitRow.classList.remove('hidden');
-                alert('Upload failed (HTTP ' + xhr.status + '). Please try again.');
-            }
-        });
-
-        xhr.addEventListener('error', function () {
-            progressWrap.classList.add('hidden');
-            submitRow.classList.remove('hidden');
-            alert('Network error during upload. Please check your connection and try again.');
-        });
-
-        xhr.send(formData);
+        const handler = isVideo ? handleVideoUpload(this) : handleFileUpload(this);
+        handler.catch(err => showError(err.message));
     });
 
-    // Course → modules AJAX
+    // ── Course → modules AJAX ─────────────────────────────────────────────
     document.querySelector('select[name="course_id"]').addEventListener('change', function () {
-        const courseId   = this.value;
-        const moduleSel  = document.getElementById('moduleSelect');
+        const courseId  = this.value;
+        const moduleSel = document.getElementById('moduleSelect');
         moduleSel.innerHTML = '<option value="">— Select module (optional) —</option>';
         if (!courseId) return;
         fetch(`/api/courses/${courseId}/modules`)

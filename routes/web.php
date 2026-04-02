@@ -77,6 +77,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [SubmissionController::class, 'index'])->name('index');
         Route::get('/create', [SubmissionController::class, 'create'])->name('create');
         Route::post('/', [SubmissionController::class, 'store'])->name('store');
+        Route::post('/bunny-prepare', [SubmissionController::class, 'prepareBunnyUpload'])->name('bunny.prepare');
+        Route::post('/bunny-confirm', [SubmissionController::class, 'confirmBunnyUpload'])->name('bunny.confirm');
         Route::get('/{submission}', [SubmissionController::class, 'show'])->name('show');
     });
 
