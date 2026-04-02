@@ -11,6 +11,7 @@ class Enrollment extends Model
         'course_id',
         'purchase_type',
         'status',
+        'enrolled_at',
     ];
 
     public function user()

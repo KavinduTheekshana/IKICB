@@ -60,6 +60,7 @@ class PaymentResource extends Resource
                             ->options([
                                 'payhere' => 'PayHere',
                                 'bank_transfer' => 'Bank Transfer',
+                                'webxpay' => 'WebXPay',
                                 'cash' => 'Cash',
                                 'other' => 'Other',
                             ])
@@ -69,6 +70,7 @@ class PaymentResource extends Resource
                             ->options([
                                 'payhere' => 'PayHere',
                                 'bank_transfer' => 'Bank Transfer',
+                                'webxpay' => 'WebXPay',
                                 'manual' => 'Manual',
                             ])
                             ->required(),
@@ -89,17 +91,23 @@ class PaymentResource extends Resource
 
                 Forms\Components\Section::make('Course/Module Assignment')
                     ->schema([
+                        Forms\Components\Placeholder::make('full_course_badge')
+                            ->label('')
+                            ->content(fn (callable $get) => new \Illuminate\Support\HtmlString(
+                                '<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                    &#10003; Full Course &mdash; All modules will be unlocked
+                                </span>'
+                            ))
+                            ->visible(fn (callable $get) => $get('course_id') && !$get('module_id'))
+                            ->columnSpanFull(),
                         Forms\Components\Select::make('course_id')
                             ->label('Course')
                             ->relationship('course', 'title')
                             ->searchable()
                             ->preload()
                             ->reactive()
-                            ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                // Clear module when course changes
+                            ->afterStateUpdated(function ($state, callable $set) {
                                 $set('module_id', null);
-
-                                // Auto-fill amount from course price
                                 if ($state) {
                                     $course = \App\Models\Course::find($state);
                                     if ($course && $course->full_price) {
@@ -108,20 +116,27 @@ class PaymentResource extends Resource
                                 }
                             }),
                         Forms\Components\Select::make('module_id')
-                            ->label('Module')
+                            ->label('Module (leave empty for full course)')
                             ->relationship('module', 'title')
                             ->searchable()
                             ->preload()
                             ->reactive()
                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                // Auto-fill amount from module price
                                 if ($state) {
                                     $module = \App\Models\Module::find($state);
                                     if ($module && $module->module_price) {
                                         $set('amount', $module->module_price);
-                                        // Also set the course if module has one
                                         if ($module->course_id) {
                                             $set('course_id', $module->course_id);
+                                        }
+                                    }
+                                } else {
+                                    // Module cleared — refill course full price
+                                    $courseId = $get('course_id');
+                                    if ($courseId) {
+                                        $course = \App\Models\Course::find($courseId);
+                                        if ($course && $course->full_price) {
+                                            $set('amount', $course->full_price);
                                         }
                                     }
                                 }
@@ -231,6 +246,7 @@ class PaymentResource extends Resource
                     ->colors([
                         'primary' => 'payhere',
                         'success' => 'bank_transfer',
+                        'warning' => 'webxpay',
                     ])
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
@@ -261,6 +277,7 @@ class PaymentResource extends Resource
                     ->options([
                         'payhere' => 'PayHere',
                         'bank_transfer' => 'Bank Transfer',
+                        'webxpay' => 'WebXPay',
                     ]),
             ])
             ->actions([
@@ -334,20 +351,65 @@ class PaymentResource extends Resource
             'completed_at' => now(),
         ]);
 
-        // Create enrollment/unlock for course or module
-        if ($payment->course_id) {
-            // Create enrollment
+        static::handlePaymentCompleted($payment);
+    }
+
+    public static function handlePaymentCompleted(Payment $payment): void
+    {
+        // Refresh from DB to clear any stale relationship cache and get latest field values
+        $payment->refresh();
+        $payment->load('course.modules', 'module');
+
+        // Set completion timestamps if not already set
+        if (!$payment->completed_at) {
+            $payment->update([
+                'approved_by' => auth()->id(),
+                'approved_at' => now(),
+                'completed_at' => now(),
+            ]);
+        }
+
+        // Check module_id FIRST — if module_id is set it is a module-wise purchase.
+        // Never treat it as full course even if course_id is also set.
+        if ($payment->module_id) {
+            // Module-wise purchase: unlock that single module only
+            ModuleUnlock::firstOrCreate(
+                [
+                    'user_id' => $payment->user_id,
+                    'module_id' => $payment->module_id,
+                ],
+                [
+                    'payment_id' => $payment->id,
+                    'unlocked_at' => now(),
+                ]
+            );
+
+            // Enroll in the course as module_wise so the student can access the course area
+            if ($payment->course_id) {
+                Enrollment::firstOrCreate(
+                    [
+                        'user_id' => $payment->user_id,
+                        'course_id' => $payment->course_id,
+                    ],
+                    [
+                        'purchase_type' => 'module_wise',
+                        'enrolled_at' => now(),
+                    ]
+                );
+            }
+        } elseif ($payment->course_id && $payment->course) {
+            // Full course purchase: enroll + unlock ALL modules in the course
             Enrollment::firstOrCreate(
                 [
                     'user_id' => $payment->user_id,
                     'course_id' => $payment->course_id,
                 ],
                 [
+                    'purchase_type' => 'full_course',
                     'enrolled_at' => now(),
                 ]
             );
 
-            // Unlock all modules in the course
             $modules = $payment->course->modules;
             foreach ($modules as $module) {
                 ModuleUnlock::firstOrCreate(
@@ -361,18 +423,6 @@ class PaymentResource extends Resource
                     ]
                 );
             }
-        } elseif ($payment->module_id) {
-            // Unlock single module
-            ModuleUnlock::firstOrCreate(
-                [
-                    'user_id' => $payment->user_id,
-                    'module_id' => $payment->module_id,
-                ],
-                [
-                    'payment_id' => $payment->id,
-                    'unlocked_at' => now(),
-                ]
-            );
         }
     }
 
