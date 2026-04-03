@@ -27,7 +27,11 @@ class SubmissionController extends Controller
     public function create()
     {
         $user    = auth()->user();
-        $courses = $user->enrollments()->with('course')->get()->pluck('course');
+        $courses = $user->enrollments()->with('course')->get()
+            ->pluck('course')
+            ->filter()
+            ->unique('id')
+            ->values();
         $modules = collect();
 
         return view('frontend.submissions.create', compact('courses', 'modules'));

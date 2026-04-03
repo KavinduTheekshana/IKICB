@@ -472,8 +472,15 @@ document.addEventListener('DOMContentLoaded', function () {
         moduleSel.innerHTML = '<option value="">— Select module (optional) —</option>';
         if (!courseId) return;
         fetch(`/api/courses/${courseId}/modules`)
-            .then(r => r.json())
+            .then(r => {
+                if (!r.ok) throw new Error('Server returned ' + r.status);
+                return r.json();
+            })
             .then(modules => {
+                if (!modules.length) {
+                    moduleSel.innerHTML = '<option value="">— No modules available —</option>';
+                    return;
+                }
                 modules.forEach(m => {
                     const opt = document.createElement('option');
                     opt.value = m.id;
@@ -481,7 +488,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     moduleSel.appendChild(opt);
                 });
             })
-            .catch(() => {});
+            .catch(() => {
+                moduleSel.innerHTML = '<option value="">— Could not load modules —</option>';
+            });
     });
 
     // Initialize
