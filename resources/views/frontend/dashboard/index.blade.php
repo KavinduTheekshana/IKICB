@@ -46,7 +46,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- Stat 1 -->
-            <div class="group bg-white rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-yellow-200 hover:border-yellow-400 card-hover">
+            <a href="{{ route('dashboard.my-courses') }}" class="group bg-white rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-yellow-200 hover:border-yellow-400 card-hover cursor-pointer stat-card" style="animation-delay: 0.1s">
                 <div class="flex items-center space-x-4">
                     <div class="flex-shrink-0">
                         <div class="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
@@ -59,11 +59,14 @@
                         <p class="text-sm font-semibold text-gray-600 mb-1">Enrolled Courses</p>
                         <p class="text-4xl font-black text-gradient">{{ $enrollments->count() }}</p>
                     </div>
+                    <svg class="w-5 h-5 text-gray-300 group-hover:text-yellow-500 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
                 </div>
-            </div>
+            </a>
 
             <!-- Stat 2 -->
-            <div class="group bg-white rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-green-200 hover:border-green-400 card-hover">
+            <a href="{{ route('dashboard.my-courses') }}" class="group bg-white rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-green-200 hover:border-green-400 card-hover cursor-pointer stat-card" style="animation-delay: 0.2s">
                 <div class="flex items-center space-x-4">
                     <div class="flex-shrink-0">
                         <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
@@ -76,11 +79,14 @@
                         <p class="text-sm font-semibold text-gray-600 mb-1">Unlocked Modules</p>
                         <p class="text-4xl font-black text-green-600">{{ $unlockedModules->count() }}</p>
                     </div>
+                    <svg class="w-5 h-5 text-gray-300 group-hover:text-green-500 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
                 </div>
-            </div>
+            </a>
 
             <!-- Stat 3 -->
-            <div class="group bg-white rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-gray-200 hover:border-yellow-400 card-hover">
+            <a href="{{ route('dashboard.payments') }}" class="group bg-white rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-gray-200 hover:border-yellow-400 card-hover cursor-pointer stat-card" style="animation-delay: 0.3s">
                 <div class="flex items-center space-x-4">
                     <div class="flex-shrink-0">
                         <div class="w-16 h-16 rounded-2xl gradient-secondary flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
@@ -93,8 +99,11 @@
                         <p class="text-sm font-semibold text-gray-600 mb-1">Total Spent</p>
                         <p class="text-2xl font-black text-gray-900">LKR {{ number_format($payments->where('status', 'completed')->sum('amount'), 2) }}</p>
                     </div>
+                    <svg class="w-5 h-5 text-gray-300 group-hover:text-yellow-500 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 </section>
@@ -136,7 +145,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Continue Learning -->
-            <div class="bg-gradient-to-br from-yellow-50 to-white rounded-3xl shadow-xl border-2 border-yellow-200 overflow-hidden">
+            <div class="bg-gradient-to-br from-yellow-50 to-white rounded-3xl shadow-xl border-2 border-yellow-200 overflow-hidden animate-fade-in-up" style="animation-delay: 0.15s">
                 <div class="px-6 py-5 bg-gradient-to-r from-yellow-500 to-yellow-600">
                     <h3 class="text-xl font-black text-gray-900 flex items-center">
                         <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -148,7 +157,7 @@
                 </div>
                 <div class="p-6 space-y-6">
                     @forelse($enrollments->take(3) as $enrollment)
-                        <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border border-gray-100 group card-hover">
+                        <a href="{{ route('courses.show', $enrollment->course) }}" class="block bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border border-gray-100 group card-hover course-card" style="animation-delay: {{ 0.2 + $loop->index * 0.1 }}s">
                             <div class="flex items-start justify-between mb-3">
                                 <div class="flex-1">
                                     <h4 class="text-lg font-black text-gray-900 mb-1 group-hover:text-yellow-600 transition-colors">
@@ -165,13 +174,13 @@
                                     Active
                                 </span>
                             </div>
-                            <a href="{{ route('courses.show', $enrollment->course) }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-gray-900 font-bold text-sm rounded-xl shadow-lg hover:shadow-yellow-500/50 transition-all transform hover:scale-105">
+                            <span class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 group-hover:from-yellow-600 group-hover:to-yellow-700 text-gray-900 font-bold text-sm rounded-xl shadow-lg group-hover:shadow-yellow-500/50 transition-all transform group-hover:scale-105">
                                 Continue Course
                                 <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
                                 </svg>
-                            </a>
-                        </div>
+                            </span>
+                        </a>
                     @empty
                         <div class="text-center py-12">
                             <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-100 mb-4">
@@ -192,24 +201,32 @@
             </div>
 
             <!-- Recent Payments -->
-            <div class="bg-gradient-to-br from-gray-50 to-white rounded-3xl shadow-xl border-2 border-gray-200 overflow-hidden">
+            <div class="bg-gradient-to-br from-gray-50 to-white rounded-3xl shadow-xl border-2 border-gray-200 overflow-hidden animate-fade-in-up" style="animation-delay: 0.25s">
                 <div class="px-6 py-5 bg-gradient-to-br from-gray-900 via-black to-gray-900 relative overflow-hidden">
                     <div class="absolute inset-0 opacity-10">
                         <div class="absolute top-0 right-0 w-32 h-32 bg-yellow-500 rounded-full filter blur-2xl"></div>
                     </div>
-                    <h3 class="relative text-xl font-black text-white flex items-center">
-                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                        </svg>
-                        Recent Payments
-                    </h3>
+                    <div class="relative flex items-center justify-between">
+                        <h3 class="text-xl font-black text-white flex items-center">
+                            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                            </svg>
+                            Recent Payments
+                        </h3>
+                        <a href="{{ route('dashboard.payments') }}" class="flex items-center text-yellow-400 hover:text-yellow-300 text-sm font-bold transition-colors">
+                            View All
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                    </div>
                 </div>
                 <div class="p-6 space-y-4">
                     @forelse($payments->take(5) as $payment)
-                        <div class="bg-white rounded-2xl p-4 shadow-md hover:shadow-lg transition-all border border-gray-100">
+                        <a href="{{ route('dashboard.payments') }}" class="block bg-white rounded-2xl p-4 shadow-md hover:shadow-lg transition-all border border-gray-100 hover:border-yellow-300 group payment-row" style="animation-delay: {{ 0.3 + $loop->index * 0.08 }}s">
                             <div class="flex items-start justify-between">
                                 <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-bold text-gray-900 mb-1 truncate">
+                                    <p class="text-sm font-bold text-gray-900 mb-1 truncate group-hover:text-yellow-700 transition-colors">
                                         @if($payment->course)
                                             {{ $payment->course->title }}
                                         @elseif($payment->module)
@@ -239,7 +256,7 @@
                                     </span>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     @empty
                         <div class="text-center py-12">
                             <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-100 mb-4">
@@ -257,7 +274,7 @@
 </section>
 
 <!-- Quick Actions -->
-<section class="py-12 bg-gradient-to-br from-yellow-50 via-gray-50 to-yellow-100">
+<section class="py-12 bg-gradient-to-br from-yellow-50 via-gray-50 to-yellow-100 animate-fade-in-up" style="animation-delay: 0.4s">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-10">
             <h2 class="text-3xl font-black text-gray-900 mb-3">
@@ -315,6 +332,36 @@
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(24px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-in-up {
+        animation: fadeInUp 0.5s ease both;
+    }
+
+    .stat-card {
+        opacity: 0;
+        animation: fadeInUp 0.5s ease both;
+    }
+
+    .course-card {
+        opacity: 0;
+        animation: fadeInUp 0.45s ease both;
+    }
+
+    .payment-row {
+        opacity: 0;
+        animation: fadeInUp 0.45s ease both;
     }
 </style>
 @endsection
