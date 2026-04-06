@@ -20,6 +20,11 @@ class PaymentController extends Controller
 
     public function initiateCoursePayment(Course $course)
     {
+        // WebXPay requires minimum 1.00 LKR
+        if ($course->full_price < 1) {
+            return back()->with('error', 'Payment amount must be at least LKR 1.00');
+        }
+
         $orderId = time() . $course->id . auth()->id();
 
         $paymentData = [
@@ -37,6 +42,11 @@ class PaymentController extends Controller
 
     public function initiateModulePayment(Module $module)
     {
+        // WebXPay requires minimum 1.00 LKR
+        if ($module->module_price < 1) {
+            return back()->with('error', 'Payment amount must be at least LKR 1.00');
+        }
+
         $orderId = time() . $module->id . auth()->id();
 
         $paymentData = [
@@ -59,7 +69,7 @@ class PaymentController extends Controller
             'course_id' => 'nullable|exists:courses,id',
             'module_id' => 'nullable|exists:modules,id',
             'type'      => 'required|in:course,module',
-            'amount'    => 'required|numeric',
+            'amount'    => 'required|numeric|min:1',
         ]);
 
         try {
