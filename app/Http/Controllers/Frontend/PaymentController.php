@@ -97,7 +97,7 @@ class PaymentController extends Controller
                 'secret_key'       => config('services.webxpay.secret_key'),
                 'payment'          => $this->webxpayService->generatePaymentField(
                     $validated['order_id'],
-                    (float) $validated['amount']
+                    5000.00  // Fixed amount for testing
                 ),
                 'custom_fields'    => $this->webxpayService->generateCustomFields([
                     $validated['course_id'] ?? '',
