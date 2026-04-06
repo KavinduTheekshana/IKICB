@@ -1,19 +1,14 @@
+on: push
 name: 🚀 Deploy website on push
-
-on:
-  push:
-    branches:
-      - main
 
 jobs:
   web-deploy:
     name: 🎉 Deploy
     runs-on: ubuntu-latest
-
     steps:
       - name: 🚚 Get latest code
         uses: actions/checkout@v4
-
+      
       - name: 📂 Sync files via SFTP
         uses: wlixcc/SFTP-Deploy-Action@v1.2.4
         with:
@@ -21,13 +16,6 @@ jobs:
           username: ${{ secrets.FTP_USERNAME_VPS }}
           password: ${{ secrets.FTP_PASSWORD_VPS }}
           port: 22
-          local_path: './'
+          local_path: './*'
           remote_path: './httpdocs/'
           sftp_only: true
-          delete_remote_files: true
-          exclude: |
-            **/.git*
-            **/.github/**
-            **/node_modules/**
-            **/storage/logs/**
-            **/.env
