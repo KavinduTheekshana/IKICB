@@ -92,12 +92,17 @@ class PaymentController extends Controller
             $user = auth()->user();
             $nameParts = explode(' ', $user->name, 2);
 
+            // Use test amount in sandbox mode to avoid transaction limit errors
+            $paymentAmount = config('services.webxpay.sandbox')
+                ? 100.00  // LKR 100 for sandbox testing
+                : $validated['amount'];  // Real amount for production
+
             $webxpayData = [
                 'payment_url'      => $this->webxpayService->getPaymentUrl(),
                 'secret_key'       => config('services.webxpay.secret_key'),
                 'payment'          => $this->webxpayService->generatePaymentField(
                     $validated['order_id'],
-                    $validated['amount']
+                    $paymentAmount
                 ),
                 'custom_fields'    => $this->webxpayService->generateCustomFields([
                     $validated['course_id'] ?? '',
@@ -138,44 +143,87 @@ class PaymentController extends Controller
      */
     public function webxpayReturn(Request $request)
     {
+        \Log::info('WEBXPAY: Return callback received', [
+            'has_payment' => $request->has('payment'),
+            'has_signature' => $request->has('signature'),
+            'is_authenticated' => auth()->check(),
+            'session_id' => session()->getId(),
+            'all_input_keys' => array_keys($request->all()),
+            'payment_preview' => $request->has('payment') ? substr($request->input('payment'), 0, 100) . '...' : null,
+        ]);
+
         if (!$request->has('payment')) {
-            return redirect()->route('dashboard')
-                ->with('error', 'Invalid payment response received.');
+            \Log::error('WEBXPAY: No payment field in request', [
+                'all_input' => $request->all(),
+            ]);
+            return $this->redirectAfterPayment('error', 'Invalid payment response received.');
         }
 
         $decrypted = $this->webxpayService->decryptPayment($request->input('payment'));
 
         if (!$decrypted) {
-            return redirect()->route('dashboard')
-                ->with('error', 'Payment response could not be decrypted.');
+            return $this->redirectAfterPayment('error', 'Payment response could not be decrypted.');
         }
 
         // Verify authenticity via signature if WEBXPAY provides it
         if ($request->has('signature')) {
             if (!$this->webxpayService->verifySignature($request->input('signature'), $decrypted['raw'])) {
-                return redirect()->route('dashboard')
-                    ->with('error', 'Payment signature verification failed.');
+                return $this->redirectAfterPayment('error', 'Payment signature verification failed.');
             }
         }
 
         $payment = Payment::where('transaction_id', $decrypted['order_id'])->first();
 
         if (!$payment) {
-            return redirect()->route('dashboard')
-                ->with('error', 'Payment record not found.');
+            return $this->redirectAfterPayment(null, 'error', 'Payment record not found.');
+        }
+
+        // Re-authenticate the user if session was lost during payment gateway redirect
+        if (!auth()->check() && $payment->user_id) {
+            \Log::info('WEBXPAY: Re-authenticating user after payment redirect', [
+                'user_id' => $payment->user_id,
+                'order_id' => $decrypted['order_id'],
+            ]);
+            auth()->loginUsingId($payment->user_id);
         }
 
         if ($this->webxpayService->isSuccessful($decrypted['status_code'])) {
             $this->webxpayService->handleSuccessfulPayment($payment);
 
-            return redirect()->route('dashboard')
-                ->with('success', 'Payment successful! You can now access your course.');
+            \Log::info('WEBXPAY: Payment successful', [
+                'order_id' => $decrypted['order_id'],
+                'payment_id' => $payment->id,
+                'user_id' => $payment->user_id,
+            ]);
+
+            return $this->redirectAfterPayment($payment->user, 'success', 'Payment successful! You can now access your course.');
         }
 
         $this->webxpayService->handleFailedPayment($payment);
 
-        return redirect()->route('dashboard')
-            ->with('error', 'Payment was not successful. Please try again or use bank transfer.');
+        \Log::warning('WEBXPAY: Payment failed', [
+            'order_id' => $decrypted['order_id'],
+            'status_code' => $decrypted['status_code'],
+        ]);
+
+        return $this->redirectAfterPayment($payment->user, 'error', 'Payment was not successful. Please try again or use bank transfer.');
+    }
+
+    /**
+     * Redirect after payment with proper session handling
+     */
+    protected function redirectAfterPayment($user, string $type, string $message)
+    {
+        // If user object is provided and not currently authenticated, log them in
+        if ($user && !auth()->check()) {
+            auth()->login($user);
+            \Log::info('WEBXPAY: User logged in after payment', [
+                'user_id' => $user->id,
+            ]);
+        }
+
+        // Always redirect to dashboard (user is now authenticated)
+        return redirect()->route('dashboard')->with($type, $message);
     }
 
     public function cancel(Request $request)

@@ -93,7 +93,8 @@ Route::middleware('auth')->group(function () {
 });
 
 // WEBXPAY return URL (no auth required — WEBXPAY POSTs back via browser redirect)
-Route::post('/payment/webxpay/return', [PaymentController::class, 'webxpayReturn'])->name('payment.webxpay.return');
+// Must use 'web' middleware to maintain session, but NOT 'auth' middleware
+Route::middleware('web')->post('/payment/webxpay/return', [PaymentController::class, 'webxpayReturn'])->name('payment.webxpay.return');
 
 // Filament panel OTP password reset (admin + branch)
 foreach (['admin', 'branch'] as $panel) {
