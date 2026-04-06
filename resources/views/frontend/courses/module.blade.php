@@ -214,14 +214,6 @@
                                             {{ auth()->user()->name }} &bull; {{ auth()->user()->email }}
                                         </div>
                                     </div>
-                                    <button class="custom-fs-btn" title="Fullscreen" onclick="toggleVideoFullscreen(this)">
-                                        <svg class="fs-icon-expand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/>
-                                        </svg>
-                                        <svg class="fs-icon-compress" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none;">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4m0 5H4m11-5v5m0 0h5M4 15h5v5M20 15h-5v5"/>
-                                        </svg>
-                                    </button>
                                     <div class="tab-hidden-overlay" style="display:none;position:absolute;inset:0;z-index:45;background:rgba(0,0,0,0.88);align-items:center;justify-content:center;flex-direction:column;">
                                         <svg style="width:48px;height:48px;color:#eab308;margin-bottom:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
@@ -556,43 +548,6 @@
     flex-direction: column;
 }
 
-/* Custom fullscreen button */
-.custom-fs-btn {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    z-index: 40;
-    background: rgba(0,0,0,0.55);
-    border: none;
-    border-radius: 8px;
-    padding: 6px 8px;
-    cursor: pointer;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
-}
-.custom-fs-btn:hover { background: rgba(0,0,0,0.80); }
-.custom-fs-btn svg   { width: 20px; height: 20px; }
-
-/* When the wrapper itself is fullscreen */
-.video-protected-wrapper:fullscreen,
-.video-protected-wrapper:-webkit-full-screen,
-.video-protected-wrapper:-moz-full-screen {
-    background: #000;
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.video-protected-wrapper:fullscreen > div,
-.video-protected-wrapper:-webkit-full-screen > div,
-.video-protected-wrapper:-moz-full-screen > div {
-    width: 100%;
-    padding-bottom: 56.25%;
-}
 </style>
 
 <script>
@@ -626,39 +581,7 @@
     moveWatermarks();
     setInterval(moveWatermarks, 8000);
 
-    // ── 3. Custom fullscreen (fullscreens the wrapper, not the iframe) ──
-    window.toggleVideoFullscreen = function (btn) {
-        var wrapper = btn.closest('.video-protected-wrapper');
-        var isFs = !!(document.fullscreenElement ||
-                      document.webkitFullscreenElement ||
-                      document.mozFullScreenElement);
-        if (!isFs) {
-            var req = wrapper.requestFullscreen ||
-                      wrapper.webkitRequestFullscreen ||
-                      wrapper.mozRequestFullScreen;
-            if (req) req.call(wrapper);
-        } else {
-            var exit = document.exitFullscreen ||
-                       document.webkitExitFullscreen ||
-                       document.mozCancelFullScreen;
-            if (exit) exit.call(document);
-        }
-    };
-
-    function onFsChange() {
-        var isFs = !!(document.fullscreenElement ||
-                      document.webkitFullscreenElement ||
-                      document.mozFullScreenElement);
-        document.querySelectorAll('.custom-fs-btn').forEach(function (btn) {
-            btn.querySelector('.fs-icon-expand').style.display   = isFs ? 'none' : '';
-            btn.querySelector('.fs-icon-compress').style.display = isFs ? ''     : 'none';
-        });
-    }
-    document.addEventListener('fullscreenchange',       onFsChange);
-    document.addEventListener('webkitfullscreenchange', onFsChange);
-    document.addEventListener('mozfullscreenchange',    onFsChange);
-
-    // ── 4. Tab visibility — overlay when tab is hidden ──────
+    // ── 3. Tab visibility — overlay when tab is hidden ──────
     document.addEventListener('visibilitychange', function () {
         var hidden = document.hidden;
         document.querySelectorAll('.tab-hidden-overlay').forEach(function (o) {
