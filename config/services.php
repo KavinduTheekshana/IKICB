@@ -38,6 +38,8 @@ return [
     'webxpay' => [
         'secret_key'      => env('WEBXPAY_SECRET_KEY'),
         'public_key_path' => env('WEBXPAY_PUBLIC_KEY_PATH', storage_path('app/webxpay_public.pem')),
+        'api_username'    => env('WEBXPAY_API_USERNAME'),
+        'api_password'    => env('WEBXPAY_API_PASSWORD'),
         'sandbox'         => env('WEBXPAY_SANDBOX', true),
         'cms'             => env('WEBXPAY_CMS', 'custom'),
     ],

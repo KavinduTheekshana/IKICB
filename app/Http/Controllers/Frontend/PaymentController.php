@@ -62,47 +62,63 @@ class PaymentController extends Controller
             'amount'    => 'required|numeric',
         ]);
 
-        Payment::create([
-            'user_id'         => auth()->id(),
-            'course_id'       => $validated['course_id'],
-            'module_id'       => $validated['module_id'],
-            'amount'          => $validated['amount'],
-            'currency'        => 'LKR',
-            'payment_gateway' => 'webxpay',
-            'payment_method'  => 'webxpay',
-            'transaction_id'  => $validated['order_id'],
-            'status'          => 'pending',
-            'payment_details' => [
+        try {
+            Payment::create([
+                'user_id'         => auth()->id(),
+                'course_id'       => $validated['course_id'],
+                'module_id'       => $validated['module_id'],
+                'amount'          => $validated['amount'],
+                'currency'        => 'LKR',
+                'payment_gateway' => 'webxpay',
+                'payment_method'  => 'webxpay',
+                'transaction_id'  => $validated['order_id'],
+                'status'          => 'pending',
+                'payment_details' => [
+                    'order_id' => $validated['order_id'],
+                    'type'     => $validated['type'] === 'course' ? 'full_course' : 'module',
+                ],
+            ]);
+
+            $user = auth()->user();
+            $nameParts = explode(' ', $user->name, 2);
+
+            $webxpayData = [
+                'payment_url'      => $this->webxpayService->getPaymentUrl(),
+                'secret_key'       => config('services.webxpay.secret_key'),
+                'api_username'     => config('services.webxpay.api_username'),
+                'api_password'     => config('services.webxpay.api_password'),
+                'payment'          => $this->webxpayService->generatePaymentField(
+                    $validated['order_id'],
+                    (float) $validated['amount']
+                ),
+                'custom_fields'    => $this->webxpayService->generateCustomFields([
+                    $validated['course_id'] ?? '',
+                    $validated['module_id'] ?? '',
+                    $validated['type'] === 'course' ? 'full_course' : 'module',
+                ]),
+                'first_name'       => $nameParts[0] ?? 'User',
+                'last_name'        => $nameParts[1] ?? '',
+                'email'            => $user->email,
+                'contact_number'   => $user->phone ?? '0000000000',
+                'address_line_one' => $user->address ?? 'N/A',
+                'address_line_two' => '',
+                'city'             => 'Colombo',
+                'process_currency' => 'LKR',
+                'cms'              => config('services.webxpay.cms', 'custom'),
+                'return_url'       => route('payment.webxpay.return'),
+                'notify_url'       => route('payment.webxpay.return'),
+            ];
+
+            return view('frontend.payment.webxpay-redirect', compact('webxpayData'));
+        } catch (\Exception $e) {
+            \Log::error('WebXPay payment processing failed', [
+                'error' => $e->getMessage(),
                 'order_id' => $validated['order_id'],
-                'type'     => $validated['type'] === 'course' ? 'full_course' : 'module',
-            ],
-        ]);
+                'user_id' => auth()->id(),
+            ]);
 
-        $user = auth()->user();
-        $nameParts = explode(' ', $user->name, 2);
-
-        $webxpayData = [
-            'payment_url'      => $this->webxpayService->getPaymentUrl(),
-            'secret_key'       => config('services.webxpay.secret_key'),
-            'payment'          => $this->webxpayService->generatePaymentField(
-                $validated['order_id'],
-                (float) $validated['amount']
-            ),
-            'custom_fields'    => $this->webxpayService->generateCustomFields([
-                $validated['course_id'] ?? '',
-                $validated['module_id'] ?? '',
-                $validated['type'] === 'course' ? 'full_course' : 'module',
-            ]),
-            'first_name'       => $nameParts[0] ?? 'User',
-            'last_name'        => $nameParts[1] ?? '',
-            'email'            => $user->email,
-            'contact_number'   => $user->phone ?? '0000000000',
-            'address_line_one' => $user->address ?? 'N/A',
-            'process_currency' => 'LKR',
-            'cms'              => config('services.webxpay.cms', 'custom'),
-        ];
-
-        return view('frontend.payment.webxpay-redirect', compact('webxpayData'));
+            return back()->with('error', 'Payment processing failed: ' . $e->getMessage() . '. Please check your WebXPay configuration or contact support.');
+        }
     }
 
     /**

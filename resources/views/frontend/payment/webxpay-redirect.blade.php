@@ -53,14 +53,22 @@
     <form id="webxpay-form" action="{{ $webxpayData['payment_url'] }}" method="POST" style="display: none;">
         <input type="hidden" name="secret_key"       value="{{ $webxpayData['secret_key'] }}">
         <input type="hidden" name="payment"          value="{{ $webxpayData['payment'] }}">
-        <input type="hidden" name="custom_fields"    value="{{ $webxpayData['custom_fields'] }}">
+        <input type="hidden" name="custom_fields"    value="{{ $webxpayData['custom_fields'] ?? '' }}">
         <input type="hidden" name="first_name"       value="{{ $webxpayData['first_name'] }}">
         <input type="hidden" name="last_name"        value="{{ $webxpayData['last_name'] }}">
         <input type="hidden" name="email"            value="{{ $webxpayData['email'] }}">
         <input type="hidden" name="contact_number"   value="{{ $webxpayData['contact_number'] }}">
         <input type="hidden" name="address_line_one" value="{{ $webxpayData['address_line_one'] }}">
+        <input type="hidden" name="address_line_two" value="{{ $webxpayData['address_line_two'] ?? '' }}">
+        <input type="hidden" name="city"             value="{{ $webxpayData['city'] ?? 'Colombo' }}">
         <input type="hidden" name="process_currency" value="{{ $webxpayData['process_currency'] }}">
         <input type="hidden" name="cms"              value="{{ $webxpayData['cms'] }}">
+        @if(isset($webxpayData['return_url']))
+        <input type="hidden" name="return_url"       value="{{ $webxpayData['return_url'] }}">
+        @endif
+        @if(isset($webxpayData['notify_url']))
+        <input type="hidden" name="notify_url"       value="{{ $webxpayData['notify_url'] }}">
+        @endif
     </form>
 
     <script>

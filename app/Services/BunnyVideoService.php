@@ -23,8 +23,22 @@ class BunnyVideoService
      */
     public function createVideo(string $libraryId, string $title): array
     {
-        $response = Http::timeout(60)
-            ->connectTimeout(30)
+        $response = Http::timeout(config('http.bunny.timeout', 120))
+            ->connectTimeout(config('http.bunny.connect_timeout', 60))
+            ->retry(
+                config('http.bunny.retry_times', 3),
+                config('http.bunny.retry_delay', 1000)
+            )
+            ->withOptions([
+                'verify' => config('http.defaults.verify', true),
+                'http_errors' => false,
+                'curl' => [
+                    CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4, // Force IPv4 (some servers have IPv6 issues)
+                    CURLOPT_SSL_VERIFYPEER => true,
+                    CURLOPT_SSL_VERIFYHOST => 2,
+                    CURLOPT_FOLLOWLOCATION => true,
+                ],
+            ])
             ->withHeaders([
                 'AccessKey' => $this->apiKey,
                 'Accept'    => 'application/json',
