@@ -53,6 +53,7 @@
     <form id="webxpay-form" action="{{ $webxpayData['payment_url'] }}" method="POST" style="display: none;">
         <input type="hidden" name="secret_key"       value="{{ $webxpayData['secret_key'] }}">
         <input type="hidden" name="payment"          value="{{ $webxpayData['payment'] }}">
+        <input type="hidden" name="enc_method"       value="JCs3J+6oSz4V0LgE0zi/Bg==">
         <input type="hidden" name="custom_fields"    value="{{ $webxpayData['custom_fields'] ?? '' }}">
         <input type="hidden" name="first_name"       value="{{ $webxpayData['first_name'] }}">
         <input type="hidden" name="last_name"        value="{{ $webxpayData['last_name'] }}">
@@ -61,6 +62,9 @@
         <input type="hidden" name="address_line_one" value="{{ $webxpayData['address_line_one'] }}">
         <input type="hidden" name="address_line_two" value="{{ $webxpayData['address_line_two'] ?? '' }}">
         <input type="hidden" name="city"             value="{{ $webxpayData['city'] ?? 'Colombo' }}">
+        <input type="hidden" name="state"            value="{{ $webxpayData['state'] ?? 'Western' }}">
+        <input type="hidden" name="postal_code"      value="{{ $webxpayData['postal_code'] ?? '10300' }}">
+        <input type="hidden" name="country"          value="{{ $webxpayData['country'] ?? 'Sri Lanka' }}">
         <input type="hidden" name="process_currency" value="{{ $webxpayData['process_currency'] }}">
         <input type="hidden" name="cms"              value="{{ $webxpayData['cms'] }}">
         @if(isset($webxpayData['return_url']))

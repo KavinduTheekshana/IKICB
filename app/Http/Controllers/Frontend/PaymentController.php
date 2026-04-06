@@ -85,8 +85,6 @@ class PaymentController extends Controller
             $webxpayData = [
                 'payment_url'      => $this->webxpayService->getPaymentUrl(),
                 'secret_key'       => config('services.webxpay.secret_key'),
-                'api_username'     => config('services.webxpay.api_username'),
-                'api_password'     => config('services.webxpay.api_password'),
                 'payment'          => $this->webxpayService->generatePaymentField(
                     $validated['order_id'],
                     (float) $validated['amount']
@@ -99,12 +97,15 @@ class PaymentController extends Controller
                 'first_name'       => $nameParts[0] ?? 'User',
                 'last_name'        => $nameParts[1] ?? '',
                 'email'            => $user->email,
-                'contact_number'   => $user->phone ?? '0000000000',
-                'address_line_one' => $user->address ?? 'N/A',
-                'address_line_two' => '',
+                'contact_number'   => $user->phone ?? '0773606370',
+                'address_line_one' => $user->address ?? '46/46, Green Lanka Building',
+                'address_line_two' => 'Nawam Mawatha',
                 'city'             => 'Colombo',
+                'state'            => 'Western',
+                'postal_code'      => '10300',
+                'country'          => 'Sri Lanka',
                 'process_currency' => 'LKR',
-                'cms'              => config('services.webxpay.cms', 'custom'),
+                'cms'              => 'PHP',
                 'return_url'       => route('payment.webxpay.return'),
                 'notify_url'       => route('payment.webxpay.return'),
             ];
