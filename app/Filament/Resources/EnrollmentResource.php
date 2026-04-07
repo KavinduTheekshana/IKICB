@@ -21,6 +21,8 @@ class EnrollmentResource extends Resource
 
     protected static ?string $navigationGroup = 'Enrollments & Payments';
 
+    protected static bool $shouldRegisterNavigation = false;
+
     public static function form(Form $form): Form
     {
         return $form
