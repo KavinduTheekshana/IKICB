@@ -50,6 +50,10 @@ class CourseController extends Controller
                 ->whereIn('module_id', $course->modules->pluck('id'))
                 ->pluck('module_id');
 
+            // Add free modules to unlocked modules
+            $freeModuleIds = $course->modules->where('is_free', true)->pluck('id');
+            $unlockedModules = $unlockedModules->merge($freeModuleIds)->unique();
+
             $completedModules = auth()->user()->moduleCompletions()
                 ->whereIn('module_id', $course->modules->pluck('id'))
                 ->pluck('module_id');

@@ -16,10 +16,29 @@ class DashboardController extends Controller
             ->latest()
             ->get();
 
+        // Get unlocked modules (paid)
         $unlockedModules = $user->moduleUnlocks()
             ->with('module.course')
             ->latest()
             ->get();
+
+        // Get free modules and merge with unlocked modules
+        $freeModules = \App\Models\Module::where('is_free', true)
+            ->with('course')
+            ->get();
+
+        // Combine both collections
+        $unlockedModules = $unlockedModules->merge($freeModules->map(function($module) use ($user) {
+            return (object)[
+                'id' => null,
+                'user_id' => $user->id,
+                'module_id' => $module->id,
+                'module' => $module,
+                'unlocked_at' => null,
+                'created_at' => $module->created_at,
+                'updated_at' => $module->updated_at,
+            ];
+        }))->unique('module_id');
 
         $payments = $user->payments()
             ->with(['course', 'module.course'])
