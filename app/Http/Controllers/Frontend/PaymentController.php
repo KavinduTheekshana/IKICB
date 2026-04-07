@@ -187,6 +187,16 @@ class PaymentController extends Controller
             auth()->loginUsingId($payment->user_id);
         }
 
+        \Log::info('WEBXPAY: Checking payment status', [
+            'order_id' => $decrypted['order_id'],
+            'status_code' => $decrypted['status_code'],
+            'reference' => $decrypted['reference'] ?? null,
+            'gateway' => $decrypted['gateway'] ?? null,
+            'comment' => $decrypted['comment'] ?? null,
+            'sandbox_mode' => config('services.webxpay.sandbox'),
+            'full_response' => $decrypted,
+        ]);
+
         if ($this->webxpayService->isSuccessful($decrypted['status_code'])) {
             $this->webxpayService->handleSuccessfulPayment($payment);
 
@@ -194,6 +204,7 @@ class PaymentController extends Controller
                 'order_id' => $decrypted['order_id'],
                 'payment_id' => $payment->id,
                 'user_id' => $payment->user_id,
+                'status_code' => $decrypted['status_code'],
             ]);
 
             return $this->redirectAfterPayment($payment->user, 'success', 'Payment successful! You can now access your course.');
@@ -201,9 +212,12 @@ class PaymentController extends Controller
 
         $this->webxpayService->handleFailedPayment($payment);
 
-        \Log::warning('WEBXPAY: Payment failed', [
+        \Log::warning('WEBXPAY: Payment failed or not recognized', [
             'order_id' => $decrypted['order_id'],
             'status_code' => $decrypted['status_code'],
+            'reference' => $decrypted['reference'] ?? null,
+            'comment' => $decrypted['comment'] ?? null,
+            'full_response' => $decrypted,
         ]);
 
         return $this->redirectAfterPayment($payment->user, 'error', 'Payment was not successful. Please try again or use bank transfer.');

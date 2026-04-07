@@ -203,16 +203,26 @@ class WebxpayService
     }
 
     /**
-     * WEBXPAY status codes 0 or 00 indicate a successful transaction.
-     * WebXPay sends status codes in format: "00 - Approved" or just "00"
+     * WEBXPAY status codes indicate a successful transaction.
+     * Sandbox mode: "00 - Approved" or just "00"
+     * Live mode: "100 - Request was processed successfully."
      */
     public function isSuccessful(string $statusCode): bool
     {
-        // Extract the numeric code (first 2 characters before any dash or space)
+        // Extract the numeric code (first part before any dash or space)
         $code = trim(explode('-', $statusCode)[0]);
         $code = trim(explode(' ', $code)[0]);
 
-        return in_array($code, ['0', '00']);
+        Log::info('WEBXPAY: Checking if payment is successful', [
+            'original_status_code' => $statusCode,
+            'extracted_code' => $code,
+            'is_successful' => in_array($code, ['0', '00', '100']),
+        ]);
+
+        // Accept status codes:
+        // - 0, 00: Sandbox success
+        // - 100: Live mode success
+        return in_array($code, ['0', '00', '100']);
     }
 
     public function handleSuccessfulPayment(Payment $payment): void
