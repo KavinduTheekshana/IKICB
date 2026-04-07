@@ -76,7 +76,8 @@ class CourseController extends Controller
             return redirect()->route('login')->with('error', 'Please login to access course content.');
         }
 
-        $hasAccess = auth()->user()->moduleUnlocks()
+        // Check if module is free or user has unlocked it
+        $hasAccess = $module->is_free || auth()->user()->moduleUnlocks()
             ->where('module_id', $module->id)
             ->exists();
 
@@ -136,8 +137,8 @@ class CourseController extends Controller
             return redirect()->route('login')->with('error', 'Please login to submit quiz.');
         }
 
-        // Check if user has access to this module
-        $hasAccess = auth()->user()->moduleUnlocks()
+        // Check if user has access to this module (free or unlocked)
+        $hasAccess = $module->is_free || auth()->user()->moduleUnlocks()
             ->where('module_id', $module->id)
             ->exists();
 
@@ -230,7 +231,8 @@ class CourseController extends Controller
             abort(404, 'Module not found.');
         }
 
-        $hasAccess = auth()->user()->moduleUnlocks()
+        // Check if user has access to this module (free or unlocked)
+        $hasAccess = $module->is_free || auth()->user()->moduleUnlocks()
             ->where('module_id', $module->id)
             ->exists();
 

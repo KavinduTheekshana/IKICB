@@ -15,10 +15,12 @@ class Module extends Model
         'bunny_video_id',
         'bunny_library_id',
         'module_price',
+        'is_free',
     ];
 
     protected $casts = [
         'module_price' => 'decimal:2',
+        'is_free' => 'boolean',
     ];
 
     public function course()
