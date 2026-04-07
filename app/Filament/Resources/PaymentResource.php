@@ -266,19 +266,26 @@ class PaymentResource extends Resource
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
+                    ->label('Payment Status')
+                    ->multiple()
                     ->options([
                         'pending' => 'Pending',
                         'completed' => 'Completed',
                         'failed' => 'Failed',
                         'refunded' => 'Refunded',
-                    ]),
+                    ])
+                    ->indicator('Status'),
                 Tables\Filters\SelectFilter::make('payment_method')
                     ->label('Payment Method')
+                    ->multiple()
                     ->options([
                         'payhere' => 'PayHere',
                         'bank_transfer' => 'Bank Transfer',
                         'webxpay' => 'WebXPay',
-                    ]),
+                        'cash' => 'Cash',
+                        'other' => 'Other',
+                    ])
+                    ->indicator('Method'),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
