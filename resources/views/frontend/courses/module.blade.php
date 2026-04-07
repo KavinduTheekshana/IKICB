@@ -139,9 +139,19 @@
                                         {{ $moduleVideo->title }}
                                     </h2>
                                     @if($moduleVideo->expires_at)
-                                        <span class="text-xs font-semibold bg-white/30 text-gray-900 px-3 py-1 rounded-full">
-                                            Expires {{ $moduleVideo->expires_at->format('M d, Y') }}
-                                        </span>
+                                        @php $expiresAt = $moduleVideo->expires_at; @endphp
+                                        <div class="flex flex-col items-end gap-1">
+                                            <span class="text-xs font-semibold bg-white/30 text-gray-900 px-3 py-1 rounded-full">
+                                                {{ $expiresAt->isPast() ? 'Expired' : 'Expires: ' . $expiresAt->format('M d, Y \a\t g:i A') }}
+                                            </span>
+                                            @if(!$expiresAt->isPast())
+                                            <span
+                                                class="video-expire-countdown text-xs font-bold  text-red-700 px-3 py-1 rounded-full"
+                                                data-expires="{{ $expiresAt->toIso8601String() }}">
+                                                &hellip;
+                                            </span>
+                                            @endif
+                                        </div>
                                     @endif
                                 </div>
                                 @if($moduleVideo->description)
@@ -804,6 +814,40 @@
             setTimeout(function () { toast.remove(); }, 300);
         }, 3500);
     }
+
+    // ── Video expire countdown ────────────────────────────────────────────
+    (function () {
+        function formatCountdown(msLeft) {
+            if (msLeft <= 0) return 'Expired';
+            var totalSec = Math.floor(msLeft / 1000);
+            var days  = Math.floor(totalSec / 86400);
+            var hours = Math.floor((totalSec % 86400) / 3600);
+            var mins  = Math.floor((totalSec % 3600)  / 60);
+            var secs  = totalSec % 60;
+            if (days > 0) {
+                return 'Expires in ' + days + 'd ' + hours + 'h ' + mins + 'm';
+            } else if (hours > 0) {
+                return 'Expires in ' + hours + 'h ' + mins + 'm ' + secs + 's';
+            } else {
+                return 'Expires in ' + mins + 'm ' + secs + 's';
+            }
+        }
+
+        var countdownEls = document.querySelectorAll('.video-expire-countdown[data-expires]');
+        if (!countdownEls.length) return;
+
+        function tick() {
+            var now = Date.now();
+            countdownEls.forEach(function (el) {
+                var expires = new Date(el.dataset.expires).getTime();
+                el.textContent = formatCountdown(expires - now);
+                if (expires - now <= 0) el.style.color = '#dc2626'; // red when expired
+            });
+        }
+
+        tick();
+        setInterval(tick, 1000);
+    })();
 
 })();
 </script>
