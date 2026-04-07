@@ -112,8 +112,16 @@ class SubmissionController extends Controller
 
         $submission = StudentSubmission::create($submissionData);
 
-        return redirect()->route('submissions.show', $submission)
-            ->with('success', 'Your submission has been uploaded successfully!');
+        Log::info('Submission created successfully', [
+            'submission_id' => $submission->id,
+            'user_id' => $submission->user_id,
+            'auth_user_id' => auth()->id(),
+            'title' => $submission->title,
+        ]);
+
+        // Redirect to submissions index instead of show page to avoid 403 issues
+        return redirect()->route('submissions.index')
+            ->with('success', 'Your submission has been uploaded successfully! Click on it to view details.');
     }
 
     /**
@@ -201,17 +209,59 @@ class SubmissionController extends Controller
     {
         // Students can only view their own submissions
         if ($submission->user_id !== auth()->id()) {
-            abort(403);
+            Log::warning('Unauthorized submission access attempt', [
+                'submission_id' => $submission->id,
+                'submission_user_id' => $submission->user_id,
+                'auth_user_id' => auth()->id(),
+                'is_authenticated' => auth()->check(),
+            ]);
+            abort(403, 'You do not have permission to view this submission.');
         }
 
         $submission->load(['course', 'module', 'reviewer']);
 
+        Log::info('Attempting to display submission', [
+            'submission_id' => $submission->id,
+            'file_type' => $submission->file_type,
+            'is_video' => $submission->isVideo(),
+            'bunny_video_id' => $submission->bunny_video_id,
+            'bunny_library_id' => $submission->bunny_library_id,
+            'video_url' => $submission->video_url,
+        ]);
+
         // Generate signed URL if this is a Bunny video submission
         $signedVideoUrl = null;
         if ($submission->isVideo() && $submission->bunny_video_id) {
-            $bunny = app(BunnyVideoService::class);
-            $libraryId = $submission->bunny_library_id ?: $bunny->getDefaultLibraryId();
-            $signedVideoUrl = $bunny->signedEmbedUrl($libraryId, $submission->bunny_video_id);
+            try {
+                $bunny = app(BunnyVideoService::class);
+                $libraryId = $submission->bunny_library_id ?: $bunny->getDefaultLibraryId();
+
+                Log::info('Generating signed URL for submission video', [
+                    'submission_id' => $submission->id,
+                    'library_id' => $libraryId,
+                    'video_id' => $submission->bunny_video_id,
+                ]);
+
+                $signedVideoUrl = $bunny->signedEmbedUrl($libraryId, $submission->bunny_video_id);
+
+                Log::info('Signed URL generated successfully', [
+                    'submission_id' => $submission->id,
+                    'signed_url' => $signedVideoUrl,
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Failed to generate signed video URL for submission', [
+                    'submission_id' => $submission->id,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+                // Continue without video - user can still see submission details
+            }
+        } else {
+            Log::warning('Cannot generate signed URL', [
+                'submission_id' => $submission->id,
+                'is_video' => $submission->isVideo(),
+                'has_bunny_video_id' => !empty($submission->bunny_video_id),
+            ]);
         }
 
         return view('frontend.submissions.show', compact('submission', 'signedVideoUrl'));

@@ -70,6 +70,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [DashboardController::class, 'index']);
         Route::get('/my-courses', [DashboardController::class, 'myCourses'])->name('.my-courses');
         Route::get('/payments', [DashboardController::class, 'payments'])->name('.payments');
+        Route::get('/profile', [DashboardController::class, 'profile'])->name('.profile');
+        Route::put('/profile', [DashboardController::class, 'updateProfile'])->name('.profile.update');
+        Route::put('/password', [DashboardController::class, 'updatePassword'])->name('.password.update');
     });
 
     // Submission routes
