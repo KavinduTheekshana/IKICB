@@ -151,6 +151,13 @@ class BunnyVideoService
     {
         $tokenKey = config('services.bunny.token_key', '');
 
+        \Illuminate\Support\Facades\Log::info('BUNNY: Generating signed embed URL', [
+            'library_id' => $libraryId,
+            'video_id' => $videoId,
+            'expires_in_seconds' => $expiresInSeconds,
+            'has_token_key' => !empty($tokenKey),
+        ]);
+
         $baseParams = http_build_query([
             'hideDownload' => 'true',
             'hideShare'    => 'true',
@@ -159,7 +166,11 @@ class BunnyVideoService
 
         if (empty($tokenKey)) {
             // Token auth not configured — return plain URL with controls hidden
-            return "https://iframe.mediadelivery.net/embed/{$libraryId}/{$videoId}?{$baseParams}";
+            $url = "https://iframe.mediadelivery.net/embed/{$libraryId}/{$videoId}?{$baseParams}";
+            \Illuminate\Support\Facades\Log::info('BUNNY: Generated plain embed URL (no token auth)', [
+                'url' => $url,
+            ]);
+            return $url;
         }
 
         $expires = time() + $expiresInSeconds;
@@ -175,7 +186,14 @@ class BunnyVideoService
             'autoplay'     => 'false',
         ]);
 
-        return "https://iframe.mediadelivery.net/embed/{$libraryId}/{$videoId}?{$params}";
+        $url = "https://iframe.mediadelivery.net/embed/{$libraryId}/{$videoId}?{$params}";
+
+        \Illuminate\Support\Facades\Log::info('BUNNY: Generated signed embed URL with token', [
+            'url' => $url,
+            'expires' => date('Y-m-d H:i:s', $expires),
+        ]);
+
+        return $url;
     }
 
     /**

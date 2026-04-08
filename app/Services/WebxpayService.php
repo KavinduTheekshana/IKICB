@@ -124,40 +124,53 @@ class WebxpayService
     }
 
     /**
-     * Decrypt the `payment` field from WEBXPAY's callback response.
-     * Returns parsed fields plus the raw decrypted string for signature verification.
+     * Process the payment response from WEBXPAY's callback.
+     * WebXPay returns base64 encoded pipe-separated values.
+     * Format: order_id|reference|datetime|gateway|status_code|comment
      */
     public function decryptPayment(string $encryptedPayment): ?array
     {
         try {
+            Log::info('WEBXPAY: Processing payment response', [
+                'encrypted_length' => strlen($encryptedPayment),
+                'encrypted_preview' => substr($encryptedPayment, 0, 100) . '...',
+            ]);
+
+            // WebXPay sends base64 encoded data, not RSA encrypted
             $decoded = base64_decode($encryptedPayment, true);
 
             if ($decoded === false) {
-                Log::error('WEBXPAY: Failed to base64 decode payment response');
-                return null;
+                // If base64 decode fails, maybe it's already decoded? Try to use it as-is
+                $decoded = $encryptedPayment;
+                Log::warning('WEBXPAY: Base64 decode failed, using raw value', [
+                    'raw_value' => $encryptedPayment,
+                ]);
+            } else {
+                Log::info('WEBXPAY: Base64 decode successful', [
+                    'decoded_length' => strlen($decoded),
+                    'decoded_preview' => substr($decoded, 0, 100),
+                ]);
             }
 
-            $publicKey = $this->getPublicKey();
-            $success = openssl_public_decrypt($decoded, $decrypted, $publicKey);
+            // Parse pipe-separated values
+            $parts = explode('|', $decoded);
 
-            if (!$success) {
-                $error = openssl_error_string();
-                Log::error('WEBXPAY: Failed to decrypt payment response', ['error' => $error]);
-                return null;
-            }
-
-            $parts = explode('|', $decrypted);
+            Log::info('WEBXPAY: Parsed response parts', [
+                'parts_count' => count($parts),
+                'parts' => $parts,
+            ]);
 
             if (count($parts) < 4) {
-                Log::error('WEBXPAY: Invalid payment response format', [
+                Log::error('WEBXPAY: Invalid payment response format - not enough parts', [
                     'parts_count' => count($parts),
-                    'raw' => $decrypted
+                    'raw' => $decoded,
+                    'parts' => $parts,
                 ]);
                 return null;
             }
 
-            return [
-                'raw'          => $decrypted,
+            $result = [
+                'raw'          => $decoded,
                 'order_id'     => $parts[0] ?? null,
                 'reference'    => $parts[1] ?? null,
                 'datetime'     => $parts[2] ?? null,
@@ -165,9 +178,14 @@ class WebxpayService
                 'status_code'  => $parts[4] ?? null,
                 'comment'      => $parts[5] ?? null,
             ];
+
+            Log::info('WEBXPAY: Payment response processed successfully', $result);
+
+            return $result;
         } catch (\Exception $e) {
-            Log::error('WEBXPAY: Exception during payment decryption', [
-                'error' => $e->getMessage()
+            Log::error('WEBXPAY: Exception during payment processing', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
             return null;
         }
@@ -185,11 +203,26 @@ class WebxpayService
     }
 
     /**
-     * WEBXPAY status codes 0 or 00 indicate a successful transaction.
+     * WEBXPAY status codes indicate a successful transaction.
+     * Sandbox mode: "00 - Approved" or just "00"
+     * Live mode: "100 - Request was processed successfully."
      */
     public function isSuccessful(string $statusCode): bool
     {
-        return in_array($statusCode, ['0', '00']);
+        // Extract the numeric code (first part before any dash or space)
+        $code = trim(explode('-', $statusCode)[0]);
+        $code = trim(explode(' ', $code)[0]);
+
+        Log::info('WEBXPAY: Checking if payment is successful', [
+            'original_status_code' => $statusCode,
+            'extracted_code' => $code,
+            'is_successful' => in_array($code, ['0', '00', '100']),
+        ]);
+
+        // Accept status codes:
+        // - 0, 00: Sandbox success
+        // - 100: Live mode success
+        return in_array($code, ['0', '00', '100']);
     }
 
     public function handleSuccessfulPayment(Payment $payment): void

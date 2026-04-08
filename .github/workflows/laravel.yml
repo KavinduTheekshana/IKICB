@@ -1,35 +1,21 @@
+on: push
 name: 🚀 Deploy website on push
-
-on:
-  push:
-    branches:
-      - main
-      - master
-  workflow_dispatch:
 
 jobs:
   web-deploy:
     name: 🎉 Deploy
     runs-on: ubuntu-latest
-
     steps:
-    - name: 🚚 Get latest code
-      uses: actions/checkout@v4
-
-    - name: 📂 Sync files
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-      with:
-        server: ${{ secrets.FTP_HOST }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: /
-        exclude: |
-          **/.git*
-          **/.git*/**
-          **/node_modules/**
-          **/vendor/**
-          **/.env
-          **/storage/logs/**
-          **/storage/framework/cache/**
-          **/storage/framework/sessions/**
-          **/storage/framework/views/**
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v4
+      
+      - name: 📂 Sync files via SFTP
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+        with:
+          server: ${{ secrets.FTP_HOST_VPS }}
+          username: ${{ secrets.FTP_USERNAME_VPS }}
+          password: ${{ secrets.FTP_PASSWORD_VPS }}
+          port: 22
+          local_path: './*'
+          remote_path: './httpdocs/'
+          sftp_only: true
