@@ -53,6 +53,10 @@ class ModuleResource extends Resource
                             ->numeric()
                             ->prefix('LKR')
                             ->helperText('Leave empty if module can only be purchased as part of full course'),
+                        Forms\Components\Toggle::make('is_free')
+                            ->label('Free Module')
+                            ->helperText('Enable this to make the module accessible to all users without payment')
+                            ->default(false),
                     ])->columns(2),
 
                 Forms\Components\Section::make('Videos')
@@ -96,6 +100,13 @@ class ModuleResource extends Resource
                     ->money('LKR')
                     ->sortable()
                     ->placeholder('Included in course'),
+                Tables\Columns\IconColumn::make('is_free')
+                    ->label('Free')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('gray'),
                 Tables\Columns\TextColumn::make('materials_count')
                     ->counts('materials')
                     ->label('Materials')
