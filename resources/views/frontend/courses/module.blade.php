@@ -164,8 +164,9 @@
                                                 class="protected-video-iframe"
                                                 data-src="{{ base64_encode($signedVideoUrls[$moduleVideo->id] ?? $moduleVideo->video_url) }}"
                                                 frameborder="0"
-                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
-                                                sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; fullscreen"
+                                                sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock"
+                                                allowfullscreen="true"
                                                 referrerpolicy="origin"
                                                 style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;">
                                             </iframe>
@@ -217,8 +218,9 @@
                                             class="protected-video-iframe"
                                             data-src="{{ base64_encode($legacySignedUrl ?? $module->video_url) }}"
                                             frameborder="0"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
-                                            sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; fullscreen"
+                                            sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock"
+                                            allowfullscreen="true"
                                             referrerpolicy="origin"
                                             style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;">
                                         </iframe>
@@ -676,6 +678,35 @@
             e.preventDefault();
             showToast('Screenshots are not permitted for this content.');
             return false;
+        }
+    });
+
+    // ── Fullscreen toggle for video wrapper ─────────────────
+    window.toggleVideoFullscreen = function (btn) {
+        var wrapper = btn.closest('.video-protected-wrapper');
+        if (!wrapper) return;
+
+        var expandIcon  = btn.querySelector('.fs-icon-expand');
+        var compressIcon = btn.querySelector('.fs-icon-compress');
+
+        if (!document.fullscreenElement) {
+            (wrapper.requestFullscreen || wrapper.webkitRequestFullscreen || wrapper.mozRequestFullScreen || wrapper.msRequestFullscreen).call(wrapper);
+        } else {
+            (document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen).call(document);
+        }
+    };
+
+    document.addEventListener('fullscreenchange', function () {
+        var btn = document.querySelector('.custom-fs-btn');
+        if (!btn) return;
+        var expandIcon   = btn.querySelector('.fs-icon-expand');
+        var compressIcon = btn.querySelector('.fs-icon-compress');
+        if (document.fullscreenElement) {
+            if (expandIcon)   expandIcon.style.display   = 'none';
+            if (compressIcon) compressIcon.style.display = '';
+        } else {
+            if (expandIcon)   expandIcon.style.display   = '';
+            if (compressIcon) compressIcon.style.display = 'none';
         }
     });
 
