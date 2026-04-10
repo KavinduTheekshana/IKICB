@@ -86,19 +86,16 @@ class VideosRelationManager extends RelationManager
                                 if ($record->status === 'ready' && $record->bunny_video_id) {
                                     $bunny      = app(BunnyVideoService::class);
                                     $libraryId  = $record->bunny_library_id ?: $bunny->getDefaultLibraryId();
-                                    $previewUrl = $bunny->embedUrl($libraryId, $record->bunny_video_id);
+                                    $previewUrl = $bunny->signedEmbedUrl($libraryId, $record->bunny_video_id, 1800);
                                     $frameId    = 'admin-preview-' . md5($record->bunny_video_id);
                                     $previewHtml = '
                                         <div class="mt-3 rounded-lg overflow-hidden"
-                                             style="position:relative;padding-bottom:56.25%;height:0;"
-                                             x-data
-                                             x-init="$nextTick(() => { var f = document.getElementById(\'' . $frameId . '\'); if(f) f.src = \'' . e($previewUrl) . '\'; })">
+                                             style="position:relative;padding-bottom:56.25%;height:0;">
                                             <iframe
-                                                id="' . $frameId . '"
+                                                src="' . e($previewUrl) . '"
                                                 frameborder="0"
                                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
-                                                sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
-                                                referrerpolicy="no-referrer"
+                                                referrerpolicy="origin"
                                                 allowfullscreen="true"
                                                 style="border:none;position:absolute;top:0;left:0;height:100%;width:100%;">
                                             </iframe>

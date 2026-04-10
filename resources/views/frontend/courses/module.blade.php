@@ -166,6 +166,7 @@
                                                 frameborder="0"
                                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
                                                 sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
+                                                referrerpolicy="origin"
                                                 style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;">
                                             </iframe>
                                             <div class="video-watermark" style="position:absolute;z-index:30;pointer-events:none;user-select:none;">
@@ -218,6 +219,7 @@
                                             frameborder="0"
                                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
                                             sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
+                                            referrerpolicy="origin"
                                             style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;">
                                         </iframe>
                                         <div class="video-watermark" style="position:absolute;z-index:30;pointer-events:none;user-select:none;">
