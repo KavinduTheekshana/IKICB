@@ -176,7 +176,7 @@ class BunnyVideoService
         $expires = time() + $expiresInSeconds;
 
         // Bunny.net token format: SHA256(tokenKey + videoId + expires)
-        $token = hash('sha256', $tokenKey . $videoId . $expires);
+        $token = hash('sha256', $tokenKey . $libraryId . $videoId . $expires);
 
         $params = http_build_query([
             'token'        => $token,
