@@ -28,7 +28,7 @@ class DashboardController extends Controller
             ->get();
 
         // Combine both collections
-        $unlockedModules = $unlockedModules->merge($freeModules->map(function($module) use ($user) {
+        $unlockedModules = $unlockedModules->toBase()->merge($freeModules->map(function($module) use ($user) {
             return (object)[
                 'id' => null,
                 'user_id' => $user->id,

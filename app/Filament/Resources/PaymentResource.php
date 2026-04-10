@@ -144,11 +144,55 @@ class PaymentResource extends Resource
                     ])->columns(2)
                     ->description('Assign a course (full purchase) or specific module (module-wise purchase). Amount will auto-fill from selected course/module price.'),
 
+                Forms\Components\Section::make('Transaction Details')
+                    ->schema([
+                        Forms\Components\TextInput::make('reference_number')
+                            ->label('Payment Reference Number')
+                            ->maxLength(255)
+                            ->disabled()
+                            ->columnSpanFull(),
+                        Forms\Components\Placeholder::make('webxpay_details')
+                            ->label('WebXPay Response Details')
+                            ->content(function ($record) {
+                                if (!$record || !$record->payment_details) {
+                                    return new \Illuminate\Support\HtmlString('<span class="text-gray-400">No payment details available</span>');
+                                }
+                                $details = is_array($record->payment_details) ? $record->payment_details : json_decode($record->payment_details, true);
+                                $rows = '';
+                                $labels = [
+                                    'order_id'          => 'Order ID',
+                                    'type'              => 'Type',
+                                    'webxpay_reference' => 'WebXPay Reference',
+                                    'webxpay_datetime'  => 'Payment DateTime',
+                                    'webxpay_gateway'   => 'Gateway',
+                                    'webxpay_status'    => 'Status Code',
+                                    'webxpay_comment'   => 'Comment',
+                                ];
+                                foreach ($labels as $key => $label) {
+                                    if (isset($details[$key]) && $details[$key] !== null && $details[$key] !== '') {
+                                        $rows .= '
+                                            <div style="display:grid; grid-template-columns:1fr 2fr; gap:8px; padding:10px 0; border-bottom:1px solid #f3f4f6; word-break:break-all;">
+                                                <div style="font-size:13px; color:#6b7280; font-weight:500;">' . $label . '</div>
+                                                <div style="font-size:13px; color:#111827;">' . e($details[$key]) . '</div>
+                                            </div>';
+                                    }
+                                }
+                                if (!$rows) {
+                                    return new \Illuminate\Support\HtmlString('<span style="color:#9ca3af;font-size:13px;">No details recorded</span>');
+                                }
+                                return new \Illuminate\Support\HtmlString(
+                                    '<div style="background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; padding:4px 16px;">' . $rows . '</div>'
+                                );
+                            })
+                            ->columnSpanFull(),
+                    ])->columns(2),
+
                 Forms\Components\Section::make('Bank Transfer Details')
                     ->schema([
                         Forms\Components\TextInput::make('reference_number')
                             ->label('Reference Number')
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->visible(false),
                         Forms\Components\Placeholder::make('receipt_display')
                             ->label('Receipt')
                             ->content(function ($record) {

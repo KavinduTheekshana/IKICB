@@ -197,6 +197,18 @@ class PaymentController extends Controller
             'full_response' => $decrypted,
         ]);
 
+        // Save the WebXPay reference number and response details to the payment record
+        $payment->update([
+            'reference_number' => $decrypted['reference'] ?? null,
+            'payment_details'  => array_merge($payment->payment_details ?? [], [
+                'webxpay_reference' => $decrypted['reference'] ?? null,
+                'webxpay_datetime'  => $decrypted['datetime'] ?? null,
+                'webxpay_gateway'   => $decrypted['gateway'] ?? null,
+                'webxpay_status'    => $decrypted['status_code'] ?? null,
+                'webxpay_comment'   => $decrypted['comment'] ?? null,
+            ]),
+        ]);
+
         if ($this->webxpayService->isSuccessful($decrypted['status_code'])) {
             $this->webxpayService->handleSuccessfulPayment($payment);
 
