@@ -82,7 +82,7 @@ class PaymentController extends Controller
                 'payment_gateway' => 'webxpay',
                 'payment_method'  => 'webxpay',
                 'transaction_id'  => $validated['order_id'],
-                'status'          => 'pending',
+                'status'          => 'initiated',
                 'payment_details' => [
                     'order_id' => $validated['order_id'],
                     'type'     => $validated['type'] === 'course' ? 'full_course' : 'module',

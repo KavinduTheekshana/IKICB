@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Announcement;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -42,11 +43,14 @@ class DashboardController extends Controller
 
         $payments = $user->payments()
             ->with(['course', 'module.course'])
+            ->where('status', '!=', 'initiated')
             ->latest()
             ->take(10)
             ->get();
 
-        return view('frontend.dashboard.index', compact('enrollments', 'unlockedModules', 'payments'));
+        $announcements = Announcement::active()->latest()->get();
+
+        return view('frontend.dashboard.index', compact('enrollments', 'unlockedModules', 'payments', 'announcements'));
     }
 
     public function myCourses()
@@ -63,6 +67,7 @@ class DashboardController extends Controller
     {
         $payments = auth()->user()->payments()
             ->with(['course', 'module.course'])
+            ->where('status', '!=', 'initiated')
             ->latest()
             ->paginate(15);
 

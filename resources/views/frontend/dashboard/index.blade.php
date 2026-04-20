@@ -108,6 +108,125 @@
     </div>
 </section>
 
+<!-- Announcements -->
+@if($announcements->isNotEmpty())
+<section class="py-8 bg-gradient-to-br from-gray-50 to-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        {{-- Section Header --}}
+        <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-md flex-shrink-0">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
+                </svg>
+            </div>
+            <div>
+                <h2 class="text-xl font-black text-gray-900">Announcements</h2>
+                <p class="text-xs text-gray-500 font-medium">{{ $announcements->count() }} active {{ Str::plural('announcement', $announcements->count()) }}</p>
+            </div>
+        </div>
+
+        {{-- Cards --}}
+        <div class="space-y-3">
+            @foreach($announcements as $announcement)
+                <div x-data="{ open: true }"
+                     x-show="open"
+                     x-transition:leave="transition duration-200 ease-in"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0">
+
+                    @if($announcement->type === 'danger')
+                    <div class="flex gap-0 rounded-2xl overflow-hidden shadow-sm border" style="border-color:#fecaca; background:#ffffff;">
+                        <div class="w-1.5 flex-shrink-0" style="background:#ef4444;"></div>
+                        <div class="flex items-start gap-4 flex-1 px-5 py-4">
+                            <div class="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center mt-0.5" style="background:#fee2e2;">
+                                <svg class="w-4 h-4" style="color:#dc2626;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:#fee2e2; color:#b91c1c;">Important</span>
+                                    <span class="text-xs text-gray-400">{{ ($announcement->published_at ?? $announcement->created_at)->format('d M Y') }}</span>
+                                </div>
+                                <p class="text-sm font-bold text-gray-900">{{ $announcement->title }}</p>
+                                <p class="text-sm text-gray-500 mt-0.5 leading-relaxed">{{ $announcement->content }}</p>
+                            </div>
+                            <button @click="open = false" class="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-gray-300 hover:text-gray-500 hover:bg-gray-100 transition-all" aria-label="Dismiss">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    @elseif($announcement->type === 'warning')
+                    <div class="flex gap-0 rounded-2xl overflow-hidden shadow-sm border" style="border-color:#fde68a; background:#ffffff;">
+                        <div class="w-1.5 flex-shrink-0" style="background:#f59e0b;"></div>
+                        <div class="flex items-start gap-4 flex-1 px-5 py-4">
+                            <div class="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center mt-0.5" style="background:#fef3c7;">
+                                <svg class="w-4 h-4" style="color:#d97706;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:#fef3c7; color:#b45309;">Notice</span>
+                                    <span class="text-xs text-gray-400">{{ ($announcement->published_at ?? $announcement->created_at)->format('d M Y') }}</span>
+                                </div>
+                                <p class="text-sm font-bold text-gray-900">{{ $announcement->title }}</p>
+                                <p class="text-sm text-gray-500 mt-0.5 leading-relaxed">{{ $announcement->content }}</p>
+                            </div>
+                            <button @click="open = false" class="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-gray-300 hover:text-gray-500 hover:bg-gray-100 transition-all" aria-label="Dismiss">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    @elseif($announcement->type === 'success')
+                    <div class="flex gap-0 rounded-2xl overflow-hidden shadow-sm border" style="border-color:#bbf7d0; background:#ffffff;">
+                        <div class="w-1.5 flex-shrink-0" style="background:#22c55e;"></div>
+                        <div class="flex items-start gap-4 flex-1 px-5 py-4">
+                            <div class="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center mt-0.5" style="background:#dcfce7;">
+                                <svg class="w-4 h-4" style="color:#16a34a;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:#dcfce7; color:#15803d;">Success</span>
+                                    <span class="text-xs text-gray-400">{{ ($announcement->published_at ?? $announcement->created_at)->format('d M Y') }}</span>
+                                </div>
+                                <p class="text-sm font-bold text-gray-900">{{ $announcement->title }}</p>
+                                <p class="text-sm text-gray-500 mt-0.5 leading-relaxed">{{ $announcement->content }}</p>
+                            </div>
+                            <button @click="open = false" class="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-gray-300 hover:text-gray-500 hover:bg-gray-100 transition-all" aria-label="Dismiss">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    @else
+                    <div class="flex gap-0 rounded-2xl overflow-hidden shadow-sm border" style="border-color:#bfdbfe; background:#ffffff;">
+                        <div class="w-1.5 flex-shrink-0" style="background:#3b82f6;"></div>
+                        <div class="flex items-start gap-4 flex-1 px-5 py-4">
+                            <div class="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center mt-0.5" style="background:#dbeafe;">
+                                <svg class="w-4 h-4" style="color:#2563eb;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:#dbeafe; color:#1d4ed8;">Info</span>
+                                    <span class="text-xs text-gray-400">{{ ($announcement->published_at ?? $announcement->created_at)->format('d M Y') }}</span>
+                                </div>
+                                <p class="text-sm font-bold text-gray-900">{{ $announcement->title }}</p>
+                                <p class="text-sm text-gray-500 mt-0.5 leading-relaxed">{{ $announcement->content }}</p>
+                            </div>
+                            <button @click="open = false" class="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-gray-300 hover:text-gray-500 hover:bg-gray-100 transition-all" aria-label="Dismiss">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    @endif
+
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
+
 <!-- Navigation Tabs -->
 <section class="bg-white border-b border-gray-200 sticky top-20 z-40 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-x-auto">

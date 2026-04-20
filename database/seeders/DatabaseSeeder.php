@@ -29,6 +29,9 @@ class DatabaseSeeder extends Seeder
             // 4. Students & Activity
             StudentSeeder::class,
             PaymentEnrollmentSeeder::class,
+
+            //5. Annoucement
+            AnnouncementSeeder::class,
         ]);
     }
 }

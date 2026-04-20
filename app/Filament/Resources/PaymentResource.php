@@ -30,7 +30,9 @@ class PaymentResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with(['user', 'course', 'module']);
+        return parent::getEloquentQuery()
+            ->with(['user', 'course', 'module'])
+            ->where('status', '!=', 'initiated');
     }
 
     public static function form(Form $form): Form
@@ -77,6 +79,7 @@ class PaymentResource extends Resource
                         Forms\Components\Select::make('status')
                             ->label('Status')
                             ->options([
+                                'initiated' => 'Initiated (WebXPay Redirected)',
                                 'pending' => 'Pending',
                                 'completed' => 'Completed',
                                 'failed' => 'Failed',
@@ -297,10 +300,11 @@ class PaymentResource extends Resource
                     ->label('Status')
                     ->badge()
                     ->colors([
+                        'gray' => 'initiated',
                         'warning' => 'pending',
                         'success' => 'completed',
                         'danger' => 'failed',
-                        'gray' => 'refunded',
+                        'secondary' => 'refunded',
                     ])
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -313,12 +317,18 @@ class PaymentResource extends Resource
                     ->label('Payment Status')
                     ->multiple()
                     ->options([
+                        'initiated' => 'Initiated (Abandoned)',
                         'pending' => 'Pending',
                         'completed' => 'Completed',
                         'failed' => 'Failed',
                         'refunded' => 'Refunded',
                     ])
-                    ->indicator('Status'),
+                    ->indicator('Status')
+                    ->query(fn (Builder $query, array $data) =>
+                        $data['values']
+                            ? $query->whereIn('status', $data['values'])
+                            : $query->where('status', '!=', 'initiated')
+                    ),
                 Tables\Filters\SelectFilter::make('payment_method')
                     ->label('Payment Method')
                     ->multiple()

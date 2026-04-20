@@ -33,7 +33,8 @@ class PaymentResource extends Resource
     {
         return parent::getEloquentQuery()
             ->with(['user', 'course', 'module'])
-            ->whereHas('user', fn ($q) => $q->where('branch_id', auth()->user()->branch_id));
+            ->whereHas('user', fn ($q) => $q->where('branch_id', auth()->user()->branch_id))
+            ->where('status', '!=', 'initiated');
     }
 
     public static function form(Form $form): Form
