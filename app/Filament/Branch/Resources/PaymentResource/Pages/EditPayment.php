@@ -16,4 +16,14 @@ class EditPayment extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function afterSave(): void
+    {
+        $wasCompleted = $this->record->getOriginal('status') === 'completed';
+        $isNowCompleted = $this->record->status === 'completed';
+
+        if (!$wasCompleted && $isNowCompleted) {
+            PaymentResource::processPaymentApproval($this->record);
+        }
+    }
 }

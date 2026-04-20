@@ -3,6 +3,8 @@
 namespace App\Filament\Branch\Resources;
 
 use App\Filament\Branch\Resources\StudentResource\Pages;
+use App\Filament\Branch\Resources\StudentResource\RelationManagers\QuizAttemptsRelationManager;
+use App\Models\Course;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -53,6 +55,12 @@ class StudentResource extends Resource
                             ->dehydrated(fn ($state) => filled($state))
                             ->required(fn (string $operation): bool => $operation === 'create')
                             ->label('Password'),
+                        Forms\Components\Select::make('course_id')
+                            ->label('Course (optional)')
+                            ->options(Course::pluck('title', 'id'))
+                            ->searchable()
+                            ->nullable()
+                            ->placeholder('Select a course'),
                         Forms\Components\Hidden::make('role')
                             ->default('student'),
                         Forms\Components\Hidden::make('branch_id')
@@ -75,6 +83,13 @@ class StudentResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->copyable(),
+                Tables\Columns\TextColumn::make('course.title')
+                    ->label('Course')
+                    ->searchable()
+                    ->sortable()
+                    ->default('—')
+                    ->badge()
+                    ->color('warning'),
                 Tables\Columns\TextColumn::make('enrollments_count')
                     ->label('Courses Enrolled')
                     ->counts('enrollments')
@@ -101,6 +116,25 @@ class StudentResource extends Resource
                     ->sortable()
                     ->badge()
                     ->color('primary'),
+                Tables\Columns\TextColumn::make('quiz_attempts_count')
+                    ->label('Quiz Attempts')
+                    ->counts('quizAttempts')
+                    ->sortable()
+                    ->badge()
+                    ->color('warning'),
+                Tables\Columns\TextColumn::make('average_quiz_score')
+                    ->label('Avg Quiz Score')
+                    ->getStateUsing(function (User $record) {
+                        $avg = $record->quizAttempts()->avg('score');
+                        return $avg ? number_format($avg, 1) . '%' : 'N/A';
+                    })
+                    ->badge()
+                    ->color(fn (string $state): string => match (true) {
+                        str_contains($state, 'N/A') => 'gray',
+                        floatval($state) >= 80       => 'success',
+                        floatval($state) >= 60       => 'warning',
+                        default                      => 'danger',
+                    }),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Registered')
                     ->dateTime('M d, Y')
@@ -111,6 +145,22 @@ class StudentResource extends Resource
                 Tables\Filters\Filter::make('has_enrollments')
                     ->label('Has Enrollments')
                     ->query(fn (Builder $query): Builder => $query->has('enrollments')),
+                Tables\Filters\Filter::make('has_completions')
+                    ->label('Has Completed Modules')
+                    ->query(fn (Builder $query): Builder => $query->has('moduleCompletions')),
+                Tables\Filters\SelectFilter::make('enrollment_count')
+                    ->label('Enrollment Count')
+                    ->options([
+                        '1' => '1+ courses',
+                        '3' => '3+ courses',
+                        '5' => '5+ courses',
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        if (!empty($data['value'])) {
+                            return $query->has('enrollments', '>=', (int) $data['value']);
+                        }
+                        return $query;
+                    }),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -132,7 +182,9 @@ class StudentResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            QuizAttemptsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array
