@@ -60,6 +60,111 @@ class ViewStudent extends ViewRecord
     {
         return $infolist
             ->schema([
+                Infolists\Components\Section::make('Personal Details')
+                    ->schema([
+                        Infolists\Components\ImageEntry::make('studentDetail.image')
+                            ->label('Photo')
+                            ->disk('public')
+                            ->height(100)
+                            ->circular()
+                            ->defaultImageUrl(fn () => 'https://ui-avatars.com/api/?name=' . urlencode($this->record->name) . '&background=EAB308&color=fff')
+                            ->columnSpan(1),
+                        Infolists\Components\TextEntry::make('studentDetail.name_with_initials')
+                            ->label('Name with Initials')
+                            ->default('Not provided'),
+                        Infolists\Components\TextEntry::make('studentDetail.full_name')
+                            ->label('Full Name')
+                            ->default('Not provided'),
+                        Infolists\Components\TextEntry::make('studentDetail.date_of_birth')
+                            ->label('Date of Birth')
+                            ->date('d M Y')
+                            ->default('Not provided'),
+                        Infolists\Components\TextEntry::make('studentDetail.gender')
+                            ->label('Gender')
+                            ->formatStateUsing(fn ($state) => $state ? ucfirst($state) : 'Not provided')
+                            ->badge()
+                            ->color(fn ($state) => match($state) {
+                                'male'   => 'info',
+                                'female' => 'success',
+                                default  => 'gray',
+                            }),
+                        Infolists\Components\TextEntry::make('studentDetail.id_number')
+                            ->label('NIC / ID Number')
+                            ->default('Not provided')
+                            ->copyable(),
+                        Infolists\Components\TextEntry::make('studentDetail.past_school')
+                            ->label('Past School')
+                            ->default('Not provided'),
+                        Infolists\Components\TextEntry::make('studentDetail.phone')
+                            ->label('Phone')
+                            ->default('Not provided'),
+                    ])
+                    ->columns(4)
+                    ->collapsible(),
+
+                Infolists\Components\Section::make('Educational Qualifications')
+                    ->schema([
+                        Infolists\Components\RepeatableEntry::make('studentDetail.educational_qualifications')
+                            ->label('')
+                            ->schema([
+                                Infolists\Components\TextEntry::make('institution')
+                                    ->label('Institution'),
+                                Infolists\Components\TextEntry::make('qualification')
+                                    ->label('Qualification'),
+                                Infolists\Components\TextEntry::make('year')
+                                    ->label('Year')
+                                    ->default('—'),
+                            ])
+                            ->columns(3)
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsible()
+                    ->visible(fn ($record) => !empty($record->studentDetail?->educational_qualifications)),
+
+                Infolists\Components\Section::make('Work Experience')
+                    ->schema([
+                        Infolists\Components\RepeatableEntry::make('studentDetail.work_experience')
+                            ->label('')
+                            ->schema([
+                                Infolists\Components\TextEntry::make('company')
+                                    ->label('Company'),
+                                Infolists\Components\TextEntry::make('position')
+                                    ->label('Position'),
+                                Infolists\Components\TextEntry::make('start_date')
+                                    ->label('Start')
+                                    ->default('—'),
+                                Infolists\Components\TextEntry::make('end_date')
+                                    ->label('End')
+                                    ->default('—'),
+                                Infolists\Components\TextEntry::make('description')
+                                    ->label('Description')
+                                    ->default('—')
+                                    ->columnSpan(2),
+                            ])
+                            ->columns(3)
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsible()
+                    ->visible(fn ($record) => !empty($record->studentDetail?->work_experience)),
+
+                Infolists\Components\Section::make('Emergency Contacts')
+                    ->schema([
+                        Infolists\Components\RepeatableEntry::make('studentDetail.emergency_contacts')
+                            ->label('')
+                            ->schema([
+                                Infolists\Components\TextEntry::make('name')
+                                    ->label('Name'),
+                                Infolists\Components\TextEntry::make('phone')
+                                    ->label('Phone'),
+                                Infolists\Components\TextEntry::make('relationship')
+                                    ->label('Relationship'),
+                            ])
+                            ->columns(3)
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsible()
+                    ->visible(fn ($record) => !empty($record->studentDetail?->emergency_contacts)),
+
                 Infolists\Components\Section::make('Student Information')
                     ->schema([
                         Infolists\Components\TextEntry::make('name')

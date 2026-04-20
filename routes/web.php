@@ -6,6 +6,7 @@ use App\Http\Controllers\Frontend\CourseController;
 use App\Http\Controllers\Frontend\DashboardController;
 use App\Http\Controllers\Frontend\PaymentController;
 use App\Http\Controllers\Frontend\AuthController;
+use App\Http\Controllers\Frontend\StudentDetailController;
 use App\Http\Controllers\Frontend\SubmissionController;
 use App\Models\Module;
 use Illuminate\Support\Facades\Route;
@@ -73,6 +74,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/profile', [DashboardController::class, 'profile'])->name('.profile');
         Route::put('/profile', [DashboardController::class, 'updateProfile'])->name('.profile.update');
         Route::put('/password', [DashboardController::class, 'updatePassword'])->name('.password.update');
+        Route::get('/personal-info', [StudentDetailController::class, 'show'])->name('.personal-info');
+        Route::post('/personal-info', [StudentDetailController::class, 'store'])->name('.personal-info.store');
     });
 
     // Submission routes

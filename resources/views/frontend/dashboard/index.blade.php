@@ -41,6 +41,25 @@
     </div>
 </div>
 
+<!-- Personal Info Banner -->
+@if(!auth()->user()->studentDetail?->full_name)
+<div class="bg-gradient-to-r from-yellow-400 to-yellow-500 py-3 px-4">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-white/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <span class="text-gray-900 font-bold text-sm">Complete your student profile — add your personal information to get started.</span>
+        </div>
+        <a href="{{ route('dashboard.personal-info') }}" class="flex-shrink-0 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white font-bold text-sm rounded-xl transition-colors">
+            Complete Now
+        </a>
+    </div>
+</div>
+@endif
+
 <!-- Quick Stats -->
 <section class="py-8 bg-gradient-to-br from-yellow-50 via-white to-gray-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -255,6 +274,15 @@
                 </svg>
                 Payments
             </a>
+            <a href="{{ route('dashboard.personal-info') }}" class="group inline-flex items-center py-4 px-1 border-b-4 border-transparent text-gray-500 hover:text-yellow-600 hover:border-yellow-300 font-bold text-xs sm:text-sm transition-all whitespace-nowrap">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                Personal Info
+                @if(!auth()->user()->studentDetail?->full_name)
+                    <span class="ml-1.5 px-1.5 py-0.5 bg-yellow-500 text-gray-900 text-xs font-black rounded-full">!</span>
+                @endif
+            </a>
         </nav>
     </div>
 </section>
@@ -401,7 +429,17 @@
             </h2>
             <p class="text-gray-600">Explore more learning opportunities</p>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+            <a href="{{ route('dashboard.personal-info') }}" class="group bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all border-2 border-gray-200 hover:border-yellow-400 card-hover text-center">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-black text-gray-900 mb-2 group-hover:text-yellow-600 transition-colors">Personal Info</h3>
+                <p class="text-gray-600">Update your student details</p>
+            </a>
+
             <a href="{{ route('courses.index') }}" class="group bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all border-2 border-gray-200 hover:border-yellow-400 card-hover text-center">
                 <div class="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                     <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

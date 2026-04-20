@@ -163,7 +163,14 @@ class StudentResource extends Resource
                     }),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                Tables\Actions\ViewAction::make()
+                    ->label('View'),
+                Tables\Actions\Action::make('view_personal_details')
+                    ->label('Personal Details')
+                    ->icon('heroicon-o-identification')
+                    ->color('warning')
+                    ->url(fn (User $record): string => StudentResource::getUrl('view', ['record' => $record]))
+                    ->badge(fn (User $record): ?string => $record->studentDetail?->full_name ? null : 'Incomplete'),
                 Tables\Actions\Action::make('view_progress')
                     ->label('Progress')
                     ->icon('heroicon-o-chart-bar')
