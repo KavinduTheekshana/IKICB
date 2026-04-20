@@ -51,6 +51,7 @@ class UserResource extends Resource
                     ->options([
                         'student' => 'Student',
                         'instructor' => 'Instructor',
+                        'branch_admin' => 'Branch Admin',
                         'admin' => 'Admin',
                     ])
                     ->default('student')
@@ -88,6 +89,7 @@ class UserResource extends Resource
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'admin' => 'danger',
+                        'branch_admin' => 'primary',
                         'instructor' => 'warning',
                         'student' => 'success',
                         default => 'gray',
@@ -115,6 +117,7 @@ class UserResource extends Resource
                     ->options([
                         'student' => 'Student',
                         'instructor' => 'Instructor',
+                        'branch_admin' => 'Branch Admin',
                         'admin' => 'Admin',
                     ]),
             ])
