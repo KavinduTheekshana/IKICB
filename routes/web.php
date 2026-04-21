@@ -6,6 +6,7 @@ use App\Http\Controllers\Frontend\CourseController;
 use App\Http\Controllers\Frontend\DashboardController;
 use App\Http\Controllers\Frontend\PaymentController;
 use App\Http\Controllers\Frontend\AuthController;
+use App\Http\Controllers\Frontend\GalleryController;
 use App\Http\Controllers\Frontend\StudentDetailController;
 use App\Http\Controllers\Frontend\SubmissionController;
 use App\Models\Module;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', [HomeController::class, 'about'])->name('about');
 Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
+Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery');
 
 // Course Details Pages
 Route::get('/courses-overview', function () {
