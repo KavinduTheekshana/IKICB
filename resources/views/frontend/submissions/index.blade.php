@@ -41,6 +41,11 @@
                 <a href="{{ route('dashboard.payments') }}" class="whitespace-nowrap py-4 px-1 border-b-4 border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300 font-bold text-sm transition-colors">
                     Payments
                 </a>
+                <a href="{{ route('dashboard.personal-info') }}" class="whitespace-nowrap py-4 px-1 border-b-4 border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300 font-bold text-sm transition-colors">
+                    Personal Info
+                </a>
+
+
             </nav>
         </div>
     </div>

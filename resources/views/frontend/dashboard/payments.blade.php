@@ -58,6 +58,15 @@
                 </svg>
                 Payments
             </a>
+            <a href="{{ route('dashboard.personal-info') }}" class="group inline-flex items-center py-4 px-1 border-b-4 border-transparent text-gray-500 hover:text-yellow-600 hover:border-yellow-300 font-bold text-xs sm:text-sm transition-all whitespace-nowrap">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                Personal Info
+                @if(!auth()->user()->studentDetail?->full_name)
+                    <span class="ml-1.5 px-1.5 py-0.5 bg-yellow-500 text-gray-900 text-xs font-black rounded-full">!</span>
+                @endif
+            </a>
         </nav>
     </div>
 </section>
