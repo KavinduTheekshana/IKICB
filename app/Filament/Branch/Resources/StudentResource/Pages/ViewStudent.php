@@ -78,8 +78,7 @@ class ViewStudent extends ViewRecord
                             ->default('Not provided'),
                         Infolists\Components\TextEntry::make('studentDetail.date_of_birth')
                             ->label('Date of Birth')
-                            ->date('d M Y')
-                            ->default('Not provided'),
+                            ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::parse($state)->format('d M Y') : 'Not provided'),
                         Infolists\Components\TextEntry::make('studentDetail.gender')
                             ->label('Gender')
                             ->formatStateUsing(fn ($state) => $state ? ucfirst($state) : 'Not provided')

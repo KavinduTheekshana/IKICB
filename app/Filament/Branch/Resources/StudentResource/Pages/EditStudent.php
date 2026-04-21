@@ -16,4 +16,23 @@ class EditStudent extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        $data['student_detail_image'] = $this->record->studentDetail?->image;
+        return $data;
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $image = $data['student_detail_image'] ?? null;
+        unset($data['student_detail_image']);
+
+        $this->record->studentDetail()->updateOrCreate(
+            ['user_id' => $this->record->id],
+            ['image' => $image]
+        );
+
+        return $data;
+    }
 }

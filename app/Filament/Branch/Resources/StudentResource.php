@@ -4,6 +4,7 @@ namespace App\Filament\Branch\Resources;
 
 use App\Filament\Branch\Resources\StudentResource\Pages;
 use App\Filament\Branch\Resources\StudentResource\RelationManagers\QuizAttemptsRelationManager;
+use App\Models\Branch;
 use App\Models\Course;
 use App\Models\User;
 use Filament\Forms;
@@ -39,7 +40,7 @@ class StudentResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Student Information')
+                Forms\Components\Section::make('Account Information')
                     ->schema([
                         Forms\Components\TextInput::make('name')
                             ->required()
@@ -51,21 +52,117 @@ class StudentResource extends Resource
                             ->unique(ignoreRecord: true),
                         Forms\Components\TextInput::make('password')
                             ->password()
+                            ->revealable()
                             ->dehydrateStateUsing(fn ($state) => filled($state) ? Hash::make($state) : null)
                             ->dehydrated(fn ($state) => filled($state))
                             ->required(fn (string $operation): bool => $operation === 'create')
-                            ->label('Password'),
+                            ->label(fn (string $operation) => $operation === 'create' ? 'Password' : 'New Password (leave blank to keep current)'),
                         Forms\Components\Select::make('course_id')
-                            ->label('Course (optional)')
-                            ->options(Course::pluck('title', 'id'))
+                            ->label('Registered Course')
+                            ->options(Course::where('is_published', true)->pluck('title', 'id'))
                             ->searchable()
-                            ->nullable()
-                            ->placeholder('Select a course'),
+                            ->preload()
+                            ->nullable(),
                         Forms\Components\Hidden::make('role')
                             ->default('student'),
                         Forms\Components\Hidden::make('branch_id')
                             ->default(fn () => auth()->user()->branch_id),
                     ])->columns(2),
+
+                Forms\Components\Section::make('Profile Photo')
+                    ->schema([
+                        Forms\Components\FileUpload::make('student_detail_image')
+                            ->label('')
+                            ->image()
+                            ->disk('public')
+                            ->directory('student-photos')
+                            ->avatar()
+                            ->columnSpanFull(),
+                    ]),
+
+                Forms\Components\Section::make('Personal Details')
+                    ->relationship('studentDetail')
+                    ->schema([
+                        Forms\Components\TextInput::make('name_with_initials')
+                            ->label('Name with Initials')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('full_name')
+                            ->label('Full Name')
+                            ->maxLength(255),
+                        Forms\Components\DatePicker::make('date_of_birth')
+                            ->label('Date of Birth')
+                            ->maxDate(now()),
+                        Forms\Components\Select::make('gender')
+                            ->options([
+                                'male'   => 'Male',
+                                'female' => 'Female',
+                                'other'  => 'Other',
+                            ]),
+                        Forms\Components\TextInput::make('id_number')
+                            ->label('NIC / ID Number')
+                            ->maxLength(20),
+                        Forms\Components\TextInput::make('past_school')
+                            ->label('Past School')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('phone')
+                            ->label('Phone')
+                            ->tel()
+                            ->maxLength(20),
+                    ])
+                    ->columns(2),
+
+                Forms\Components\Section::make('Educational Qualifications')
+                    ->relationship('studentDetail')
+                    ->schema([
+                        Forms\Components\Repeater::make('educational_qualifications')
+                            ->label('')
+                            ->schema([
+                                Forms\Components\TextInput::make('institution')->label('Institution')->required(),
+                                Forms\Components\TextInput::make('qualification')->label('Qualification')->required(),
+                                Forms\Components\TextInput::make('year')->label('Year')->maxLength(10),
+                            ])
+                            ->columns(3)
+                            ->addActionLabel('Add Qualification')
+                            ->defaultItems(0)
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsible(),
+
+                Forms\Components\Section::make('Work Experience')
+                    ->relationship('studentDetail')
+                    ->schema([
+                        Forms\Components\Repeater::make('work_experience')
+                            ->label('')
+                            ->schema([
+                                Forms\Components\TextInput::make('company')->label('Company')->required(),
+                                Forms\Components\TextInput::make('position')->label('Position')->required(),
+                                Forms\Components\TextInput::make('start_date')->label('Start Date'),
+                                Forms\Components\TextInput::make('end_date')->label('End Date'),
+                                Forms\Components\Textarea::make('description')->label('Description')->rows(2)->columnSpan(2),
+                            ])
+                            ->columns(3)
+                            ->addActionLabel('Add Experience')
+                            ->defaultItems(0)
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsible(),
+
+                Forms\Components\Section::make('Emergency Contacts')
+                    ->relationship('studentDetail')
+                    ->schema([
+                        Forms\Components\Repeater::make('emergency_contacts')
+                            ->label('')
+                            ->schema([
+                                Forms\Components\TextInput::make('name')->label('Name')->required(),
+                                Forms\Components\TextInput::make('phone')->label('Phone')->tel()->required(),
+                                Forms\Components\TextInput::make('relationship')->label('Relationship'),
+                            ])
+                            ->columns(3)
+                            ->addActionLabel('Add Emergency Contact')
+                            ->defaultItems(0)
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsible(),
             ]);
     }
 
