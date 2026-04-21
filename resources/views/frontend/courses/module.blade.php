@@ -67,13 +67,14 @@
                     $hasVideos    = $module->activeVideos->count() > 0 || ($module->video_url && trim($module->video_url) !== '');
                     $hasMaterials = $module->materials->count() > 0;
                     $hasQuiz      = $mcqQuestions->count() > 0;
-                    $defaultTab   = $hasVideos ? 'videos' : ($hasMaterials ? 'materials' : 'quiz');
+                    $hasMeetings  = $module->activeMeetings->count() > 0;
+                    $defaultTab   = $hasVideos ? 'videos' : ($hasMaterials ? 'materials' : ($hasQuiz ? 'quiz' : ($hasMeetings ? 'meetings' : 'videos')));
                     // Auto-open quiz tab if quiz results just came back
                     if (session('quiz_results')) { $defaultTab = 'quiz'; }
                 @endphp
 
                 <!-- Tab Navigation -->
-                @if($hasVideos || $hasMaterials || $hasQuiz)
+                @if($hasVideos || $hasMaterials || $hasQuiz || $hasMeetings)
                 <div class="bg-white rounded-2xl shadow-md border-2 border-gray-200 overflow-hidden">
                     <nav class="flex overflow-x-auto scrollbar-hide">
                         @if($hasVideos)
@@ -107,6 +108,17 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
                             </svg>
                             Practice Quiz
+                        </button>
+                        @endif
+
+                        @if($hasMeetings)
+                        <button onclick="switchModuleTab('meetings')" id="tab-btn-meetings"
+                            class="module-tab-btn flex items-center gap-2 px-5 py-3.5 font-bold text-sm whitespace-nowrap border-b-4 transition-all
+                                {{ $defaultTab === 'meetings' ? 'border-yellow-500 text-yellow-600 bg-yellow-50' : 'border-transparent text-gray-500 hover:text-yellow-600 hover:bg-gray-50' }}">
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                            </svg>
+                            Live Sessions
                         </button>
                         @endif
                     </nav>
@@ -432,6 +444,123 @@
                             @endif
                         </div>
                     </div>
+                </div>
+                @endif
+
+                <!-- ── TAB: Live Sessions / Meetings ──────────────── -->
+                @if($hasMeetings)
+                <div id="tab-content-meetings" class="module-tab-content space-y-4 {{ $defaultTab !== 'meetings' ? 'hidden' : '' }}">
+
+                    <div class="flex items-start gap-3 bg-blue-50 border-2 border-blue-200 rounded-2xl px-5 py-4">
+                        <svg class="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <div>
+                            <p class="text-sm font-black text-blue-800">Live Sessions for This Module</p>
+                            <p class="text-xs text-blue-600 mt-0.5">Click the Join button at the scheduled time to attend the live session. Links are only valid during the session.</p>
+                        </div>
+                    </div>
+
+                    @foreach($module->activeMeetings as $meeting)
+                    @php
+                        $isPast     = $meeting->starts_at->isPast();
+                        $isToday    = $meeting->starts_at->isToday();
+                        $isSoon     = !$isPast && $meeting->starts_at->diffInMinutes(now()) <= 30 && $meeting->starts_at->isFuture();
+                    @endphp
+                    <div class="bg-white rounded-3xl shadow-xl border-2 {{ $isPast ? 'border-gray-200' : 'border-yellow-200' }} overflow-hidden">
+                        <!-- Card Header -->
+                        <div class="px-6 py-4 flex flex-wrap items-center justify-between gap-3
+                            {{ $isPast ? 'bg-gray-100' : 'bg-gradient-to-r from-yellow-500 to-yellow-600' }}">
+
+                            <div class="flex items-center gap-3">
+                                @if($meeting->meeting_type === 'google_meet')
+                                    <div class="w-9 h-9 rounded-xl bg-white/30 flex items-center justify-center flex-shrink-0">
+                                        <svg class="w-5 h-5 {{ $isPast ? 'text-gray-500' : 'text-gray-900' }}" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18a8 8 0 110-16 8 8 0 010 16zm-1-5h2v2h-2zm0-8h2v6h-2z"/>
+                                        </svg>
+                                    </div>
+                                @elseif($meeting->meeting_type === 'zoom')
+                                    <div class="w-9 h-9 rounded-xl bg-white/30 flex items-center justify-center flex-shrink-0">
+                                        <svg class="w-5 h-5 {{ $isPast ? 'text-gray-500' : 'text-gray-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                        </svg>
+                                    </div>
+                                @else
+                                    <div class="w-9 h-9 rounded-xl bg-white/30 flex items-center justify-center flex-shrink-0">
+                                        <svg class="w-5 h-5 {{ $isPast ? 'text-gray-500' : 'text-gray-900' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                                        </svg>
+                                    </div>
+                                @endif
+
+                                <div>
+                                    <p class="font-black text-lg {{ $isPast ? 'text-gray-600' : 'text-gray-900' }}">{{ $meeting->title }}</p>
+                                    <p class="text-xs font-semibold {{ $isPast ? 'text-gray-400' : 'text-gray-700' }}">{{ $meeting->getMeetingTypeLabel() }}</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                @if($isPast)
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-gray-300 text-gray-700">
+                                        Session Ended
+                                    </span>
+                                @elseif($isSoon)
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black animate-pulse" style="background:#fffbeb;color:#92400e;">
+                                        Starting Soon
+                                    </span>
+                                @elseif($isToday)
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-gray-900/30 text-gray-900">
+                                        Today
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Card Body -->
+                        <div class="p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div class="space-y-1">
+                                <div class="flex items-center gap-2 text-gray-700">
+                                    <svg class="w-4 h-4 text-yellow-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                    <span class="font-bold text-sm">{{ $meeting->starts_at->format('l, F j, Y') }}</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-gray-700">
+                                    <svg class="w-4 h-4 text-yellow-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <span class="font-bold text-sm">{{ $meeting->starts_at->format('g:i A') }} (Sri Lanka Time)</span>
+                                </div>
+                                @if($meeting->description)
+                                <div class="flex items-start gap-2 text-gray-600 mt-2">
+                                    <svg class="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                    <p class="text-sm">{{ $meeting->description }}</p>
+                                </div>
+                                @endif
+                            </div>
+
+                            @if(!$isPast)
+                            <a href="{{ $meeting->meeting_link }}" target="_blank" rel="noopener noreferrer"
+                                class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-black text-sm shadow-lg transition-all bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-gray-900 hover:shadow-yellow-400/50 transform hover:scale-105 flex-shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                </svg>
+                                Join Session
+                            </a>
+                            @else
+                            <span class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-black text-sm bg-gray-200 text-gray-500 cursor-not-allowed flex-shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                </svg>
+                                Session Ended
+                            </span>
+                            @endif
+                        </div>
+                    </div>
+                    @endforeach
+
                 </div>
                 @endif
 

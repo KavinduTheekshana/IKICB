@@ -145,6 +145,7 @@ class ModuleResource extends Resource
             RelationManagers\VideosRelationManager::class,
             RelationManagers\MaterialsRelationManager::class,
             RelationManagers\QuestionsRelationManager::class,
+            RelationManagers\MeetingsRelationManager::class,
         ];
     }
 

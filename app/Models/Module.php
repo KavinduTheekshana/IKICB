@@ -71,4 +71,16 @@ class Module extends Model
     {
         return $this->hasMany(Payment::class);
     }
+
+    public function meetings()
+    {
+        return $this->hasMany(ModuleMeeting::class)->orderBy('starts_at');
+    }
+
+    public function activeMeetings()
+    {
+        return $this->hasMany(ModuleMeeting::class)
+            ->where('is_active', true)
+            ->orderBy('starts_at');
+    }
 }
