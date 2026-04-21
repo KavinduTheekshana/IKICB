@@ -21,8 +21,21 @@
 @section('content')
 
 <style>
-.pi-page-wrap { background:#f3f4f6; min-height:100vh; padding:28px 24px 56px; }
-.pi-inner     { max-width:1400px; margin:0 auto; }
+.pi-header-inner,
+.pi-nav-inner  { max-width:80rem; margin:0 auto; padding:0 16px; }
+.pi-page-wrap  { background:#f3f4f6; min-height:100vh; padding:28px 16px 56px; }
+.pi-inner      { max-width:80rem; margin:0 auto; }
+
+@@media(min-width:640px){
+    .pi-header-inner,
+    .pi-nav-inner { padding:0 24px; }
+    .pi-page-wrap { padding:28px 24px 56px; }
+}
+@@media(min-width:1024px){
+    .pi-header-inner,
+    .pi-nav-inner { padding:0 32px; }
+    .pi-page-wrap { padding:28px 32px 56px; }
+}
 
 .pi-card      { background:#fff; border:1px solid #e5e7eb; border-radius:16px; overflow:hidden; margin-bottom:16px; }
 .pi-card-head { display:flex; align-items:center; gap:10px; padding:15px 22px; border-bottom:1px solid #f3f4f6; }
@@ -46,12 +59,11 @@
 .pi-work-grid { display:grid; grid-template-columns:1fr 1fr 1fr 1fr 36px; gap:12px; align-items:end; }
 .pi-emer-grid { display:grid; grid-template-columns:1fr 1fr 1fr 36px; gap:12px; align-items:end; }
 
-@media(max-width:1024px){
+@@media(max-width:1023px){
     .pi-grid-3    { grid-template-columns:repeat(2,minmax(0,1fr)); }
     .pi-work-grid { grid-template-columns:1fr 1fr 36px; }
 }
-@media(max-width:640px){
-    .pi-page-wrap { padding:16px 16px 48px; }
+@@media(max-width:639px){
     .pi-card-body { padding:16px; }
     .pi-grid-3    { grid-template-columns:minmax(0,1fr); }
     .pi-col-2     { grid-column:span 1 !important; }
@@ -60,7 +72,7 @@
     .pi-emer-grid { grid-template-columns:minmax(0,1fr); }
     .pi-del-wrap  { justify-content:flex-end; }
 }
-@media(min-width:641px){
+@@media(min-width:640px){
     .pi-col-2    { grid-column:span 2; }
     .pi-del-wrap { align-items:flex-end; }
 }
@@ -82,8 +94,8 @@
 </style>
 
 {{-- ── TOP BAR ────────────────────────────────────────────── --}}
-<div style="background:#000;padding:28px 24px;">
-    <div style="max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+<div style="background:#000;padding:28px 0;">
+    <div class="pi-header-inner" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
         <div>
             <p style="color:#9ca3af;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin:0 0 4px;">Student Profile</p>
             <h1 style="color:#fff;font-size:26px;font-weight:900;margin:0;line-height:1.2;">Personal Information</h1>
@@ -97,8 +109,8 @@
 
 {{-- ── NAV TABS ─────────────────────────────────────────────── --}}
 <div style="background:#fff;border-bottom:1px solid #e5e7eb;position:sticky;top:80px;z-index:40;overflow-x:auto;">
-    <div style="max-width:1400px;margin:0 auto;padding:0 24px;">
-        <nav style="display:flex;min-width:max-content;">
+    <div class="pi-nav-inner">
+        <nav style="display:flex;min-width:max-content;overflow-x:auto;">
             @php
                 $navItems = [
                     ['route' => route('dashboard'),               'label' => 'Overview',       'icon' => 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6'],
@@ -249,13 +261,13 @@
                             <label class="pi-label">Institution / University</label>
                             <input type="text" name="educational_qualifications[{{ $i }}][institution]"
                                    value="{{ $edu['institution'] ?? '' }}"
-                                   placeholder="e.g. University of Colombo" class="pi-input">
+                                   placeholder="e.g. IKICB, London School of Beauty" class="pi-input">
                         </div>
                         <div>
                             <label class="pi-label">Qualification / Degree</label>
                             <input type="text" name="educational_qualifications[{{ $i }}][qualification]"
                                    value="{{ $edu['qualification'] ?? '' }}"
-                                   placeholder="e.g. BSc Computer Science" class="pi-input">
+                                   placeholder="e.g. Diploma in Cosmetology" class="pi-input">
                         </div>
                         <div>
                             <label class="pi-label">Year</label>
@@ -298,13 +310,13 @@
                             <label class="pi-label">Company</label>
                             <input type="text" name="work_experience[{{ $i }}][company]"
                                    value="{{ $work['company'] ?? '' }}"
-                                   placeholder="e.g. ABC Ltd" class="pi-input">
+                                   placeholder="e.g. Glamour Beauty Salon" class="pi-input">
                         </div>
                         <div>
                             <label class="pi-label">Position</label>
                             <input type="text" name="work_experience[{{ $i }}][position]"
                                    value="{{ $work['position'] ?? '' }}"
-                                   placeholder="e.g. Engineer" class="pi-input">
+                                   placeholder="e.g. Senior Cosmetologist" class="pi-input">
                         </div>
                         <div>
                             <label class="pi-label">Start Date</label>
@@ -329,7 +341,7 @@
                     <div>
                         <label class="pi-label">Description <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
                         <textarea name="work_experience[{{ $i }}][description]"
-                                  rows="2" placeholder="Brief description of responsibilities..."
+                                  rows="2" placeholder="e.g. Provided bridal makeup, hair styling and skin care treatments..."
                                   class="pi-input" style="resize:vertical;">{{ $work['description'] ?? '' }}</textarea>
                     </div>
                 </div>
@@ -428,9 +440,18 @@ document.getElementById('image-input').addEventListener('change', function () {
 function removeRow(btn, listId, itemClass, prefix) {
     var list  = document.getElementById(listId);
     var items = list.querySelectorAll(itemClass);
-    if (items.length <= 1) return;          // keep at least one row
+    if (items.length <= 1) return;
     btn.closest(itemClass).remove();
     reIndex(listId, itemClass, prefix);
+    syncDelBtns(listId, itemClass);
+}
+
+function syncDelBtns(listId, itemClass) {
+    var list  = document.getElementById(listId);
+    var count = list.querySelectorAll(itemClass).length;
+    list.querySelectorAll('.pi-del-btn').forEach(function(b) {
+        b.style.display = count <= 1 ? 'none' : 'flex';
+    });
 }
 
 function reIndex(listId, itemClass, prefix) {
@@ -469,8 +490,8 @@ function addRow(type) {
                 var p = 'educational_qualifications[' + idx + ']';
                 return '<div class="pi-row edu-item">' +
                            '<div class="pi-edu-grid">' +
-                               field('Institution / University', 'text', p + '[institution]', 'e.g. University of Colombo') +
-                               field('Qualification / Degree',   'text', p + '[qualification]', 'e.g. BSc Computer Science') +
+                               field('Institution / University', 'text', p + '[institution]', 'e.g. IKICB, London School of Beauty') +
+                               field('Qualification / Degree',   'text', p + '[qualification]', 'e.g. Diploma in Cosmetology') +
                                field('Year',                     'text', p + '[year]',           '2022') +
                                makeDelBtn('edu-list', '.edu-item', 'educational_qualifications') +
                            '</div>' +
@@ -485,8 +506,8 @@ function addRow(type) {
                 var p = 'work_experience[' + idx + ']';
                 return '<div class="pi-row work-item">' +
                            '<div class="pi-work-grid" style="margin-bottom:10px;">' +
-                               field('Company',    'text', p + '[company]',    'e.g. ABC Ltd') +
-                               field('Position',   'text', p + '[position]',   'e.g. Engineer') +
+                               field('Company',    'text', p + '[company]',    'e.g. Glamour Beauty Salon') +
+                               field('Position',   'text', p + '[position]',   'e.g. Senior Cosmetologist') +
                                field('Start Date', 'text', p + '[start_date]', 'Jan 2021') +
                                field('End Date',   'text', p + '[end_date]',   'Present') +
                                makeDelBtn('work-list', '.work-item', 'work_experience') +
@@ -496,7 +517,7 @@ function addRow(type) {
                                    '<span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span>' +
                                '</label>' +
                                '<textarea name="' + p + '[description]" rows="2" ' +
-                                   'placeholder="Brief description of responsibilities..." ' +
+                                   'placeholder="e.g. Provided bridal makeup, hair styling and skin care treatments..." ' +
                                    'class="pi-input" style="resize:vertical;"></textarea>' +
                            '</div>' +
                        '</div>';
@@ -526,7 +547,13 @@ function addRow(type) {
     var tmp  = document.createElement('div');
     tmp.innerHTML = c.build(idx);
     list.appendChild(tmp.firstElementChild);
+    syncDelBtns(c.listId, c.itemClass);
 }
+
+/* initialise delete-button visibility on page load */
+[['edu-list','.edu-item'],['work-list','.work-item'],['emer-list','.emer-item']].forEach(function(p){
+    syncDelBtns(p[0], p[1]);
+});
 
 /* helper: labelled input cell */
 function field(labelText, inputType, name, placeholder) {
