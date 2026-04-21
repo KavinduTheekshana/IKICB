@@ -166,8 +166,8 @@
                 </p>
                 <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl p-6 border-2 border-yellow-200">
                     <p class="text-gray-900 font-semibold">IKICB Learning Management System</p>
-                    <p class="text-gray-700">Email: <a href="mailto:support@ikicb.com" class="text-yellow-600 hover:text-yellow-700 font-bold">support@ikicb.com</a></p>
-                    <p class="text-gray-700">Website: <a href="{{ route('home') }}" class="text-yellow-600 hover:text-yellow-700 font-bold">{{ config('app.url') }}</a></p>
+                    <p class="text-gray-700">Email: <a href="mailto:ikbrideshub@gmail.com" class="text-yellow-600 hover:text-yellow-700 font-bold">ikbrideshub@gmail.com</a></p>
+                    <p class="text-gray-700">Website: <a href="https://ikicbcampus.com" class="text-yellow-600 hover:text-yellow-700 font-bold">https://ikicbcampus.com</a></p>
                 </div>
             </section>
 

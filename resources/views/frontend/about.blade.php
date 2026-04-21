@@ -75,7 +75,11 @@
         </div>
     </section>
 
-    <!-- What We Offer Section -->
+    @include('frontend.about.offer')
+    @include('frontend.about.stats')
+    @include('frontend.about.vision')
+
+<!--
     <section class="py-20 bg-gradient-to-br from-yellow-50 via-gray-50 to-yellow-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
@@ -91,7 +95,6 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Offer 1 -->
                 <div
                     class="bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 card-hover border border-gray-100">
                     <div class="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mb-6">
@@ -107,7 +110,6 @@
                     </p>
                 </div>
 
-                <!-- Offer 2 -->
                 <div
                     class="bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 card-hover border border-gray-100">
                     <div class="w-16 h-16 rounded-2xl gradient-secondary flex items-center justify-center mb-6">
@@ -122,7 +124,6 @@
                     </p>
                 </div>
 
-                <!-- Offer 3 -->
                 <div
                     class="bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 card-hover border border-gray-100">
                     <div class="w-16 h-16 rounded-2xl gradient-success flex items-center justify-center mb-6">
@@ -138,7 +139,6 @@
                     </p>
                 </div>
 
-                <!-- Offer 4 -->
                 <div
                     class="bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 card-hover border border-gray-100">
                     <div
@@ -155,7 +155,6 @@
                     </p>
                 </div>
 
-                <!-- Offer 5 -->
                 <div
                     class="bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 card-hover border border-gray-100">
                     <div
@@ -172,7 +171,6 @@
                     </p>
                 </div>
 
-                <!-- Offer 6 -->
                 <div
                     class="bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 card-hover border border-gray-100">
                     <div
@@ -191,8 +189,11 @@
             </div>
         </div>
     </section>
+-->
 
-    <!-- Stats Section -->
+
+
+    <!-- 
     <section class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -215,6 +216,8 @@
             </div>
         </div>
     </section>
+    Stats Section -->
+
 
     <!-- Why Choose Us Section -->
     <section class="py-20 bg-gradient-to-br from-gray-900 via-black to-gray-900 relative overflow-hidden">
@@ -320,7 +323,10 @@
         </div>
     </section>
 
-    <!-- CTA Section -->
+    @include('frontend.about.cta')
+
+
+    <!-- 
     <section class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div
@@ -344,4 +350,5 @@
             </div>
         </div>
     </section>
+    CTA Section -->
 @endsection

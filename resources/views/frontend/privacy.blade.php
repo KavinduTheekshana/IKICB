@@ -136,7 +136,7 @@
                     <li>Export your data in a portable format</li>
                 </ul>
                 <p class="text-gray-700 leading-relaxed mt-4">
-                    To exercise these rights, please contact us at <a href="mailto:privacy@ikicb.com" class="text-yellow-600 hover:text-yellow-700 font-bold">privacy@ikicb.com</a>
+                    To exercise these rights, please contact us at <a href="mailto:ikbrideshub@gmail.com" class="text-yellow-600 hover:text-yellow-700 font-bold">ikbrideshub@gmail.com</a>
                 </p>
             </section>
 
@@ -198,8 +198,8 @@
                 </p>
                 <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl p-6 border-2 border-yellow-200">
                     <p class="text-gray-900 font-semibold">IKICB Learning Management System</p>
-                    <p class="text-gray-700">Email: <a href="mailto:privacy@ikicb.com" class="text-yellow-600 hover:text-yellow-700 font-bold">privacy@ikicb.com</a></p>
-                    <p class="text-gray-700">Website: <a href="{{ route('home') }}" class="text-yellow-600 hover:text-yellow-700 font-bold">{{ config('app.url') }}</a></p>
+                    <p class="text-gray-700">Email: <a href="mailto:ikbrideshub@gmail.com" class="text-yellow-600 hover:text-yellow-700 font-bold">ikbrideshub@gmail.com</a></p>
+                    <p class="text-gray-700">Website: <a href="https://ikicbcampus.com" class="text-yellow-600 hover:text-yellow-700 font-bold">https://ikicbcampus.com</a></p>
                 </div>
             </section>
 
