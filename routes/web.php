@@ -58,10 +58,11 @@ Route::prefix('courses')->name('courses.')->group(function () {
     Route::get('/{course}', [CourseController::class, 'show'])->name('show');
     Route::get('/module/{module}', [CourseController::class, 'module'])->name('module');
 
-    // Quiz and completion (authenticated)
+    // Quiz, completion and meeting attendance (authenticated)
     Route::middleware('auth')->group(function () {
         Route::post('/module/{module}/quiz', [CourseController::class, 'submitQuiz'])->name('module.quiz');
         Route::post('/module/{module}/complete', [CourseController::class, 'completeModule'])->name('module.complete');
+        Route::get('/meeting/{meeting}/join', [CourseController::class, 'joinMeeting'])->name('meeting.join');
     });
 });
 

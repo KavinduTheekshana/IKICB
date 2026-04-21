@@ -69,6 +69,7 @@
                     $hasQuiz      = $mcqQuestions->count() > 0;
                     $hasMeetings  = $module->activeMeetings->count() > 0;
                     $defaultTab   = $hasVideos ? 'videos' : ($hasMaterials ? 'materials' : ($hasQuiz ? 'quiz' : ($hasMeetings ? 'meetings' : 'videos')));
+                    $attendedMeetingIds = $attendedMeetingIds ?? [];
                     // Auto-open quiz tab if quiz results just came back
                     if (session('quiz_results')) { $defaultTab = 'quiz'; }
                 @endphp
@@ -119,6 +120,15 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                             </svg>
                             Live Sessions
+                        </button>
+
+                        <button onclick="switchModuleTab('attendance')" id="tab-btn-attendance"
+                            class="module-tab-btn flex items-center gap-2 px-5 py-3.5 font-bold text-sm whitespace-nowrap border-b-4 transition-all
+                                {{ $defaultTab === 'attendance' ? 'border-yellow-500 text-yellow-600 bg-yellow-50' : 'border-transparent text-gray-500 hover:text-yellow-600 hover:bg-gray-50' }}">
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            My Attendance
                         </button>
                         @endif
                     </nav>
@@ -466,6 +476,7 @@
                         $isPast     = $meeting->starts_at->isPast();
                         $isToday    = $meeting->starts_at->isToday();
                         $isSoon     = !$isPast && $meeting->starts_at->diffInMinutes(now()) <= 30 && $meeting->starts_at->isFuture();
+                        $attended   = in_array($meeting->id, $attendedMeetingIds);
                     @endphp
                     <div class="bg-white rounded-3xl shadow-xl border-2 {{ $isPast ? 'border-gray-200' : 'border-yellow-200' }} overflow-hidden">
                         <!-- Card Header -->
@@ -500,19 +511,27 @@
                             </div>
 
                             <div class="flex items-center gap-2">
-                                @if($isPast)
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-gray-300 text-gray-700">
-                                        Session Ended
-                                    </span>
-                                @elseif($isSoon)
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black animate-pulse" style="background:#fffbeb;color:#92400e;">
-                                        Starting Soon
-                                    </span>
-                                @elseif($isToday)
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-gray-900/30 text-gray-900">
-                                        Today
-                                    </span>
-                                @endif
+                                <div class="flex items-center gap-2">
+                                    @if($attended)
+                                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black" style="background:#fffbeb;color:#92400e;">
+                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                            Present
+                                        </span>
+                                    @endif
+                                    @if($isPast && !$attended)
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-gray-300 text-gray-700">
+                                            Session Ended
+                                        </span>
+                                    @elseif($isSoon)
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black animate-pulse" style="background:#fffbeb;color:#92400e;">
+                                            Starting Soon
+                                        </span>
+                                    @elseif($isToday && !$isPast)
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-gray-900/30 text-gray-900">
+                                            Today
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
                         </div>
 
@@ -541,15 +560,25 @@
                                 @endif
                             </div>
 
-                            @if(!$isPast)
-                            <a href="{{ $meeting->meeting_link }}" target="_blank" rel="noopener noreferrer"
+                            @if($meeting->class_type === 'online' && !$isPast && $meeting->meeting_link)
+                            <a href="{{ route('courses.meeting.join', $meeting) }}"
                                 class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-black text-sm shadow-lg transition-all bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-gray-900 hover:shadow-yellow-400/50 transform hover:scale-105 flex-shrink-0">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                                 </svg>
                                 Join Session
                             </a>
-                            @else
+                            @elseif($meeting->class_type === 'physical' && !$isPast)
+                            <div class="flex-shrink-0 text-right">
+                                <span class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-black bg-yellow-100 text-yellow-800 border-2 border-yellow-300">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    </svg>
+                                    Physical Class
+                                </span>
+                            </div>
+                            @elseif($isPast)
                             <span class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-black text-sm bg-gray-200 text-gray-500 cursor-not-allowed flex-shrink-0">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
@@ -560,6 +589,166 @@
                         </div>
                     </div>
                     @endforeach
+
+                </div>
+                @endif
+
+                <!-- ── TAB: My Attendance ─────────────────────────── -->
+                @if($hasMeetings)
+                <div id="tab-content-attendance" class="module-tab-content space-y-4 hidden">
+
+                    @php
+                        $allMeetings      = $module->activeMeetings;
+                        $onlineSessions   = $allMeetings->where('class_type', 'online');
+                        $physicalSessions = $allMeetings->where('class_type', 'physical');
+
+                        $onlineTotal      = $onlineSessions->count();
+                        $physicalTotal    = $physicalSessions->count();
+                        $totalSessions    = $onlineTotal + $physicalTotal;
+
+                        $onlineAttended   = $onlineSessions->filter(fn($m) => in_array($m->id, $attendedMeetingIds))->count();
+                        $physicalAttended = $physicalSessions->filter(fn($m) => in_array($m->id, $attendedMeetingIds))->count();
+                        $totalAttended    = $onlineAttended + $physicalAttended;
+
+                        $attendancePct    = $totalSessions > 0 ? round(($totalAttended / $totalSessions) * 100) : 0;
+                        $onlinePct        = $onlineTotal   > 0 ? round(($onlineAttended   / $onlineTotal)   * 100) : 0;
+                        $physicalPct      = $physicalTotal > 0 ? round(($physicalAttended / $physicalTotal) * 100) : 0;
+                    @endphp
+
+                    <!-- Summary card -->
+                    <div class="bg-white rounded-3xl shadow-xl border-2 border-yellow-200 p-6">
+                        <div class="mb-4">
+                            <h3 class="text-xl font-black text-gray-900">Attendance Summary</h3>
+                            <p class="text-sm text-gray-500 mt-1">{{ $module->title }}</p>
+                        </div>
+
+                        <!-- Stat boxes -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+
+                            <!-- Online -->
+                            @if($onlineTotal > 0)
+                            <div class="rounded-2xl border-2 border-blue-200 bg-blue-50 p-4 flex flex-col gap-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                    </svg>
+                                    <span class="text-xs font-black text-blue-700 uppercase tracking-wide">Online Sessions</span>
+                                </div>
+                                <p class="text-3xl font-black text-blue-700">{{ $onlineAttended }} <span class="text-base font-bold text-blue-400">/ {{ $onlineTotal }}</span></p>
+                                <p class="text-xs font-semibold text-blue-500">{{ $onlinePct }}% attendance rate</p>
+                                <div class="mt-2 h-2 bg-blue-200 rounded-full overflow-hidden">
+                                    <div class="h-full bg-blue-500 rounded-full" style="width:{{ $onlinePct }}%"></div>
+                                </div>
+                            </div>
+                            @endif
+
+                            <!-- Physical -->
+                            @if($physicalTotal > 0)
+                            <div class="rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 flex flex-col gap-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    </svg>
+                                    <span class="text-xs font-black text-amber-700 uppercase tracking-wide">Physical Classes</span>
+                                </div>
+                                <p class="text-3xl font-black text-amber-700">{{ $physicalAttended }} <span class="text-base font-bold text-amber-400">/ {{ $physicalTotal }}</span></p>
+                                <p class="text-xs font-semibold text-amber-600">{{ $physicalPct }}% attendance rate</p>
+                                <div class="mt-2 h-2 bg-amber-200 rounded-full overflow-hidden">
+                                    <div class="h-full bg-amber-500 rounded-full" style="width:{{ $physicalPct }}%"></div>
+                                </div>
+                            </div>
+                            @endif
+
+                            <!-- Total -->
+                            <div class="rounded-2xl border-2 border-yellow-300 bg-gradient-to-br from-yellow-50 to-yellow-100 p-4 flex flex-col gap-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <span class="text-xs font-black text-yellow-700 uppercase tracking-wide">Total</span>
+                                </div>
+                                <p class="text-3xl font-black text-yellow-700">{{ $totalAttended }} <span class="text-base font-bold text-yellow-400">/ {{ $totalSessions }}</span></p>
+                                <p class="text-xs font-semibold {{ $attendancePct >= 75 ? 'text-green-600' : ($attendancePct >= 50 ? 'text-yellow-600' : 'text-red-500') }}">
+                                    {{ $attendancePct }}% overall rate
+                                </p>
+                                <div class="mt-2 h-2 bg-yellow-200 rounded-full overflow-hidden">
+                                    <div class="h-full rounded-full {{ $attendancePct >= 75 ? 'bg-green-500' : ($attendancePct >= 50 ? 'bg-yellow-500' : 'bg-red-400') }}" style="width:{{ $attendancePct }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if($onlineTotal > 0 && $physicalTotal > 0)
+                        <p class="text-xs text-gray-400 font-semibold text-center">
+                            Online {{ $onlineAttended }}/{{ $onlineTotal }} &nbsp;+&nbsp; Physical {{ $physicalAttended }}/{{ $physicalTotal }} &nbsp;=&nbsp; Total {{ $totalAttended }}/{{ $totalSessions }}
+                        </p>
+                        @endif
+                    </div>
+
+                    <!-- Session-by-session list -->
+                    <div class="bg-white rounded-3xl shadow-xl border-2 border-gray-200 overflow-hidden">
+                        <div class="px-6 py-4 bg-gradient-to-r from-yellow-500 to-yellow-600 flex items-center justify-between">
+                            <h3 class="font-black text-gray-900">All Sessions</h3>
+                            <div class="flex items-center gap-2 text-xs font-bold text-gray-700">
+                                <span class="px-2 py-1 rounded-lg bg-blue-100 text-blue-700">Online</span>
+                                <span class="px-2 py-1 rounded-lg bg-amber-100 text-amber-700">Physical</span>
+                            </div>
+                        </div>
+                        <div class="divide-y divide-gray-100">
+                            @foreach($allMeetings as $meeting)
+                            @php
+                                $wasAttended = in_array($meeting->id, $attendedMeetingIds);
+                                $sessionPast = $meeting->starts_at->isPast();
+                                $isPhysical  = $meeting->class_type === 'physical';
+                            @endphp
+                            <div class="flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition-colors gap-3">
+                                <div class="flex items-center gap-4 min-w-0">
+                                    <!-- Status icon -->
+                                    <div class="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0
+                                        {{ $wasAttended ? 'bg-green-100' : ($sessionPast ? 'bg-red-100' : 'bg-yellow-100') }}">
+                                        @if($wasAttended)
+                                            <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                            </svg>
+                                        @elseif($sessionPast)
+                                            <svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                        @endif
+                                    </div>
+
+                                    <div class="min-w-0">
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <p class="font-bold text-gray-900 text-sm">{{ $meeting->title }}</p>
+                                            <!-- Type pill -->
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-black
+                                                {{ $isPhysical ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700' }}">
+                                                {{ $isPhysical ? 'Physical' : 'Online' }}
+                                            </span>
+                                        </div>
+                                        <p class="text-xs text-gray-500 mt-0.5 truncate">
+                                            {{ $meeting->starts_at->format('M d, Y  g:i A') }}
+                                            @if($isPhysical && $meeting->location)
+                                                &bull; {{ $meeting->location }}
+                                            @elseif(!$isPhysical)
+                                                &bull; {{ $meeting->getMeetingTypeLabel() }}
+                                            @endif
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black flex-shrink-0
+                                    {{ $wasAttended ? 'bg-green-100 text-green-800' : ($sessionPast ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-800') }}">
+                                    {{ $wasAttended ? 'Present' : ($sessionPast ? 'Absent' : 'Upcoming') }}
+                                </span>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
 
                 </div>
                 @endif

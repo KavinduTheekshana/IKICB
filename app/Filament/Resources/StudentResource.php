@@ -296,6 +296,7 @@ class StudentResource extends Resource
     {
         return [
             \App\Filament\Resources\StudentResource\RelationManagers\QuizAttemptsRelationManager::class,
+            \App\Filament\Resources\StudentResource\RelationManagers\AttendanceRelationManager::class,
         ];
     }
 

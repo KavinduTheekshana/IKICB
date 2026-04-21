@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
+use App\Models\MeetingAttendance;
 use App\Models\Module;
 use App\Models\ModuleCompletion;
+use App\Models\ModuleMeeting;
 use App\Models\QuizAttempt;
 use App\Services\BunnyVideoService;
 use Illuminate\Http\Request;
@@ -128,9 +130,15 @@ class CourseController extends Controller
             $legacySignedUrl = $module->video_url . (str_contains($module->video_url, '?') ? '&' : '?') . 'hideDownload=true&hideShare=true';
         }
 
+        // Attendance: IDs of meetings the student has attended in this module
+        $attendedMeetingIds = MeetingAttendance::where('user_id', auth()->id())
+            ->whereHas('meeting', fn ($q) => $q->where('module_id', $module->id))
+            ->pluck('module_meeting_id')
+            ->toArray();
+
         return view('frontend.courses.module', compact(
             'module', 'mcqQuestions', 'quizAttempts', 'hasAttempted', 'isCompleted',
-            'signedVideoUrls', 'legacySignedUrl'
+            'signedVideoUrls', 'legacySignedUrl', 'attendedMeetingIds'
         ));
     }
 
@@ -262,5 +270,34 @@ class CourseController extends Controller
             return redirect()->route('courses.module', $module)
                 ->with('error', 'An error occurred while marking the module as completed. Please try again.');
         }
+    }
+
+    public function joinMeeting(ModuleMeeting $meeting)
+    {
+        $module = $meeting->module;
+
+        if (!$module || !$module->course) {
+            abort(404);
+        }
+
+        $hasAccess = $module->is_free || auth()->user()->moduleUnlocks()
+            ->where('module_id', $module->id)
+            ->exists();
+
+        if (!$hasAccess) {
+            abort(403, 'You do not have access to this module.');
+        }
+
+        // Auto-record attendance for online sessions
+        if ($meeting->class_type === 'online' && $meeting->meeting_link) {
+            MeetingAttendance::firstOrCreate(
+                ['module_meeting_id' => $meeting->id, 'user_id' => auth()->id()],
+                ['joined_at' => now(), 'marked_by' => null]
+            );
+
+            return redirect()->away($meeting->meeting_link);
+        }
+
+        return redirect()->route('courses.module', $module);
     }
 }

@@ -10,6 +10,8 @@ class ModuleMeeting extends Model
         'module_id',
         'title',
         'meeting_type',
+        'class_type',
+        'location',
         'meeting_link',
         'starts_at',
         'description',
@@ -26,6 +28,21 @@ class ModuleMeeting extends Model
         return $this->belongsTo(Module::class);
     }
 
+    public function attendances()
+    {
+        return $this->hasMany(MeetingAttendance::class);
+    }
+
+    public function isOnline(): bool
+    {
+        return $this->class_type === 'online';
+    }
+
+    public function isPhysical(): bool
+    {
+        return $this->class_type === 'physical';
+    }
+
     public function getMeetingTypeLabel(): string
     {
         return match($this->meeting_type) {
@@ -33,5 +50,10 @@ class ModuleMeeting extends Model
             'zoom'        => 'Zoom',
             default       => 'Meeting',
         };
+    }
+
+    public function getClassTypeLabel(): string
+    {
+        return $this->class_type === 'physical' ? 'Physical Class' : 'Online Session';
     }
 }
