@@ -432,6 +432,10 @@
                         class="block px-4 py-3 rounded-xl text-base font-bold {{ request()->routeIs('contact') ? 'text-white gradient-primary' : 'text-gray-700 hover:bg-gray-100' }} transition-all">
                         Contact
                     </a>
+                    <a href="{{ route('gallery') }}"
+                        class="block px-4 py-3 rounded-xl text-base font-bold {{ request()->routeIs('gallery') ? 'text-white gradient-primary' : 'text-gray-700 hover:bg-gray-100' }} transition-all">
+                        Gallery
+                    </a>
                     <div class="pt-4 space-y-2">
                         @auth
                             <a href="{{ route('dashboard') }}"
@@ -672,6 +676,15 @@
                                         d="M9 5l7 7-7 7"></path>
                                 </svg>
                                 <span>Contact Us</span>
+                            </a></li>
+                        <li><a href="{{ route('gallery') }}"
+                                class="text-gray-300 hover:text-white transition-colors flex items-center space-x-2 group">
+                                <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7"></path>
+                                </svg>
+                                <span>Gallery</span>
                             </a></li>
                         <li><a href="{{ route('register') }}"
                                 class="text-gray-300 hover:text-white transition-colors flex items-center space-x-2 group">
