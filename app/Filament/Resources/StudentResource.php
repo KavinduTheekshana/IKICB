@@ -44,7 +44,8 @@ class StudentResource extends Resource
                         Forms\Components\TextInput::make('email')
                             ->email()
                             ->required()
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->unique(ignoreRecord: true),
                         Forms\Components\TextInput::make('password')
                             ->password()
                             ->revealable()
