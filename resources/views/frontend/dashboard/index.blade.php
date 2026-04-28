@@ -280,7 +280,7 @@
                 </svg>
                 Personal Info
                 @if(!auth()->user()->studentDetail?->full_name)
-                    <span class="ml-1.5 px-1.5 py-0.5 bg-yellow-500 text-gray-900 text-xs font-black rounded-full">!</span>
+                    <span class="ml-1.5 px-1.5 py-0.5   text-xs font-black rounded-full">!</span>
                 @endif
             </a>
         </nav>
