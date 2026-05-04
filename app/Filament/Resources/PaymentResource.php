@@ -3,11 +3,13 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PaymentResource\Pages;
+use App\Models\Branch;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Module;
 use App\Models\ModuleUnlock;
 use App\Models\Payment;
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -340,6 +342,42 @@ class PaymentResource extends Resource
                         'other' => 'Other',
                     ])
                     ->indicator('Method'),
+                Tables\Filters\SelectFilter::make('branch_id')
+                    ->label('Branch')
+                    ->options(fn () => Branch::active()->pluck('name', 'id')->toArray())
+                    ->query(fn (Builder $query, array $data) =>
+                        $data['value']
+                            ? $query->whereHas('user', fn ($q) => $q->where('branch_id', $data['value']))
+                            : $query
+                    )
+                    ->indicator('Branch'),
+                Tables\Filters\Filter::make('created_at')
+                    ->label('Date Range')
+                    ->form([
+                        Forms\Components\DatePicker::make('from')
+                            ->label('From')
+                            ->native(false)
+                            ->displayFormat('M d, Y'),
+                        Forms\Components\DatePicker::make('until')
+                            ->label('Until')
+                            ->native(false)
+                            ->displayFormat('M d, Y'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when($data['from'] ?? null, fn ($q, $date) => $q->whereDate('created_at', '>=', $date))
+                            ->when($data['until'] ?? null, fn ($q, $date) => $q->whereDate('created_at', '<=', $date));
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if ($data['from'] ?? null) {
+                            $indicators['from'] = 'From ' . Carbon::parse($data['from'])->format('M d, Y');
+                        }
+                        if ($data['until'] ?? null) {
+                            $indicators['until'] = 'Until ' . Carbon::parse($data['until'])->format('M d, Y');
+                        }
+                        return $indicators;
+                    }),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
