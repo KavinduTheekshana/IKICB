@@ -255,12 +255,32 @@ class StudentResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\Filter::make('has_enrollments')
+                Tables\Filters\SelectFilter::make('branch_id')
+                    ->label('Branch')
+                    ->options(Branch::pluck('name', 'id'))
+                    ->placeholder('All Branches')
+                    ->searchable()
+                    ->preload(),
+                Tables\Filters\TernaryFilter::make('has_enrollments')
                     ->label('Has Enrollments')
-                    ->query(fn (Builder $query): Builder => $query->has('enrollments')),
-                Tables\Filters\Filter::make('has_completions')
-                    ->label('Has Completed Modules')
-                    ->query(fn (Builder $query): Builder => $query->has('moduleCompletions')),
+                    ->placeholder('All Students')
+                    ->trueLabel('With Enrollments')
+                    ->falseLabel('No Enrollments')
+                    ->queries(
+                        true: fn (Builder $query) => $query->has('enrollments'),
+                        false: fn (Builder $query) => $query->doesntHave('enrollments'),
+                        blank: fn (Builder $query) => $query,
+                    ),
+                Tables\Filters\TernaryFilter::make('has_completions')
+                    ->label('Module Completions')
+                    ->placeholder('All Students')
+                    ->trueLabel('Has Completions')
+                    ->falseLabel('No Completions')
+                    ->queries(
+                        true: fn (Builder $query) => $query->has('moduleCompletions'),
+                        false: fn (Builder $query) => $query->doesntHave('moduleCompletions'),
+                        blank: fn (Builder $query) => $query,
+                    ),
                 Tables\Filters\SelectFilter::make('enrollment_count')
                     ->label('Enrollment Count')
                     ->options([
@@ -275,6 +295,8 @@ class StudentResource extends Resource
                         return $query;
                     }),
             ])
+            ->filtersLayout(Tables\Enums\FiltersLayout::AboveContent)
+            ->filtersFormColumns(4)
             ->actions([
                 Tables\Actions\ViewAction::make()
                     ->label('View'),
