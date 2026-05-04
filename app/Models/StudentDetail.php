@@ -17,6 +17,7 @@ class StudentDetail extends Model
         'id_number',
         'past_school',
         'phone',
+        'permanent_address',
         'educational_qualifications',
         'work_experience',
         'emergency_contacts',

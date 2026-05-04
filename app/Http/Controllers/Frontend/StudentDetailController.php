@@ -27,24 +27,25 @@ class StudentDetailController extends Controller
             'id_number'          => 'required|string|max:50',
             'past_school'        => 'nullable|string|max:255',
             'phone'              => 'required|string|max:20',
+            'permanent_address'  => 'nullable|string|max:1000',
             'image'              => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
 
-            'educational_qualifications'                => 'nullable|array',
-            'educational_qualifications.*.institution'  => 'required_with:educational_qualifications|string|max:255',
-            'educational_qualifications.*.qualification' => 'required_with:educational_qualifications|string|max:255',
+            'educational_qualifications'                 => 'nullable|array',
+            'educational_qualifications.*.institution'  => 'nullable|string|max:255',
+            'educational_qualifications.*.qualification' => 'nullable|string|max:255',
             'educational_qualifications.*.year'         => 'nullable|string|max:10',
 
-            'work_experience'                  => 'nullable|array',
-            'work_experience.*.company'        => 'required_with:work_experience|string|max:255',
-            'work_experience.*.position'       => 'required_with:work_experience|string|max:255',
-            'work_experience.*.start_date'     => 'nullable|string|max:20',
-            'work_experience.*.end_date'       => 'nullable|string|max:20',
-            'work_experience.*.description'    => 'nullable|string|max:500',
+            'work_experience'               => 'nullable|array',
+            'work_experience.*.company'     => 'nullable|string|max:255',
+            'work_experience.*.position'    => 'nullable|string|max:255',
+            'work_experience.*.start_date'  => 'nullable|string|max:20',
+            'work_experience.*.end_date'    => 'nullable|string|max:20',
+            'work_experience.*.description' => 'nullable|string|max:500',
 
-            'emergency_contacts'                  => 'nullable|array',
-            'emergency_contacts.*.name'           => 'required_with:emergency_contacts|string|max:255',
-            'emergency_contacts.*.phone'          => 'required_with:emergency_contacts|string|max:20',
-            'emergency_contacts.*.relationship'   => 'required_with:emergency_contacts|string|max:100',
+            'emergency_contacts'                => 'nullable|array',
+            'emergency_contacts.*.name'         => 'nullable|string|max:255',
+            'emergency_contacts.*.phone'        => 'nullable|string|max:20',
+            'emergency_contacts.*.relationship' => 'nullable|string|max:100',
         ]);
 
         $user      = auth()->user();

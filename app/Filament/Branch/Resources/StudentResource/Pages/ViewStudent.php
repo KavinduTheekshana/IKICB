@@ -98,6 +98,10 @@ class ViewStudent extends ViewRecord
                         Infolists\Components\TextEntry::make('studentDetail.phone')
                             ->label('Phone')
                             ->default('Not provided'),
+                        Infolists\Components\TextEntry::make('studentDetail.permanent_address')
+                            ->label('Permanent Address')
+                            ->default('Not provided')
+                            ->columnSpanFull(),
                     ])
                     ->columns(4)
                     ->collapsible(),

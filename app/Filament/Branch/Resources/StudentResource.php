@@ -108,6 +108,10 @@ class StudentResource extends Resource
                             ->label('Phone')
                             ->tel()
                             ->maxLength(20),
+                        Forms\Components\Textarea::make('permanent_address')
+                            ->label('Permanent Address')
+                            ->rows(3)
+                            ->columnSpanFull(),
                     ])
                     ->columns(2),
 

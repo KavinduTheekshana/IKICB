@@ -240,6 +240,11 @@
                     <input type="text" name="phone" value="{{ old('phone', $detail?->phone) }}" placeholder="e.g. 0771234567" class="pi-input">
                     @error('phone')<p style="color:#ef4444;font-size:11px;margin:4px 0 0;">{{ $message }}</p>@enderror
                 </div>
+                <div style="grid-column: 1 / -1;">
+                    <label class="pi-label">Permanent Address</label>
+                    <textarea name="permanent_address" rows="3" placeholder="e.g. No. 25, Main Street, Colombo 05" class="pi-input" style="resize:vertical;">{{ old('permanent_address', $detail?->permanent_address) }}</textarea>
+                    @error('permanent_address')<p style="color:#ef4444;font-size:11px;margin:4px 0 0;">{{ $message }}</p>@enderror
+                </div>
             </div>
         </div>
     </div>
