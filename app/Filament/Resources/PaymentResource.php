@@ -432,9 +432,78 @@ class PaymentResource extends Resource
                     ->url(fn ($record) => asset('storage/' . $record->receipt_path))
                     ->openUrlInNewTab(),
             ])
+            ->headerActions([
+                Tables\Actions\Action::make('export_all_csv')
+                    ->label('Export CSV')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('success')
+                    ->action(function () {
+                        $payments = Payment::with(['user', 'course', 'module'])
+                            ->where('status', '!=', 'initiated')
+                            ->orderByDesc('created_at')
+                            ->get();
+
+                        $filename = 'payments_' . now()->format('Y-m-d_H-i-s') . '.csv';
+
+                        return response()->streamDownload(function () use ($payments) {
+                            $file = fopen('php://output', 'w');
+                            fputcsv($file, [
+                                'Student Name', 'Course', 'Module', 'Amount (LKR)',
+                                'Payment Method', 'Payment Gateway', 'Status',
+                                'Transaction ID', 'Reference Number', 'Date',
+                            ]);
+                            foreach ($payments as $payment) {
+                                fputcsv($file, [
+                                    $payment->user?->name ?? '-',
+                                    $payment->course?->title ?? '-',
+                                    $payment->module?->title ?? '-',
+                                    $payment->amount,
+                                    $payment->payment_method,
+                                    $payment->payment_gateway ?? '-',
+                                    $payment->status,
+                                    $payment->transaction_id ?? '-',
+                                    $payment->reference_number ?? '-',
+                                    $payment->created_at?->format('Y-m-d H:i:s'),
+                                ]);
+                            }
+                            fclose($file);
+                        }, $filename, ['Content-Type' => 'text/csv']);
+                    }),
+            ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('export_csv')
+                        ->label('Export to CSV')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->color('success')
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                            $filename = 'payments_selected_' . now()->format('Y-m-d_H-i-s') . '.csv';
+
+                            return response()->streamDownload(function () use ($records) {
+                                $file = fopen('php://output', 'w');
+                                fputcsv($file, [
+                                    'Student Name', 'Course', 'Module', 'Amount (LKR)',
+                                    'Payment Method', 'Payment Gateway', 'Status',
+                                    'Transaction ID', 'Reference Number', 'Date',
+                                ]);
+                                foreach ($records as $payment) {
+                                    fputcsv($file, [
+                                        $payment->user?->name ?? '-',
+                                        $payment->course?->title ?? '-',
+                                        $payment->module?->title ?? '-',
+                                        $payment->amount,
+                                        $payment->payment_method,
+                                        $payment->payment_gateway ?? '-',
+                                        $payment->status,
+                                        $payment->transaction_id ?? '-',
+                                        $payment->reference_number ?? '-',
+                                        $payment->created_at?->format('Y-m-d H:i:s'),
+                                    ]);
+                                }
+                                fclose($file);
+                            }, $filename, ['Content-Type' => 'text/csv']);
+                        }),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');
