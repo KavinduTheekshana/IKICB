@@ -15,7 +15,7 @@
     if (empty($workData)) $workData = $workDefault;
     if (empty($emerData)) $emerData = $emerDefault;
 
-    $existingImage = $detail?->image ? Storage::url($detail->image) : '';
+    $existingImage = $detail?->image ? asset('storage/' . $detail->image) : '';
 @endphp
 
 @section('content')
@@ -190,6 +190,9 @@
                         <input type="file" id="image-input" name="image" accept="image/jpeg,image/png,image/webp" style="display:none;">
                     </label>
                     <p style="color:#9ca3af;font-size:11px;margin:5px 0 0;">JPG, PNG, WEBP — max 2 MB</p>
+                    <p style="color:#6b7280;font-size:11px;margin:6px 0 0;line-height:1.5;border-left:3px solid #d1d5db;padding-left:8px;">
+                        <strong style="color:#374151;">Formal application photo required:</strong> Face must be clearly visible, looking straight at the camera, with a plain or light background. Selfies, casual, or group photos are <strong style="color:#ef4444;">not accepted</strong>.
+                    </p>
                     @error('image')<p style="color:#ef4444;font-size:11px;margin:4px 0 0;">{{ $message }}</p>@enderror
                 </div>
             </div>
