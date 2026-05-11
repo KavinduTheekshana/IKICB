@@ -12,6 +12,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 class StudentResource extends Resource
 {
@@ -311,12 +312,75 @@ class StudentResource extends Resource
                     ->color('info')
                     ->url(fn (User $record): string => StudentResource::getUrl('progress', ['record' => $record])),
             ])
+            ->headerActions([
+                Tables\Actions\Action::make('export_csv')
+                    ->label('Export CSV')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('success')
+                    ->action(function () {
+                        $students = static::getEloquentQuery()
+                            ->with(['studentDetail', 'branch', 'course'])
+                            ->get();
+
+                        return static::streamCsv($students);
+                    }),
+            ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('export_selected_csv')
+                        ->label('Export Selected CSV')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->color('success')
+                        ->action(fn (Collection $records) => static::streamCsv($records->load(['studentDetail', 'branch', 'course']))),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');
+    }
+
+    protected static function streamCsv(Collection $students): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $filename = 'students_' . now()->format('Y-m-d_His') . '.csv';
+
+        $headers = [
+            'ID', 'Name', 'Email', 'Branch', 'Registered Course',
+            'Name with Initials', 'Full Name', 'Date of Birth', 'Gender',
+            'NIC / ID Number', 'Past School', 'Phone', 'Permanent Address',
+            'Courses Enrolled', 'Total Payments', 'Completed Payments',
+            'Modules Completed', 'Quiz Attempts', 'Registered At',
+        ];
+
+        return response()->streamDownload(function () use ($students, $headers) {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, $headers);
+
+            foreach ($students as $student) {
+                $detail = $student->studentDetail;
+                fputcsv($handle, [
+                    $student->id,
+                    $student->name,
+                    $student->email,
+                    $student->branch?->name ?? '',
+                    $student->course?->title ?? '',
+                    $detail?->name_with_initials ?? '',
+                    $detail?->full_name ?? '',
+                    $detail?->date_of_birth?->format('Y-m-d') ?? '',
+                    $detail?->gender ?? '',
+                    $detail?->id_number ?? '',
+                    $detail?->past_school ?? '',
+                    $detail?->phone ?? '',
+                    $detail?->permanent_address ?? '',
+                    $student->enrollments()->count(),
+                    $student->payments()->count(),
+                    $student->payments()->where('status', 'completed')->count(),
+                    $student->moduleCompletions()->count(),
+                    $student->quizAttempts()->count(),
+                    $student->created_at?->format('Y-m-d H:i:s') ?? '',
+                ]);
+            }
+
+            fclose($handle);
+        }, $filename, ['Content-Type' => 'text/csv']);
     }
 
     public static function getRelations(): array
